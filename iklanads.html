@@ -132,7 +132,7 @@
 <body>
     <div class="container">
         <h1>Bunga Iklan</h1>
-        <div class="developer" onclick="window.location.href='https://t.me/'">Developer by Bunga Iklan</div>
+        <div class="developer" onclick="window.location.href='https://t.me/+pRqQYA0oMnhiNzRI'">Group Bunga Iklan</div>
         
         <!-- Display User Info -->
         <div class="user-info">
@@ -180,7 +180,7 @@
         let autoAdInterval;
 
         // Simulate user name from Telegram User ID (replace with actual logic to get user info)
-        const telegramUserName = "@exampleUser"; // Replace this line with the actual logic to fetch username
+        const telegramUserName = "@User"; // Replace this line with the actual logic to fetch username
         document.getElementById("user-name").textContent = telegramUserName;
 
         // Check if user data is saved in localStorage
@@ -198,7 +198,7 @@
                     // When the ad is shown, we add points
                     watchedAdsCount++;
                     document.getElementById('watched-ads').textContent = watchedAdsCount;
-                    earnedPoints += 1000; // Add 0.50 points per ad watched
+                    earnedPoints += 20; // Add 0.50 points per ad watched
                     document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
                     localStorage.setItem('watchedAdsCount', watchedAdsCount);
                     localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
