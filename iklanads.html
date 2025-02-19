@@ -203,6 +203,24 @@
                     localStorage.setItem('watchedAdsCount', watchedAdsCount);
                     localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
 
+       
+        // In-App Interstitial 
+
+        show_8978526({ 
+          type: 'inApp', 
+          inAppSettings: { 
+            frequency: 2, 
+            capping: 0.1, 
+            interval: 30, 
+            timeout: 5, 
+            everyPage: false 
+              } 
+            })
+
+
+                 
+
+                    
                     // Update progress circle
                     updateProgressCircle();
                 });
