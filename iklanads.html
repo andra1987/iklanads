@@ -229,23 +229,38 @@
             document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
         }
 
-        // Function to watch an ad and update stats
         function watchAd() {
-            if (typeof show_8978526 === 'function') {
-                show_8978526().then(() => {
-                    // When the ad is shown, we add points
-                    watchedAdsCount++;
-                    document.getElementById('watched-ads').textContent = watchedAdsCount;
-                    earnedPoints += 20; // Add 0.50 points per ad watched
-                    document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
-                    localStorage.setItem('watchedAdsCount', watchedAdsCount);
-                    localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
+        const adButton = document.getElementById('watch-ad-btn');
+        adButton.disabled = true; // Nonaktifkan tombol selama iklan berjalan
 
-                    // Update progress circle
-                    updateProgressCircle();
-                });
-            }
+        if (typeof show_8978526 === 'function') {
+            show_8978526().then(() => {
+                // Simulasi durasi iklan 30 detik
+                let countdown = 30;
+                const countdownInterval = setInterval(() => {
+                    document.getElementById('withdraw-status').textContent = 
+                        `Tunggu iklan selesai... ${countdown}s`;
+                    countdown--;
+
+                    if(countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        
+                        // Update poin setelah iklan selesai
+                        watchedAdsCount++;
+                        earnedPoints += 20;
+                        
+                        document.getElementById('watched-ads').textContent = watchedAdsCount;
+                        document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
+                        localStorage.setItem('watchedAdsCount', watchedAdsCount);
+                        localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
+                        
+                        document.getElementById('withdraw-status').textContent = '';
+                        adButton.disabled = false; // Aktifkan kembali tombol
+                    }
+                }, 1000);
+            });
         }
+    }
 
 
 
