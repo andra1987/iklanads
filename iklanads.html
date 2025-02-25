@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App with Monetag</title>
+    <title>Telegram Mini</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,43 +45,18 @@
     </div>
 
     <script>
-        // Ganti dengan ID iklan Monetag Anda
-        const monetagAdUnitId = 'show_8654720';
-
+        // Fungsi untuk menampilkan iklan Rewarded Interstitial
         function showRewardedAd() {
-            if (typeof Monetag !== 'undefined') {
-                Monetag.showRewardedAd({
-                    adUnitId: monetagAdUnitId,
-                    onAdLoaded: function() {
-                        console.log('Iklan berhasil dimuat');
-                    },
-                    onAdClosed: function() {
-                        console.log('Iklan ditutup');
-                        // Berikan reward kepada pengguna di sini
-                        alert('Terima kasih telah menonton iklan! Anda mendapatkan hadiah.');
-                    },
-                    onAdFailedToLoad: function(error) {
-                        console.error('Iklan gagal dimuat:', error);
-                    },
-                    onAdOpened: function() {
-                        console.log('Iklan dibuka');
-                    },
-                    onAdLeftApplication: function() {
-                        console.log('Iklan meninggalkan aplikasi');
-                    }
-                });
-            } else {
-                console.error('Monetag SDK tidak ditemukan');
-            }
+            // Panggil fungsi show_8654720() dari Monetag
+            show_8654720().then(() => {
+                // Berikan reward kepada pengguna di sini
+                alert('Terima kasih telah menonton iklan! Anda mendapatkan hadiah.');
+                // Anda dapat menambahkan logika reward lainnya di sini, seperti menambah poin, koin, dll.
+            }).catch((error) => {
+                console.error('Gagal menampilkan iklan:', error);
+                alert('Gagal menampilkan iklan. Silakan coba lagi.');
+            });
         }
-
-        // Memuat SDK Monetag
-        (function() {
-            const script = document.createElement('script');
-            script.src = 'https://sdk.monetag.com/js/monetag.js';
-            script.async = true;
-            document.head.appendChild(script);
-        })();
     </script>
 </body>
 </html>
