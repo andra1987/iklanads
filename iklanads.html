@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAMAN IKLAN</title>
+    <title>DI ADS V1</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -62,7 +62,7 @@
     <div id="rate-modal" class="modal">
         <h3>Harga per Iklan</h3>
         <p>🟢 Video pendek: 100 poin</p>
-        <p>🟡 Video panjang: 100 poin</p>
+        <p>🟡 Video panjang: 250 poin</p>
         <button onclick="closeModal('rate-modal')">Tutup</button>
     </div>
 
@@ -84,34 +84,46 @@
     </div>
 
     <script>
-        let points = 0;
-        let adsToday = 0;
-        let totalAds = 0;
+        let points = parseInt(localStorage.getItem('points')) || 0;
+        let adsToday = parseInt(localStorage.getItem('adsToday')) || 0;
+        let totalAds = parseInt(localStorage.getItem('totalAds')) || 0;
+
         const BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN';
         const CHAT_ID = 'YOUR_CHAT_ID';
+
+        // Load saved data on page load
+        document.getElementById('points').textContent = points;
+        document.getElementById('today-ads').textContent = adsToday;
+        document.getElementById('total-ads').textContent = totalAds;
 
         function showRate() {
             document.getElementById('rate-modal').style.display = 'block';
         }
 
         function showAd() {
-            // Simulasi tampilkan iklan Monetag
             const btn = document.getElementById('show-ad-btn');
             btn.disabled = true;
             
-            // Tampilkan iklan (implementasi aktual menggunakan SDK Monetag)
-            document.getElementById('ad-display').innerHTML = 
-                '<div id="countdown">Iklan akan dimulai dalam 5 detik...</div>';
-            
-            let count = 5;
-            const timer = setInterval(() => {
-                document.getElementById('countdown').innerHTML = 
-                    `Iklan akan selesai dalam ${count} detik...`;
-                if(count-- <= 0) {
-                    clearInterval(timer);
-                    finishAd();
-                }
-            }, 1000);
+            // Simulasi iklan muncul atau tidak
+            const adShown = Math.random() > 0.1; // 90% kemungkinan iklan muncul
+
+            if (adShown) {
+                document.getElementById('ad-display').innerHTML = 
+                    '<div id="countdown">Iklan akan dimulai dalam 5 detik...</div>';
+                
+                let count = 5;
+                const timer = setInterval(() => {
+                    document.getElementById('countdown').innerHTML = 
+                        `Iklan akan selesai dalam ${count} detik...`;
+                    if(count-- <= 0) {
+                        clearInterval(timer);
+                        finishAd();
+                    }
+                }, 1000);
+            } else {
+                alert('Iklan tidak tersedia saat ini. Silakan coba lagi nanti.');
+                btn.disabled = false;
+            }
         }
 
         function finishAd() {
@@ -119,11 +131,20 @@
             adsToday++;
             totalAds++;
             
+            updatePoints();
+            document.getElementById('ad-display').innerHTML = '';
+            document.getElementById('show-ad-btn').disabled = false;
+
+            // Simpan ke localStorage
+            localStorage.setItem('points', points);
+            localStorage.setItem('adsToday', adsToday);
+            localStorage.setItem('totalAds', totalAds);
+        }
+
+        function updatePoints() {
             document.getElementById('points').textContent = points;
             document.getElementById('today-ads').textContent = adsToday;
             document.getElementById('total-ads').textContent = totalAds;
-            document.getElementById('ad-display').innerHTML = '';
-            document.getElementById('show-ad-btn').disabled = false;
         }
 
         function showWithdrawForm() {
@@ -144,11 +165,20 @@
                 account: formData.get(3)
             };
 
+            // Validasi jumlah poin
+            if (data.amount > points) {
+                alert('Poin tidak mencukupi!');
+                return;
+            }
+
             // Kirim ke Telegram
             const message = `Withdraw Baru!\nNama: ${data.name}\nJumlah: ${data.amount}\nMetode: ${data.method}\nAkun: ${data.account}`;
             
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`);
+                points -= data.amount;
+                updatePoints();
+                localStorage.setItem('points', points);
                 alert('Withdraw berhasil diajukan!');
                 closeModal('withdraw-modal');
             } catch (error) {
