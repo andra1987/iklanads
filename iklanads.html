@@ -239,11 +239,11 @@
                 let count = 30;
             const interval = setInterval(() => {
                 count--;
-                btn.textContent = `Menunggu... (${count})`;
+                adButton.textContent = `Menunggu... (${count})`;
                 if (count <= 0) {
                     clearInterval(interval);
-                    btn.disabled = false;
-                    btn.textContent = 'Lihat Iklan';
+                    adButton.disabled = false;
+                    adButton.textContent = 'Lihat Iklan';
                     adsWatched++;
                     points += 10; // Poin bertambah 10 setiap iklan selesai
                     updateData();
@@ -254,7 +254,7 @@
                         localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
                         
                         document.getElementById('withdraw-status').textContent = '';
-                        adButton.disabled = false; // Aktifkan kembali tombol
+                        
                     }
                 }, 1000);
             });
