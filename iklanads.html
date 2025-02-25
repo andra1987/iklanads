@@ -232,7 +232,6 @@
         function watchAd() {
         const adButton = document.getElementById('watch-ad-btn');
         adButton.disabled = true; // Nonaktifkan tombol selama iklan berjalan
-	
 
         if (typeof show_8978526 === 'function') {
             show_8978526().then(() => {
@@ -240,11 +239,11 @@
                 let count = 30;
             const interval = setInterval(() => {
                 count--;
-                adButton.textContent = `Menunggu... (${count})`;
+                btn.textContent = `Menunggu... (${count})`;
                 if (count <= 0) {
                     clearInterval(interval);
-                    adButton.disabled = false;
-                    adButton.textContent = 'Lihat Iklan';
+                    btn.disabled = false;
+                    btn.textContent = 'Lihat Iklan';
                     adsWatched++;
                     points += 10; // Poin bertambah 10 setiap iklan selesai
                     updateData();
