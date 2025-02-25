@@ -3,181 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DI ADS V1</title>
+    <title>Telegram Mini App with Monetag</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
         }
-        .button {
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
             padding: 10px 20px;
-            margin: 5px;
-            background-color: #4CAF50;
-            color: white;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            background: white;
-            border: 1px solid #ccc;
-            z-index: 1000;
-        }
-        .ad-container {
-            margin: 20px;
-            padding: 15px;
-            border: 1px dashed #ccc;
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome, amin! DI ADS V1</h1>
-    <p>Your exclusive ad experience starts here!</p>
-    
-    <div>
-        <p>Points Earned: <span id="points">0</span></p>
-        <p>Ads Watched Today: <span id="today-ads">0</span></p>
-        <p>Total Ads Watched: <span id="total-ads">0</span></p>
-    </div>
-
-    <div class="ad-container" id="ad-display">
-        <!-- Tempat iklan akan ditampilkan -->
-    </div>
-
-    <button class="button" onclick="showRate()">Cek Rate</button>
-    <button class="button" id="show-ad-btn" onclick="showAd()">Show Ad</button>
-    <button class="button" onclick="showWithdrawForm()">Withdraw</button>
-    <button class="button" onclick="window.open('https://t.me/your_group')">Riwayat Withdraw</button>
-
-    <!-- Modal Cek Rate -->
-    <div id="rate-modal" class="modal">
-        <h3>Harga per Iklan</h3>
-        <p>🟢 Video pendek: 100 poin</p>
-        <p>🟡 Video panjang: 250 poin</p>
-        <button onclick="closeModal('rate-modal')">Tutup</button>
-    </div>
-
-    <!-- Form Withdraw -->
-    <div id="withdraw-modal" class="modal">
-        <h3>Withdraw Poin</h3>
-        <form onsubmit="handleWithdraw(event)">
-            <input type="text" placeholder="Nama Lengkap" required><br>
-            <input type="number" placeholder="Jumlah Poin" required><br>
-            <select required>
-                <option value="">Pilih Pembayaran</option>
-                <option>DANA</option>
-                <option>Shopee</option>
-            </select><br>
-            <input type="text" placeholder="Nomor/Akun" required><br>
-            <button type="submit">Kirim</button>
-            <button type="button" onclick="closeModal('withdraw-modal')">Batal</button>
-        </form>
+    <div class="container">
+        <h1>Telegram Mini App</h1>
+        <p>Tonton iklan untuk mendapatkan hadiah!</p>
+        <button onclick="showRewardedAd()">Tonton Iklan</button>
     </div>
 
     <script>
-        let points = parseInt(localStorage.getItem('points')) || 0;
-        let adsToday = parseInt(localStorage.getItem('adsToday')) || 0;
-        let totalAds = parseInt(localStorage.getItem('totalAds')) || 0;
+        // Ganti dengan ID iklan Monetag Anda
+        const monetagAdUnitId = 'show_8654720().then(() => {}';
 
-        const BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN';
-        const CHAT_ID = 'YOUR_CHAT_ID';
-
-        // Load saved data on page load
-        document.getElementById('points').textContent = points;
-        document.getElementById('today-ads').textContent = adsToday;
-        document.getElementById('total-ads').textContent = totalAds;
-
-        function showRate() {
-            document.getElementById('rate-modal').style.display = 'block';
-        }
-
-        function showAd() {
-            const btn = document.getElementById('show-ad-btn');
-            btn.disabled = true;
-
-            // Tampilkan iklan menggunakan Monetag Rewarded Interstitial
-            show_8654720().then(() => {
-                // Iklan selesai ditonton, berikan reward
-                finishAd();
-                alert('Terima kasih telah menonton iklan! Poin Anda telah bertambah.');
-            }).catch((error) => {
-                // Jika iklan gagal dimuat atau ditampilkan
-                alert('Iklan tidak tersedia saat ini. Silakan coba lagi nanti.');
-                btn.disabled = false;
-            });
-        }
-
-        function finishAd() {
-            points += 100;
-            adsToday++;
-            totalAds++;
-            
-            updatePoints();
-            document.getElementById('ad-display').innerHTML = '';
-            document.getElementById('show-ad-btn').disabled = false;
-
-            // Simpan ke localStorage
-            localStorage.setItem('points', points);
-            localStorage.setItem('adsToday', adsToday);
-            localStorage.setItem('totalAds', totalAds);
-        }
-
-        function updatePoints() {
-            document.getElementById('points').textContent = points;
-            document.getElementById('today-ads').textContent = adsToday;
-            document.getElementById('total-ads').textContent = totalAds;
-        }
-
-        function showWithdrawForm() {
-            document.getElementById('withdraw-modal').style.display = 'block';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        async function handleWithdraw(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = {
-                name: formData.get(0),
-                amount: formData.get(1),
-                method: formData.get(2),
-                account: formData.get(3)
-            };
-
-            // Validasi jumlah poin
-            if (data.amount > points) {
-                alert('Poin tidak mencukupi!');
-                return;
-            }
-
-            // Kirim ke Telegram
-            const message = `Withdraw Baru!\nNama: ${data.name}\nJumlah: ${data.amount}\nMetode: ${data.method}\nAkun: ${data.account}`;
-            
-            try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`);
-                points -= data.amount;
-                updatePoints();
-                localStorage.setItem('points', points);
-                alert('Withdraw berhasil diajukan!');
-                closeModal('withdraw-modal');
-            } catch (error) {
-                alert('Gagal mengirim permintaan');
+        function showRewardedAd() {
+            if (typeof Monetag !== 'undefined') {
+                Monetag.showRewardedAd({
+                    adUnitId: monetagAdUnitId,
+                    onAdLoaded: function() {
+                        console.log('Iklan berhasil dimuat');
+                    },
+                    onAdClosed: function() {
+                        console.log('Iklan ditutup');
+                        // Berikan reward kepada pengguna di sini
+                        alert('Terima kasih telah menonton iklan! Anda mendapatkan hadiah.');
+                    },
+                    onAdFailedToLoad: function(error) {
+                        console.error('Iklan gagal dimuat:', error);
+                    },
+                    onAdOpened: function() {
+                        console.log('Iklan dibuka');
+                    },
+                    onAdLeftApplication: function() {
+                        console.log('Iklan meninggalkan aplikasi');
+                    }
+                });
+            } else {
+                console.error('Monetag SDK tidak ditemukan');
             }
         }
+
+        // Memuat SDK Monetag
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'https://sdk.monetag.com/js/monetag.js';
+            script.async = true;
+            document.head.appendChild(script);
+        })();
     </script>
+	
 
-    <!-- Script Monetag -->
-    <script src="https://monetag.com/sdk.js"></script>
+        <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
+    
+</html>                
 </body>
 </html>
