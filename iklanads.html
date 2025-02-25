@@ -265,46 +265,13 @@ l.parentNode.insertBefore(s, l);
 </script>-->
         
             
-         <button id="developer" class="btn btn-primary" onclick="showRatePointInfo()">Cek Rate / Main Kan Bot Lainnya</button>
+        <button id="developer" class="btn btn-primary" onclick="showRatePointInfo()">Cek Rate / Main Kan Bot Lainnya</button>
         <button id="show-ad-btn" class="btn btn-primary" onclick="showAdWithCountdown()">Show Ad</button>
         <button id="withdrawButton" class="btn btn-primary" onclick="toggleWithdrawForm()">Withdraw</button>
         <button id="historyButton" class="btn btn-primary" onclick="toggleHistorySection()">Riwayat Withdraw</button>
         
         
-    <!-- chat -->
-    <div id="chatSection" style="display:none;">
-            <h1>Form Kirim Pesan ke Admin</h1>
-    <form method="POST" action="">
-        <input type="hidden" id="kepada" name="kepada" value="ADMIN">
-        <label for="username">username telegram:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="userphone">Phone:</label><br>
-        <input type="text" id="userphone" name="userphone" required><br><br>
-
-        <label for="userMessage">Pesan:</label><br>
-        <textarea id="userMessage" name="userMessage" rows="5" cols="30" required></textarea><br><br>
-
-        <button type="submit">Kirim</button>
-    </form>
     
-     <h1>Data Chat Diterima</h1>
-    
-    <div class="table-container">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Dari</th>
-                <th>Untuk</th>
-                <th>Phone</th>
-                <th>Message</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td colspan='4'>No records found</td></tr>        </tbody>
-    </table>
-    </div>   
-    </div>   
     
     <!-- Riwayat Withdraw -->
     <div class="ad-container" id="historySection" style="display:none;">
