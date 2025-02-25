@@ -238,19 +238,16 @@
             show_8978526().then(() => {
                 // Simulasi durasi iklan 30 detik
                 let count = 30;
-            	const interval = setInterval(() => {
-                	count--;
-                	adButton.textContent = `Menunggu... (${count})`;
-
-                    	if(countdown <= 0) {
-                        	clearInterval(countdownInterval);
-				adButton.disabled = false;
-                    		adButton.textContent = 'Lihat Iklan';
-                        
-                        // Update poin setelah iklan selesai
-                        watchedAdsCount++;
-                        earnedPoints += 20;
-			updateData();
+            const interval = setInterval(() => {
+                count--;
+                adButton.textContent = `Menunggu... (${count})`;
+                if (count <= 0) {
+                    clearInterval(interval);
+                    adButton.disabled = false;
+                    adButton.textContent = 'Lihat Iklan';
+                    adsWatched++;
+                    points += 10; // Poin bertambah 10 setiap iklan selesai
+                    updateData();
                         
                         document.getElementById('watched-ads').textContent = watchedAdsCount;
                         document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
