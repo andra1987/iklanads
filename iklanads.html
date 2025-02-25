@@ -237,18 +237,20 @@
         if (typeof show_8978526 === 'function') {
             show_8978526().then(() => {
                 // Simulasi durasi iklan 30 detik
-                let countdown = 30;
-                const countdownInterval = setInterval(() => {
-                    document.getElementById('withdraw-status').textContent = 
-                        `Tunggu iklan selesai... ${countdown}s`;
-                    countdown--;
+                let count = 30;
+            	const interval = setInterval(() => {
+                	count--;
+                	adButton.textContent = `Menunggu... (${count})`;
 
-                    if(countdown <= 0) {
-                        clearInterval(countdownInterval);
+                    	if(countdown <= 0) {
+                        	clearInterval(countdownInterval);
+				adButton.disabled = false;
+                    		adButton.textContent = 'Lihat Iklan';
                         
                         // Update poin setelah iklan selesai
                         watchedAdsCount++;
                         earnedPoints += 20;
+			updateData();
                         
                         document.getElementById('watched-ads').textContent = watchedAdsCount;
                         document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
