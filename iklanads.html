@@ -30,8 +30,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #0056b3;
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         .stats {
             margin-top: 20px;
@@ -45,7 +46,7 @@
     <div class="container">
         <h1>Telegram Mini App</h1>
         <p>Tonton iklan untuk mendapatkan hadiah!</p>
-        <button onclick="showRewardedAd()">Tonton Iklan</button>
+        <button id="watchAdButton" onclick="showRewardedAd()">Tonton Iklan</button>
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
@@ -67,6 +68,10 @@
 
         // Fungsi untuk menampilkan iklan Rewarded Interstitial
         function showRewardedAd() {
+            // Nonaktifkan tombol selama hitungan mundur
+            const watchAdButton = document.getElementById('watchAdButton');
+            watchAdButton.disabled = true;
+
             // Panggil fungsi show_8654720() dari Monetag
             show_8654720().then(() => {
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
@@ -82,10 +87,33 @@
 
                 // Berikan feedback ke pengguna
                 alert('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
+
+                // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
+                startCountdown(30);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
                 alert('Gagal menampilkan iklan. Silakan coba lagi.');
+                watchAdButton.disabled = false; // Aktifkan kembali tombol jika iklan gagal
             });
+        }
+
+        // Fungsi untuk memulai hitungan mundur
+        function startCountdown(seconds) {
+            const watchAdButton = document.getElementById('watchAdButton');
+            let remainingTime = seconds;
+
+            // Update teks tombol setiap detik
+            const countdownInterval = setInterval(() => {
+                watchAdButton.textContent = `Coba lagi dalam ${remainingTime} detik`;
+                remainingTime--;
+
+                // Jika hitungan mundur selesai
+                if (remainingTime < 0) {
+                    clearInterval(countdownInterval); // Hentikan interval
+                    watchAdButton.textContent = 'Tonton Iklan'; // Kembalikan teks tombol
+                    watchAdButton.disabled = false; // Aktifkan kembali tombol
+                }
+            }, 1000); // Update setiap 1 detik
         }
 
         // Saat halaman dimuat, tampilkan statistik terbaru
