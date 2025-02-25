@@ -103,27 +103,17 @@
         function showAd() {
             const btn = document.getElementById('show-ad-btn');
             btn.disabled = true;
-            
-            // Simulasi iklan muncul atau tidak
-            const adShown = Math.random() > 0.1; // 90% kemungkinan iklan muncul
 
-            if (adShown) {
-                document.getElementById('ad-display').innerHTML = 
-                    '<div id="countdown">Iklan akan dimulai dalam 5 detik...</div>';
-                
-                let count = 5;
-                const timer = setInterval(() => {
-                    document.getElementById('countdown').innerHTML = 
-                        `Iklan akan selesai dalam ${count} detik...`;
-                    if(count-- <= 0) {
-                        clearInterval(timer);
-                        finishAd();
-                    }
-                }, 1000);
-            } else {
+            // Tampilkan iklan menggunakan Monetag Rewarded Interstitial
+            show_8654720().then(() => {
+                // Iklan selesai ditonton, berikan reward
+                finishAd();
+                alert('Terima kasih telah menonton iklan! Poin Anda telah bertambah.');
+            }).catch((error) => {
+                // Jika iklan gagal dimuat atau ditampilkan
                 alert('Iklan tidak tersedia saat ini. Silakan coba lagi nanti.');
                 btn.disabled = false;
-            }
+            });
         }
 
         function finishAd() {
@@ -187,8 +177,7 @@
         }
     </script>
 
-    <!-- Script Monetag (Ganti dengan script aktual) -->
-    <!-- <script src="https://monetag.com/sdk.js"></script> -->
-    <script src="//whephiwums.com/sdk.js" data-zone="8978526" data-sdk="show_8978526" data-auto="2/0.01/30/5/0"></script>
+    <!-- Script Monetag -->
+    <script src="https://monetag.com/sdk.js"></script>
 </body>
 </html>
