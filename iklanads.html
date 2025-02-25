@@ -1,358 +1,165 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://richinfo.co/richpartners/in-page/js/richads-ob.js?pubid=953518&siteid=null" async></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bunga Iklan</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            background: #1f1f1f;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-        }
-        .container h1 {
-            font-size: 20px;
-            color: green;
-            margin-bottom: 10px;
-        }
-        .developer {
-            font-size: 12px;
-            background-color: green;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: inline-block;
-            cursor: pointer;
-        }
-        .stats {
-            margin: 10px 0;
-        }
-        .stats p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .progress-circle {
-            width: 80px;
-            height: 80px;
-            border: 4px solid green;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px auto;
-        }
-        .progress-circle span {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .buttons button {
-            width: 90%;
-            margin: 5px 0;
-            padding: 10px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            background: green;
-            cursor: pointer;
-        }
-        .buttons button:hover {
-            background: darkorange;
-        }
-        .withdraw-section {
-            margin-top: 20px;
-            display: none;
-            padding: 20px;
-            background-color: #2a2a2a;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-        .withdraw-section input, .withdraw-section select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: 2px solid #555;
-            background-color: #333;
-            color: #fff;
-        }
-        .withdraw-section input:focus, .withdraw-section select:focus {
-            border-color: green;
-            outline: none;
-        }
-        .withdraw-section button {
-            background-color: green;
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            margin-top: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .withdraw-section button:hover {
-            background-color: #006400;
-        }
-        #withdraw-status {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .user-info {
-            margin: 10px 0;
-        }
-        .user-info p {
-            font-size: 14px;
-            margin: 5px 0;
-        }
-    </style>
-<!--<link rel="me" href="https://www.blogger.com/profile/12615525391666988711" />
-<meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
-<meta name='google-adsense-platform-domain' content='blogspot.com'/>
-<link rel="me" href="https://www.blogger.com/profile/18369340732868072285" />
-<meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
-<meta name='google-adsense-platform-domain' content='blogspot.com'/>-->
+    <title>Login & Signup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- admaven -->
+<script data-cfasync="false" src="/sw.js"></script>
+<script data-cfasync="false" src="//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1137474"></script>
+<!-- baner hiltopads.com -->
+    <script>
+(function(sdgp){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = sdgp || {};
+s.src = "\/\/tintedvideo.com\/b.XGVKsPddG\/lk0JYmWudCi\/YqWg5buWZ\/X\/IZ\/Sebmi9ju-Z\/UZlek-PMTFY\/wbNWzrUe1BNgzzk\/tBNPjpA\/3\/NOTPUb4RMqAh";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
 </head>
 <body>
-    <div class="container">
-        <h1>Bunga Iklan</h1>
-        <div class="developer" onclick="window.location.href='https://t.me/+pRqQYA0oMnhiNzRl'">Gabung Group Bunga Iklan</div>
-        
-        <!-- Display User Info -->
-        <div class="user-info">
-            <p>Welcome, <span id="user-name"></span></p>
+<div class="container mt-5">
+    <h1 class="text-center">Welcome</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Login Form -->
+            <div class="card mb-4">
+                <div class="card-header">Login</div>
+                <div class="card-body">
+                    <form action="login.php" method="POST">
+                        <input type="hidden" id="latitude" name="latitude">
+<input type="hidden" id="longitude" name="longitude">
+                        <div class="mb-3">
+                            <label for="phoneLogin" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phoneLogin" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordLogin" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="passwordLogin" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="card">
+                <div class="card-header">Signup</div>
+                <div class="card-body">
+                    <form action="signup.php" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_tele" class="form-label">username Telegram</label>
+                            <input type="text" class="form-control" id="user_tele" name="user_tele" required>
+                             <input type="hidden" id="hiddenUserTele" name="user_tele">
+                        </div>
+                        <div class="mb-3">
+                            <label for="refferal" class="form-label">Refferal Phone :</label>
+                            <label for="refferal" class="form-label">*masukan nomor yang mengundang anda. jika tidak ada isi 0</label>
+                            
+                            <input type="text" class="form-control" id="refferal" name="refferal" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Signup</button>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="stats">
-            <p>Watched Ads: <span id="watched-ads">0</span></p>
-            <p>Earned Points: <span id="earned-points">0</span></p>
-        </div>
-        <!--<div class="progress-circle">
-            <span id="ads-progress">0%</span>
-        </div>-->
-        <div class="buttons">
-            <button id="watch-ad-btn" onclick="watchAd()">Watch Ad</button>
-            <!--<button id="auto-ad-btn" onclick="startAutoAds()">Auto Show Ads</button>
-            <button id="stop-auto-btn" onclick="stopAutoAds()">Stop Auto Ads</button>-->
-            <button id="withdraw-btn" onclick="showWithdrawForm()">Withdraw</button>
-        </div>
-
-        <!-- Withdraw Section -->
-        <div class="withdraw-section" id="withdraw-section">
-            <h3 style="color: orange; margin-bottom: 15px;">Withdrawal Request</h3>
-            <input type="number" id="withdraw-amount" placeholder="Enter Points to Withdraw" />
-            <select id="payment-method">
-                <option value="dana">DANA</option>
-               <!-- <option value="nagad">Nagad</option>
-                <option value="manual">Manual</option>-->
-            </select>
-            <input type="text" id="withdraw-phone" placeholder="Enter Phone Number" />
-             <input type="text" id="withdraw-nama" placeholder="Enter Nama Lengkap" />
-            <button onclick="withdrawPoints()">Withdraw</button>
-            <p id="withdraw-status"></p>
-        </div>
-      
-      
-      
-      
-      <!-- Banner Adstera -->
-      <script type="text/javascript">
-	atOptions = {
-		'key' : 'b71e9e4134fa3983b9b081e102507d63',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-
-
-      
-      <script type="text/javascript">
-	atOptions = {
-		'key' : 'b71e9e4134fa3983b9b081e102507d63',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-
-      
     </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    // Initialize Telegram WebApp
+    const tg = window.Telegram.WebApp;
 
-    <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+    // Access user data from Telegram WebApp
+    const user = tg.initDataUnsafe?.user;
 
-    <script>
-        const MIN_WITHDRAW_POINTS = 5000;
-        const ADMIN_USER_ID = 306327811;
-        const BOT_TOKEN = "7035581953:AAGinoLxWqPTJ6odVATZxQj6kRvCEpTk9OI";
-        let watchedAdsCount = 0;
-        let earnedPoints = 0;
-        let autoAdInterval;
+    // Check if user data is available
+    if (user) {
+        // Set phone number and username in the form fields
+        document.getElementById('user_tele').value = user.username || 'No username'; // If username is available
 
-        // Simulate user name from Telegram User ID (replace with actual logic to get user info)
-        const telegramUserName = "@User"; // Replace this line with the actual logic to fetch username
-        document.getElementById("user-name").textContent = telegramUserName;
-
-        // Check if user data is saved in localStorage
-        if (localStorage.getItem('watchedAdsCount')) {
-            watchedAdsCount = parseInt(localStorage.getItem('watchedAdsCount'));
-            earnedPoints = parseFloat(localStorage.getItem('earnedPoints'));
-            document.getElementById('watched-ads').textContent = watchedAdsCount;
-            document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
-        }
-
-        function watchAd() {
-        const adButton = document.getElementById('watch-ad-btn');
-        adButton.disabled = true; // Nonaktifkan tombol selama iklan berjalan
-
-        if (typeof show_8978526 === 'function') {
-            show_8978526().then(() => {
-                // Simulasi durasi iklan 20 detik
-                let count = 20;
-            const interval = setInterval(() => {
-                count--;
-                adButton.textContent = `Menunggu... (${count})`;
-                if (count <= 0) {
-                    clearInterval(interval);
-                    adButton.disabled = false;
-                    adButton.textContent = 'Lihat Iklan';
-                    adsWatched++;
-                    points += 10; // Poin bertambah 10 setiap iklan selesai
-                    updateData();
-                        
-                        document.getElementById('watched-ads').textContent = watchedAdsCount;
-                        document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
-                        localStorage.setItem('watchedAdsCount', watchedAdsCount);
-                        localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
-                        
-                        document.getElementById('withdraw-status').textContent = '';
-                        
-                    }
-                }, 1000);
-            });
-        }
+        // Populate hidden fields to ensure phone number and username are submitted
+        document.getElementById('hiddenUserTele').value = user.username || 'No username';
     }
 
+    // Disable the phone and username fields to prevent editing
+    document.getElementById('user_tele').disabled = true;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+	<!--<script>
+        // Fungsi untuk mendeteksi perangkat apakah menggunakan mobile atau desktop
+        function checkDevice() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-
-	    
-    // In-App Interstitial 
-
-show_8978526({ 
-  type: 'inApp', 
-  inAppSettings: { 
-    frequency: 2, 
-    capping: 0.01, 
-    interval: 30, 
-    timeout: 5, 
-    everyPage: false 
-  } 
-})
-
-/*
-This value is decoded as follows:
-- show automatically 2 ads
-  within 0.1 hours (6 minutes)
-  with a 30-second interval between them
-  and a 5-second delay before the first one is shown.
-  The last digit, 0, means that the session will be saved when you navigate between pages.
-  If you set the last digit as 1, then at any transition between pages,
-  the session will be reset, and the ads will start again.
-*/
-
-
-        // Update progress circle based on watched ads
-        function updateProgressCircle() {
-            const percentage = (watchedAdsCount / 10) * 100;
-            document.getElementById('ads-progress').textContent = `${percentage}%`;
-        }
-
-        // Function to start auto showing ads
-        function startAutoAds() {
-            autoAdInterval = setInterval(watchAd, 5000); // Auto show ad every 5 seconds
-            document.getElementById('auto-ad-btn').disabled = true;
-            document.getElementById('stop-auto-btn').disabled = false;
-        }
-
-        // Function to stop auto ads
-        function stopAutoAds() {
-            clearInterval(autoAdInterval);
-            document.getElementById('auto-ad-btn').disabled = false;
-            document.getElementById('stop-auto-btn').disabled = true;
-        }
-
-        // Function to show withdraw form
-        function showWithdrawForm() {
-            document.getElementById('withdraw-section').style.display = 'block';
-        }
-
-        // Function to handle withdrawal
-        function withdrawPoints() {
-            const amount = document.getElementById('withdraw-amount').value;
-            const paymentMethod = document.getElementById('payment-method').value;
-            const phoneNumber = document.getElementById('withdraw-phone').value;
-            const nama = document.getElementById('withdraw-nama').value;
-
-            if (amount < MIN_WITHDRAW_POINTS) {
-                document.getElementById('withdraw-status').textContent = `Minimum withdrawal amount is ${MIN_WITHDRAW_POINTS} points.`;
-                return;
+            // Cek apakah perangkat adalah smartphone
+            if (/android/i.test(userAgent) || /iPhone|iPad|iPod/i.test(userAgent)) {
+                // Jika perangkat adalah smartphone, biarkan halaman tetap terbuka
+                return true;
+            } else {
+                // Jika bukan smartphone, redirect ke halaman lain (misalnya error atau halaman lainnya)
+                window.location.href = 'https://www.omw.my.id/upss'; // Ganti dengan halaman yang sesuai
+                return false;
             }
-
-            if (amount > earnedPoints) {
-                document.getElementById('withdraw-status').textContent = `Insufficient balance. You have ${earnedPoints.toFixed(2)} points.`;
-                return;
-            }
-
-            // Subtract points from earnedPoints after successful withdrawal
-            earnedPoints -= parseFloat(amount);
-            document.getElementById('earned-points').textContent = earnedPoints.toFixed(2);
-
-            // Save the updated balance in localStorage
-            localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
-
-            // Send withdrawal request to admin via Telegram
-            const message = `Withdrawal Request from ${telegramUserName}:\nAmount: ${amount} points\nPayment Method: ${paymentMethod}\nPhone Number: ${phoneNumber}\nNama: ${nama}`;
-            sendWithdrawRequestToAdmin(message);
-
-            // Show success message
-            document.getElementById('withdraw-status').textContent = 'Withdrawal request sent successfully!';
-
-            // Clear form
-            document.getElementById('withdraw-amount').value = '';
-            document.getElementById('withdraw-phone').value = '';
         }
 
-        // Function to send withdrawal request to admin
-        function sendWithdrawRequestToAdmin(message) {
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_USER_ID}&text=${encodeURIComponent(message)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log('Message sent to admin');
-                    }
-                })
-                .catch(error => console.error('Error sending message:', error));
-        }
-    </script>
-	<!-- Banner Sosialbar Adstera -->
-<script type='text/javascript' src='//pl25922450.effectiveratecpm.com/8e/21/72/8e217214c7821830975f6c979b762d43.js'></script>    
-<script type='text/javascript' src='//pl25922060.effectiveratecpm.com/e9/8e/22/e98e22038d60a40c7d095ee8fdce6169.js'></script>
+        // Jalankan fungsi untuk mengecek perangkat saat halaman dimuat
+        window.onload = checkDevice;
+    </script> -->
+	
+    <script>
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendPosition, showError, { enableHighAccuracy: true });
+    } else {
+        alert("Geolocation tidak didukung oleh browser Anda.");
+    }
+}
+
+function sendPosition(position) {
+    document.getElementById('latitude').value = position.coords.latitude;
+    document.getElementById('longitude').value = position.coords.longitude;
+}
+
+function showError(error) {
+    console.log("Gagal mendapatkan lokasi:", error.message);
+}
+
+// Panggil fungsi saat halaman dimuat
+window.onload = getLocation;
+</script>
+   <!-- Histats.com  START  (aync)-->
+<script type="text/javascript">var _Hasync= _Hasync|| [];
+_Hasync.push(['Histats.start', '1,4927456,4,0,0,0,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+hs.src = ('//s10.histats.com/js15_as.js');
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+})();</script>
+<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4927456&101" alt="" border="0"></a></noscript>
+<!-- Histats.com  END  -->
 </body>
 </html>
+ 
