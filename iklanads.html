@@ -79,12 +79,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Iklan Harian</h1>
+        <h1>Taman Iklan APP</h1>
         <b>Bermain dan Tambahkan Point Untuk Ditukar Hadiah</b><br/>
         <div class="info">
             <p>Iklan Dilihat Hari Ini: <span id="adsViewed">0</span></p>
             <p>Total Iklan Dilihat: <span id="totalAdsViewed">0</span></p>
-            <p>Batas Iklan per Hari: <span id="dailyLimit">5</span></p>
+            <p>Batas Iklan per Hari: <span id="dailyLimit">55</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
 
@@ -106,8 +106,8 @@
             <input type="number" id="amount" placeholder="Jumlah Poin" required>
             <select id="paymentMethod" required>
                 <option value="">Pilih Metode Pembayaran</option>
-                <option value="DANA">DANA</option>
-                <option value="SHOPEE">SHOPEE</option>
+                <option value="DANA">DANA (fee Rp.100/penarikan)</option>
+                <option value="SHOPEE">SHOPEE (fee Rp.100/penarikan)</option>
             </select>
             <button class="button" onclick="submitWithdrawal()">Kirim</button>
             <button class="button" onclick="hideWithdrawalForm()">Batal</button>
@@ -134,26 +134,26 @@
     </div>
 
     <!-- Script Monetag -->
-    <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
-
+    <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+    
     <script>
         // Data yang disimpan di localStorage
         let adsViewedToday = parseInt(localStorage.getItem('adsViewedToday')) || 0;
         let totalAdsViewed = parseInt(localStorage.getItem('totalAdsViewed')) || 0;
-        let points = parseInt(localStorage.getItem('points')) || 100; // Poin awal (contoh: 100 poin)
-        const dailyLimit = 5;
+        let points = parseInt(localStorage.getItem('points')) || 20; // Poin awal (contoh: 100 poin)
+        const dailyLimit = 55;
         let countdownInterval;
-        const countdownDuration = 10; // Hitungan mundur dalam detik
+        const countdownDuration = 25; // Hitungan mundur dalam detik
 
         // Riwayat penarikan disimpan di localStorage
         let withdrawalHistory = JSON.parse(localStorage.getItem('withdrawalHistory')) || [];
 
         // Token Bot Telegram dan Chat ID Admin
-        const botToken = 'YOUR_BOT_TOKEN'; // Ganti dengan token bot Telegram Anda
-        const adminChatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
+        const botToken = '7035581953:AAGinoLxWqPTJ6odVATZxQj6kRvCEpTk9OI'; // Ganti dengan token bot Telegram Anda
+        const adminChatId = '306327811'; // Ganti dengan chat ID admin
 
         // Link Group Telegram
-        const telegramGroupLink = 'https://t.me/namagroup'; // Ganti dengan link group Telegram Anda
+        const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link group Telegram Anda
 
         // Fungsi untuk menyimpan data ke localStorage
         function saveToLocalStorage() {
@@ -172,7 +172,7 @@
 
             if (adsViewedToday >= dailyLimit) {
                 document.getElementById('viewAdButton').disabled = true;
-                showMessage("Anda telah mencapai batas iklan harian.", true);
+                showMessage("Anda telah mencapai batas iklan harian, kembali lagi beesok.", true);
             }
         }
 
@@ -196,7 +196,7 @@
                     clearInterval(countdownInterval);
                     document.getElementById('countdown').textContent = '';
                     document.getElementById('viewAdButton').disabled = false;
-                    showMessage("Tombol aktif kembali. Silakan lihat iklan lagi.");
+                    showMessage("Tombol aktif kembali. Silakan lihat iklan.");
                 }
             }, 1000);
         }
@@ -209,7 +209,7 @@
             }
 
             // Cek apakah fungsi Monetag tersedia
-            if (typeof show_8654720 === 'undefined') {
+            if (typeof show_8978526 === 'undefined') {
                 showMessage("Iklan tidak dapat dimuat. Silakan coba lagi.", true);
                 return;
             }
@@ -218,7 +218,7 @@
             document.getElementById('viewAdButton').disabled = true;
 
             // Tampilkan iklan
-            show_8654720();
+            show_8978526();
 
             // Simulasikan callback atau event listener dari Monetag
             setTimeout(() => {
@@ -230,7 +230,7 @@
         function onAdCompleted() {
             adsViewedToday++;
             totalAdsViewed++;
-            points += 10; // Tambahkan 10 poin setiap iklan selesai dilihat
+            points += 20; // Tambahkan 10 poin setiap iklan selesai dilihat
             saveToLocalStorage(); // Simpan perubahan ke localStorage
             updateUI();
             showMessage("Iklan selesai dilihat! Poin bertambah.");
