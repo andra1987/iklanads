@@ -133,9 +133,10 @@
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 
     <script>
-        let adsViewedToday = 0;
-        let totalAdsViewed = 0;
-        let points = 0; // Poin awal (contoh: 100 poin)
+         // Data yang disimpan di localStorage
+        let adsViewedToday = parseInt(localStorage.getItem('adsViewedToday')) || 0;
+        let totalAdsViewed = parseInt(localStorage.getItem('totalAdsViewed')) || 0;
+        let points = parseInt(localStorage.getItem('points')) || 0; // Poin awal (contoh: 100 poin)
         const dailyLimit = 5;
         let countdownInterval;
         const countdownDuration = 10; // Hitungan mundur dalam detik
@@ -150,6 +151,13 @@
         // Link Group Telegram
         const telegramGroupLink = 'https://t.me/namagroup'; // Ganti dengan link group Telegram Anda
 
+       // Fungsi untuk menyimpan data ke localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('adsViewedToday', adsViewedToday);
+            localStorage.setItem('totalAdsViewed', totalAdsViewed);
+            localStorage.setItem('points', points);
+            
+            
         function updateUI() {
             document.getElementById('adsViewed').textContent = adsViewedToday;
             document.getElementById('totalAdsViewed').textContent = totalAdsViewed;
@@ -213,6 +221,7 @@
             adsViewedToday++;
             totalAdsViewed++;
             points += 10; // Tambahkan 10 poin setiap iklan selesai dilihat
+            saveToLocalStorage(); // Simpan perubahan ke localStorage
             updateUI();
             showMessage("Iklan selesai dilihat! Poin bertambah.");
 
