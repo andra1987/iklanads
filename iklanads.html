@@ -86,7 +86,7 @@
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
-            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/22</p>
+            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/25</p>
             <p>Total Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
@@ -131,7 +131,7 @@
         let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
         let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
-        const maxAdsPerDay = 22; // Batas maksimal iklan per hari
+        const maxAdsPerDay = 25; // Batas maksimal iklan per hari
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
