@@ -229,6 +229,12 @@
                 return;
             }
 
+            // Validasi batas minimum penarikan (1000 poin)
+            if (withdrawPoints < 1000) {
+                alert('Minimal penarikan adalah 1000 poin!');
+                return;
+            }
+
             // Kurangi poin pengguna
             points -= withdrawPoints;
             localStorage.setItem('points', points);
@@ -253,7 +259,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
+                    alert('Penarikan berhasil! Saldo akan admin kirim segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
