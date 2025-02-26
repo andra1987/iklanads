@@ -209,10 +209,10 @@
                 updateStats();
 
                 // Berikan feedback ke pengguna
-                showMessage('Terima kasih telah menonton iklan! Anda mendapatkan 20 poin.', true);
+                showMessage('Terima kasih telah menonton iklan! Anda mendapatkan 20 poin.',);
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
-                startCountdown(25);
+                startCountdown(20);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
                 alert('Gagal menampilkan iklan. Silakan coba lagi.');
