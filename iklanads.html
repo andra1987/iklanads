@@ -75,6 +75,7 @@
             background-color: #6f42c1; /* Warna ungu untuk tombol group */
         }
     </style>
+    
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 </head>
@@ -86,20 +87,21 @@
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
-            <p>Iklan dilihat: <span id="adCount">0</span></p>
+            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/10</p>
+            <p>Total Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
 
         <!-- Tombol Penarikan -->
         <button id="withdrawButton" onclick="showWithdrawForm()">Penarikan</button>
 
-        <!-- Tombol Riwayat Penarikan -->
+       <!-- Tombol Riwayat Penarikan -->
         <button class="history-button" onclick="openWithdrawalHistory()">Riwayat Penarikan</button>
 
         <!-- Tombol Group -->
         <button class="group-button" onclick="openTelegramGroup()">Group Telegram</button>
 
-        <!-- Formulir Penarikan -->
+       <!-- Formulir Penarikan -->
         <div class="withdraw-form" id="withdrawForm">
             <h2>Penarikan Poin</h2>
             <label for="name">Nama:</label>
@@ -118,7 +120,7 @@
                 <option value="Shopee">Shopee</option>
             </select>
 
-            <div class="form-buttons">
+           <div class="form-buttons">
                 <button onclick="submitWithdrawal()">Kirim</button>
                 <button class="cancel" onclick="hideWithdrawForm()">Batal</button>
             </div>
@@ -126,33 +128,49 @@
     </div>
 
     <script>
-        // Inisialisasi variabel untuk jumlah iklan dan poin
-        let adCount = localStorage.getItem('adCount') || 0; // Jumlah iklan yang dilihat
+        
+       // Inisialisasi variabel untuk jumlah iklan dan poin
+        let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
+        let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
+        const maxAdsPerDay = 10; // Batas maksimal iklan per hari
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
             document.getElementById('adCount').textContent = adCount;
             document.getElementById('points').textContent = points;
+            document.getElementById('adCountToday').textContent = adCountToday;
+
+            // Nonaktifkan tombol jika batas harian terpenuhi
+            const watchAdButton = document.getElementById('watchAdButton');
+            if (adCountToday >= maxAdsPerDay) {
+                watchAdButton.disabled = true;
+                watchAdButton.textContent = 'Batas harian tercapai';
+            } else {
+                watchAdButton.disabled = false;
+                watchAdButton.textContent = 'Tonton Iklan';
+            }
         }
 
-        // Fungsi untuk menampilkan iklan Rewarded Interstitial
+         // Fungsi untuk menampilkan iklan Rewarded Interstitial
         function showRewardedAd() {
             // Nonaktifkan tombol selama hitungan mundur
             const watchAdButton = document.getElementById('watchAdButton');
             watchAdButton.disabled = true;
 
-            // Panggil fungsi show_8654720() dari Monetag
+             // Panggil fungsi show_8654720() dari Monetag
             show_8654720().then(() => {
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
-                adCount = parseInt(adCount) + 1; // Tambah 1 ke jumlah iklan
+                adCount = parseInt(adCount) + 1; // Tambah 1 ke total iklan
+                adCountToday = parseInt(adCountToday) + 1; // Tambah 1 ke iklan hari ini
                 points = parseInt(points) + 10;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
 
                 // Simpan data ke localStorage
                 localStorage.setItem('adCount', adCount);
+                localStorage.setItem('adCountToday', adCountToday);
                 localStorage.setItem('points', points);
 
-                // Perbarui tampilan statistik
+               // Perbarui tampilan statistik
                 updateStats();
 
                 // Berikan feedback ke pengguna
@@ -186,13 +204,13 @@
             }, 1000); // Update setiap 1 detik
         }
 
-        // Fungsi untuk menampilkan formulir penarikan
+         // Fungsi untuk menampilkan formulir penarikan
         function showWithdrawForm() {
             document.getElementById('withdrawForm').style.display = 'block';
             document.getElementById('withdrawButton').style.display = 'none'; // Sembunyikan tombol Penarikan
         }
 
-        // Fungsi untuk menyembunyikan formulir penarikan
+         // Fungsi untuk menyembunyikan formulir penarikan
         function hideWithdrawForm() {
             document.getElementById('withdrawForm').style.display = 'none';
             document.getElementById('withdrawButton').style.display = 'block'; // Tampilkan kembali tombol Penarikan
@@ -204,7 +222,7 @@
             window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
         }
 
-        // Fungsi untuk membuka grup Telegram
+       // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
             const telegramGroupUrl = 'https://t.me/namagrup'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
@@ -235,9 +253,14 @@
                 return;
             }
 
-            // Kirim data penarikan ke admin Telegram
-            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-            const chatId = 'ADMIN_CHAT_ID';
+            // Kurangi poin pengguna
+            points -= withdrawPoints;
+            localStorage.setItem('points', points);
+            updateStats();
+
+           // Kirim data penarikan ke admin Telegram
+            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
+            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
             const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
 
             try {
@@ -254,31 +277,34 @@
                 });
                 
                 if (response.ok) {
-                    // Kurangi poin pengguna hanya jika pengiriman data berhasil
-                    points -= withdrawPoints;
-                    localStorage.setItem('points', points);
-                    updateStats();
-
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
-                    hideWithdrawForm();
-
-                    // Reload halaman setelah 1 detik
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000); // Delay 1 detik sebelum reload
+                    hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
-                // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
 
+        // Fungsi untuk mereset hitungan iklan harian setiap hari
+        function resetDailyAdCount() {
+            const today = new Date().toLocaleDateString(); // Ambil tanggal hari ini
+            const lastResetDate = localStorage.getItem('lastResetDate');
 
-        // Saat halaman dimuat, tampilkan statistik terbaru
+            // Jika tanggal terakhir reset bukan hari ini, reset hitungan iklan harian
+            if (lastResetDate !== today) {
+                localStorage.setItem('adCountToday', 0);
+                localStorage.setItem('lastResetDate', today);
+                adCountToday = 0;
+                updateStats();
+            }
+        }
+
+        // Saat halaman dimuat, tampilkan statistik terbaru dan reset hitungan harian jika perlu
         window.onload = function() {
+            resetDailyAdCount();
             updateStats();
         };
     </script>
