@@ -92,6 +92,36 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -112,6 +142,17 @@
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
+
+            <div class="container">
+        <div id="customModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p id="modalMessage"></p>
+            </div>
+        </div>
+    </div>
+
+            
             <p>Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
@@ -152,6 +193,21 @@
     </div>
 
     <script>
+
+        function showModal(message) {
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('customModal').style.display = 'block';
+        }
+        document.getElementsByClassName('close')[0].onclick = function() {
+            document.getElementById('customModal').style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('customModal')) {
+                document.getElementById('customModal').style.display = 'none';
+            }
+        };
+
+        
         // Inisialisasi variabel untuk jumlah iklan dan poin
         let adCount = localStorage.getItem('adCount') || 0; // Jumlah iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
@@ -182,13 +238,13 @@
                 updateStats();
 
                 // Berikan feedback ke pengguna
-                alert('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
+               showModal('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
                 startCountdown(30);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
-                alert('Gagal menampilkan iklan. Silakan coba lagi.');
+                showModal('Gagal menampilkan iklan. Silakan coba lagi.');
                 watchAdButton.disabled = false; // Aktifkan kembali tombol jika iklan gagal
             });
         }
@@ -226,12 +282,12 @@
 
         // Fungsi untuk membuka riwayat penarikan (Google Spreadsheet)
         function openWithdrawalHistory() {
-            alert('Fitur riwayat penarikan sedang dalam pengembangan.');
+            showModal('Fitur riwayat penarikan sedang dalam pengembangan.');
         }
 
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
-            alert('Silakan hubungi admin untuk mendapatkan link grup Telegram.');
+            showModal('Silakan hubungi admin untuk mendapatkan link grup Telegram.');
         }
 
         // Fungsi untuk mengirim data penarikan
@@ -243,19 +299,19 @@
 
             // Validasi input
             if (!name || !phone || !withdrawPoints || !paymentMethod) {
-                alert('Harap isi semua field!');
+               showModal('Harap isi semua field!');
                 return;
             }
 
             // Validasi jumlah poin
             if (withdrawPoints > points) {
-                alert('Poin Anda tidak cukup!');
+                showModal('Poin Anda tidak cukup!');
                 return;
             }
 
             // Validasi batas minimum penarikan (1000 poin)
             if (withdrawPoints < 1000) {
-                alert('Minimal penarikan adalah 1000 poin!');
+                showModal('Minimal penarikan adalah 1000 poin!');
                 return;
             }
 
@@ -283,7 +339,7 @@
                     localStorage.setItem('points', points);
                     updateStats();
 
-                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
+                    showModal('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm();
 
                     // Reload halaman setelah 1 detik
@@ -295,7 +351,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
+                showModal('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
                 // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
