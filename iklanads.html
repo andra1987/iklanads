@@ -74,12 +74,43 @@
         .group-button {
             background-color: #6f42c1; /* Warna ungu untuk tombol group */
         }
+        /* Tambahan style untuk marquee */
+        .marquee-container {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #ff4757;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+
+
+        
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 </head>
 <body>
     <div class="container">
+        <!-- Tambahan marquee di sini -->
+        <div class="marquee-container">
+            <div class="marquee-text">
+                🎉 PROMO! Tonton 5 iklan dapat bonus 50 poin 🎉 • 
+                💰 Minimal penarikan 1000 poin 💰 • 
+                📢 Join grup Telegram untuk info terbaru 📢
+            </div>
+        </div>
+        
         <h1>Telegram Mini App</h1>
         <p>Tonton iklan untuk mendapatkan hadiah!</p>
         <button id="watchAdButton" onclick="showRewardedAd()">Tonton Iklan</button>
