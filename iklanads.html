@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINTANG IKLAN</title>
+    <title>Telegram Mini App with Monetag</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,58 +74,22 @@
         .group-button {
             background-color: #6f42c1; /* Warna ungu untuk tombol group */
         }
-        .marquee {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .marquee span {
-            display: inline-block;
-            padding-left: 100%; /* Mulai dari luar layar */
-            animation: marquee 20s linear infinite;
-        }
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .message {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #c62828;
-            border-radius: 5px;
-            display: none; /* Sembunyikan pesan secara default */
-        }
-        
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 </head>
 <body>
     <div class="container">
-        <h1>Bintang Iklan App</h1>
-        <p>🚀 Bermain setiap hari dan kumpulkan poin lebih banyak🚀</p>
+        <h1>Telegram Mini App</h1>
+        <p>Tonton iklan untuk mendapatkan hadiah!</p>
         <button id="watchAdButton" onclick="showRewardedAd()">Tonton Iklan</button>
 
-        <!-- Informasi tulisan berjalan -->
-        <div class="marquee">
-            <span>Info: Silahkan Gabung Group. Pengiriman hadiah dilakukan pukul 22.00. Silahkan cek Riwayat Penarikan 🚀</span>
-        </div>
-
-       <!-- Menampilkan statistik iklan dan poin -->
+        <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
-            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/55</p>
+            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/10</p>
             <p>Total Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
-
-        <!-- Pesan feedback -->
-        <div id="feedbackMessage" class="message"></div>
 
         <!-- Tombol Penarikan -->
         <button id="withdrawButton" onclick="showWithdrawForm()">Penarikan</button>
@@ -138,7 +102,7 @@
 
         <!-- Formulir Penarikan -->
         <div class="withdraw-form" id="withdrawForm">
-            <h2>Penarikan Poin(biaya admin Rp.100/penarikan)</h2>
+            <h2>Penarikan Poin</h2>
             <label for="name">Nama:</label>
             <input type="text" id="name" placeholder="Masukkan nama Anda" required>
 
@@ -152,7 +116,7 @@
             <select id="paymentMethod" required>
                 <option value="" disabled selected>Pilih metode pembayaran</option>
                 <option value="DANA">DANA</option>
-               <!-- <option value="Shopee">Shopee</option> -->
+                <option value="Shopee">Shopee</option>
             </select>
 
             <div class="form-buttons">
@@ -162,14 +126,12 @@
         </div>
     </div>
 
-
     <script>
         // Inisialisasi variabel untuk jumlah iklan dan poin
         let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
         let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
         const maxAdsPerDay = 10; // Batas maksimal iklan per hari
-        let isCountdownRunning = false; // Status hitungan mundur
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
@@ -177,27 +139,22 @@
             document.getElementById('points').textContent = points;
             document.getElementById('adCountToday').textContent = adCountToday;
 
+            // Nonaktifkan tombol jika batas harian terpenuhi
             const watchAdButton = document.getElementById('watchAdButton');
-
-             // Nonaktifkan tombol jika hitungan mundur berjalan atau batas harian terpenuhi
-            if (isCountdownRunning || adCountToday >= maxAdsPerDay) {
+            if (adCountToday >= maxAdsPerDay) {
                 watchAdButton.disabled = true;
-                watchAdButton.textContent = adCountToday >= maxAdsPerDay ? 'Batas harian tercapai' : 'Coba lagi dalam ...';
+                watchAdButton.textContent = 'Batas harian tercapai';
             } else {
                 watchAdButton.disabled = false;
                 watchAdButton.textContent = 'Tonton Iklan';
             }
         }
+
         // Fungsi untuk menampilkan iklan Rewarded Interstitial
         function showRewardedAd() {
-            if (adCountToday >= maxAdsPerDay) {
-                showMessage('Batas harian iklan sudah tercapai!', true);
-                return;
-            }
-            
             // Nonaktifkan tombol selama hitungan mundur
-            isCountdownRunning = true;
-            updateStats();
+            const watchAdButton = document.getElementById('watchAdButton');
+            watchAdButton.disabled = true;
 
             // Panggil fungsi show_8654720() dari Monetag
             show_8654720().then(() => {
@@ -215,18 +172,16 @@
                 updateStats();
 
                 // Berikan feedback ke pengguna
-                showMessage('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
+                alert('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
                 startCountdown(30);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
-                showMessage('Gagal menampilkan iklan. Silakan coba lagi.', true);
-                isCountdownRunning = false; // Aktifkan kembali tombol jika iklan gagal
-                updateStats();
+                alert('Gagal menampilkan iklan. Silakan coba lagi.');
+                watchAdButton.disabled = false; // Aktifkan kembali tombol jika iklan gagal
             });
         }
-
 
         // Fungsi untuk memulai hitungan mundur
         function startCountdown(seconds) {
@@ -238,11 +193,11 @@
                 watchAdButton.textContent = `Coba lagi dalam ${remainingTime} detik`;
                 remainingTime--;
 
-                / Jika hitungan mundur selesai
+                // Jika hitungan mundur selesai
                 if (remainingTime < 0) {
                     clearInterval(countdownInterval); // Hentikan interval
-                    isCountdownRunning = false; // Hitungan mundur selesai
-                    updateStats();
+                    watchAdButton.textContent = 'Tonton Iklan'; // Kembalikan teks tombol
+                    watchAdButton.disabled = false; // Aktifkan kembali tombol
                 }
             }, 1000); // Update setiap 1 detik
         }
@@ -261,29 +216,14 @@
 
         // Fungsi untuk membuka riwayat penarikan (Google Spreadsheet)
         function openWithdrawalHistory() {
-            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1PIr3_cyO7pVHmIrbLPWVSCgkXfUhIx9BGCpTGsONP1M/edit?usp=sharing'; // Ganti dengan link spreadsheet Anda
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit'; // Ganti dengan link spreadsheet Anda
             window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
         }
 
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
-            const telegramGroupUrl = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
+            const telegramGroupUrl = 'https://t.me/namagrup'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
-        }
-
-        // Fungsi untuk menampilkan pesan feedback
-        function showMessage(message, isError = false) {
-            const feedbackMessage = document.getElementById('feedbackMessage');
-            feedbackMessage.textContent = message;
-            feedbackMessage.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
-            feedbackMessage.style.color = isError ? '#c62828' : '#2e7d32';
-            feedbackMessage.style.borderColor = isError ? '#c62828' : '#2e7d32';
-            feedbackMessage.style.display = 'block';
-
-            // Sembunyikan pesan setelah 3 detik
-            setTimeout(() => {
-                feedbackMessage.style.display = 'none';
-            }, 3000);
         }
 
         // Fungsi untuk mengirim data penarikan
@@ -295,27 +235,30 @@
 
             // Validasi input
             if (!name || !phone || !withdrawPoints || !paymentMethod) {
-                showMessage('Harap isi semua field!', true);
+                alert('Harap isi semua field!');
                 return;
             }
 
             // Validasi jumlah poin
             if (withdrawPoints > points) {
-                showMessage('Poin Anda tidak cukup! MIN 5000', true);
+                alert('Poin Anda tidak cukup!');
                 return;
             }
 
-            // Validasi batas minimum penarikan (5000 poin)
-            if (withdrawPoints < 5000) {
-                showMessage('Minimal penarikan adalah 5000 poin!', true);
+            // Validasi batas minimum penarikan (1000 poin)
+            if (withdrawPoints < 100) {
+                alert('Minimal penarikan adalah 1000 poin!');
                 return;
             }
 
-           
+            // Kurangi poin pengguna
+            points -= withdrawPoints;
+            localStorage.setItem('points', points);
+            updateStats();
 
             // Kirim data penarikan ke admin Telegram
-            const botToken = '7035581953:AAGinoLxWqPTJ6odVATZxQj6kRvCEpTk9OI'; // Ganti dengan token bot Anda
-            const chatId = '306327811'; // Ganti dengan chat ID admin
+            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
+            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
             const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
 
             try {
@@ -332,23 +275,14 @@
                 });
 
                 if (response.ok) {
-                    // Kurangi poin pengguna hanya jika pengiriman data berhasil
-                    points -= withdrawPoints;
-                    localStorage.setItem('points', points);
-                    updateStats();
-                    showMessage('Penarikan berhasil! Admin akan mengirim dana Anda segera.');
+                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
-                    
-                    // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000); // Delay 1 detik sebelum reload
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.', true);
+                alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
             }
         }
 
