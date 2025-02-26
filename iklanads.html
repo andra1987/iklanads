@@ -92,8 +92,6 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
-
-        
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -228,17 +226,15 @@
 
         // Fungsi untuk membuka riwayat penarikan (Google Spreadsheet)
         function openWithdrawalHistory() {
-            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit'; // Ganti dengan link spreadsheet Anda
-            window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
+            alert('Fitur riwayat penarikan sedang dalam pengembangan.');
         }
 
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
-            const telegramGroupUrl = 'https://t.me/namagrup'; // Ganti dengan link grup Telegram Anda
-            window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
+            alert('Silakan hubungi admin untuk mendapatkan link grup Telegram.');
         }
 
-       // Fungsi untuk mengirim data penarikan
+        // Fungsi untuk mengirim data penarikan
         async function submitWithdrawal() {
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
@@ -303,7 +299,6 @@
                 // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
-
 
         // Saat halaman dimuat, tampilkan statistik terbaru
         window.onload = function() {
