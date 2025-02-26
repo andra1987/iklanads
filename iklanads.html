@@ -92,6 +92,16 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #c62828;
+            border-radius: 5px;
+            display: none; /* Sembunyikan pesan secara default */
+        }
+        
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -106,6 +116,9 @@
         <div class="marquee">
             <span>Info: Silahkan Gabung Group. Pengiriman hadiah dilakukan pukul 22.00. Silahkan cek Riwayat Penarikan 🚀</span>
         </div>
+
+        <!-- Pesan feedback -->
+        <div id="feedbackMessage" class="message"></div>
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
@@ -250,6 +263,21 @@
             window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
         }
 
+        // Fungsi untuk menampilkan pesan feedback
+        function showMessage(message, isError = false) {
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            feedbackMessage.textContent = message;
+            feedbackMessage.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
+            feedbackMessage.style.color = isError ? '#c62828' : '#2e7d32';
+            feedbackMessage.style.borderColor = isError ? '#c62828' : '#2e7d32';
+            feedbackMessage.style.display = 'block';
+
+            // Sembunyikan pesan setelah 3 detik
+            setTimeout(() => {
+                feedbackMessage.style.display = 'none';
+            }, 3000);
+        }
+
         // Fungsi untuk mengirim data penarikan
         async function submitWithdrawal() {
             const name = document.getElementById('name').value;
@@ -259,19 +287,19 @@
 
             // Validasi input
             if (!name || !phone || !withdrawPoints || !paymentMethod) {
-                alert('Harap isi semua field!');
+                showMessage('Harap isi semua field!', true);
                 return;
             }
 
             // Validasi jumlah poin
             if (withdrawPoints > points) {
-                alert('Poin Anda tidak cukup! MIN 1000');
+                showMessage('Poin Anda tidak cukup! MIN 1000', true);
                 return;
             }
 
             // Validasi batas minimum penarikan (5000 poin)
             if (withdrawPoints < 5000) {
-                alert('Minimal penarikan adalah 5000 poin!');
+                showMessage('Minimal penarikan adalah 5000 poin!', true);
                 return;
             }
 
@@ -300,7 +328,7 @@
                     points -= withdrawPoints;
                     localStorage.setItem('points', points);
                     updateStats();
-                    alert('Penarikan berhasil! Admin akan mengirim dana Anda segera.');
+                    showMessage('Penarikan berhasil! Admin akan mengirim dana Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                     
                     // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
@@ -312,7 +340,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
+                showMessage('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.', true);
             }
         }
 
