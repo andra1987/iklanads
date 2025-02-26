@@ -161,7 +161,7 @@
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
                 adCount = parseInt(adCount) + 1; // Tambah 1 ke total iklan
                 adCountToday = parseInt(adCountToday) + 1; // Tambah 1 ke iklan hari ini
-                points = parseInt(points) + 10;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
+                points = parseInt(points) + 1000;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
 
                 // Simpan data ke localStorage
                 localStorage.setItem('adCount', adCount);
@@ -246,8 +246,8 @@
             }
 
             // Validasi batas minimum penarikan (5000 poin)
-            if (withdrawPoints < 30) {
-                alert('Minimal penarikan adalah 30 poin!');
+            if (withdrawPoints < 1000) {
+                alert('Minimal penarikan adalah 1000 poin!');
                 return;
             }
 
