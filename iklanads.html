@@ -235,9 +235,14 @@
                 return;
             }
 
+            // Kurangi poin pengguna
+            points -= withdrawPoints;
+            localStorage.setItem('points', points);
+            updateStats();
+
             // Kirim data penarikan ke admin Telegram
-            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-            const chatId = 'ADMIN_CHAT_ID';
+            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
+            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
             const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
 
             try {
@@ -254,27 +259,21 @@
                 });
 
                 if (response.ok) {
-                    // Kurangi poin pengguna hanya jika pengiriman data berhasil
-                    points -= withdrawPoints;
-                    localStorage.setItem('points', points);
-                    updateStats();
-
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
-                    hideWithdrawForm();
-
-                    // Reload halaman setelah 1 detik
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000); // Delay 1 detik sebelum reload
+                    hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
-                // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
+
+        // Saat halaman dimuat, tampilkan statistik terbaru
+        window.onload = function() {
+            updateStats();
+        };
     </script>
 </body>
 </html>
