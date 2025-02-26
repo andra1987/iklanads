@@ -125,7 +125,7 @@
 
         <!-- Formulir Penarikan -->
         <div class="withdraw-form" id="withdrawForm">
-            <h2>Penarikan Poin</h2>
+            <h2>Penarikan Poin(biaya admin Rp.100/penarikan)</h2>
             <label for="name">Nama:</label>
             <input type="text" id="name" placeholder="Masukkan nama Anda" required>
 
@@ -199,7 +199,7 @@
                 alert('Terima kasih telah menonton iklan! Anda mendapatkan 20 poin.');
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
-                startCountdown(30);
+                startCountdown(25);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
                 alert('Gagal menampilkan iklan. Silakan coba lagi.');
@@ -246,7 +246,7 @@
 
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
-            const telegramGroupUrl = 'https://t.me/namagrup'; // Ganti dengan link grup Telegram Anda
+            const telegramGroupUrl = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
         }
 
@@ -278,8 +278,8 @@
            
 
             // Kirim data penarikan ke admin Telegram
-            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
-            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
+            const botToken = '7035581953:AAGinoLxWqPTJ6odVATZxQj6kRvCEpTk9OI'; // Ganti dengan token bot Anda
+            const chatId = '306327811'; // Ganti dengan chat ID admin
             const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
 
             try {
@@ -300,7 +300,7 @@
                     points -= withdrawPoints;
                     localStorage.setItem('points', points);
                     updateStats();
-                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
+                    alert('Penarikan berhasil! Admin akan mengirim dana Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                     
                     // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
