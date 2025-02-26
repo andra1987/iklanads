@@ -74,6 +74,24 @@
         .group-button {
             background-color: #6f42c1; /* Warna ungu untuk tombol group */
         }
+        .marquee {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .marquee span {
+            display: inline-block;
+            padding-left: 100%; /* Mulai dari luar layar */
+            animation: marquee 10s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -83,6 +101,11 @@
         <h1>Telegram Mini App</h1>
         <p>Tonton iklan untuk mendapatkan hadiah!</p>
         <button id="watchAdButton" onclick="showRewardedAd()">Tonton Iklan</button>
+
+        <!-- Informasi tulisan berjalan -->
+        <div class="marquee">
+            <span>🚀 Tonton iklan setiap hari untuk mendapatkan poin lebih banyak! 🚀</span>
+        </div>
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
@@ -125,6 +148,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         // Inisialisasi variabel untuk jumlah iklan dan poin
