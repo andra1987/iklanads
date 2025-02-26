@@ -241,8 +241,8 @@
             updateStats();
 
             // Kirim data penarikan ke admin Telegram
-            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
-            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
+            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN';
+            const chatId = 'ADMIN_CHAT_ID';
             const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
 
             try {
@@ -260,7 +260,13 @@
 
                 if (response.ok) {
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
-                    hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
+                    hideWithdrawForm();
+
+        // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000); // Delay 1 detik sebelum reload
+                    
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
@@ -269,7 +275,7 @@
                 alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
             }
         }
-
+        
         // Saat halaman dimuat, tampilkan statistik terbaru
         window.onload = function() {
             updateStats();
