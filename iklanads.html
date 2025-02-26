@@ -251,10 +251,7 @@
                 return;
             }
 
-            // Kurangi poin pengguna
-            points -= withdrawPoints;
-            localStorage.setItem('points', points);
-            updateStats();
+           
 
             // Kirim data penarikan ke admin Telegram
             const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
@@ -275,8 +272,13 @@
                 });
 
                 if (response.ok) {
+                    // Kurangi poin pengguna hanya jika pengiriman data berhasil
+                    points -= withdrawPoints;
+                    localStorage.setItem('points', points);
+                    updateStats();
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
+                    
                     // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
                     setTimeout(() => {
                         window.location.reload();
