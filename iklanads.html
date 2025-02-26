@@ -1,1 +1,232 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App with Monetag Ads</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .announcement {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .ad-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .ad-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .ad-button.clicked {
+            background-color: #28a745; /* Warna hijau setelah diklik */
+        }
+        .countdown {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mini App Monetag</h1>
+        
+        <!-- Tampilan Pengumuman -->
+        <div class="announcement">
+            <h2>Pengumuman</h2>
+            <p>Selamat datang di aplikasi Mini App Monetag! Tonton iklan untuk mendapatkan poin.</p>
+        </div>
+
+        <!-- Tampilan Jumlah Iklan yang Muncul Hari Ini -->
+        <div>
+            <h3>Iklan Hari Ini: <span id="adCount">0</span>/<span id="maxAdsPerDay">5</span></h3>
+        </div>
+
+        <!-- Tampilan Total Iklan yang Dilihat -->
+        <div>
+            <h3>Total Iklan Dilihat: <span id="totalAdCount">0</span></h3>
+        </div>
+
+        <!-- Tampilan Poin yang Didapatkan -->
+        <div>
+            <h3>Poin Anda: <span id="points">0</span></h3>
+        </div>
+
+        <!-- Tombol Lihat Iklan -->
+        <button id="watchAdButton" class="ad-button" onclick="showAd()">Lihat Iklan</button>
+
+        <!-- Hitung Mundur -->
+        <div id="countdown" class="countdown"></div>
+    </div>
+
+    <!-- Pesan Terbang (Toast) -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Integrasi SDK Monetag -->
+    <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
+
+    <script>
+        let adCount = 0; // Jumlah iklan hari ini
+        let totalAdCount = 0; // Total iklan yang dilihat sepanjang waktu
+        let points = 0; // Poin yang didapatkan
+        const maxAdsPerDay = 5; // Batasan iklan per hari
+        let countdownActive = false;
+
+        // Fungsi untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+        function getTodayDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        }
+
+        // Muat data dari localStorage saat aplikasi dimulai
+        function loadData() {
+            const savedPoints = localStorage.getItem("points");
+            const savedAdCount = localStorage.getItem("adCount");
+            const savedTotalAdCount = localStorage.getItem("totalAdCount");
+            const lastAdDate = localStorage.getItem("lastAdDate");
+
+            // Periksa apakah tanggal terakhir menonton iklan adalah hari ini
+            const today = getTodayDate();
+            if (lastAdDate !== today) {
+                // Reset batasan iklan harian jika tanggal berbeda
+                adCount = 0;
+                localStorage.setItem("lastAdDate", today);
+            } else {
+                // Muat data iklan harian jika tanggal sama
+                adCount = parseInt(savedAdCount) || 0;
+            }
+
+            // Muat data poin dan total iklan
+            points = parseInt(savedPoints) || 0;
+            totalAdCount = parseInt(savedTotalAdCount) || 0;
+
+            // Perbarui tampilan
+            document.getElementById("adCount").textContent = adCount;
+            document.getElementById("totalAdCount").textContent = totalAdCount;
+            document.getElementById("points").textContent = points;
+        }
+
+        // Simpan data ke localStorage
+        function saveData() {
+            localStorage.setItem("points", points);
+            localStorage.setItem("adCount", adCount);
+            localStorage.setItem("totalAdCount", totalAdCount);
+            localStorage.setItem("lastAdDate", getTodayDate());
+        }
+
+        // Fungsi untuk menampilkan pesan terbang (toast)
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000); // Pesan hilang setelah 3 detik
+        }
+
+        // Fungsi untuk menampilkan iklan
+        function showAd() {
+            if (adCount >= maxAdsPerDay) {
+                showToast("Anda telah mencapai batas iklan hari ini.");
+                return;
+            }
+
+            // Tampilkan iklan Monetag
+            const adSuccess = show_8654720(); // Panggil fungsi Monetag
+
+            if (adSuccess) {
+                // Simulasikan callback setelah iklan selesai
+                setTimeout(() => {
+                    adCount++;
+                    totalAdCount++;
+                    points += 10; // Tambahkan 10 poin setiap iklan berhasil ditonton
+
+                    // Perbarui tampilan
+                    document.getElementById("adCount").textContent = adCount;
+                    document.getElementById("totalAdCount").textContent = totalAdCount;
+                    document.getElementById("points").textContent = points;
+
+                    // Simpan data ke localStorage
+                    saveData();
+
+                    // Tampilkan pesan terbang
+                    showToast("Iklan berhasil ditonton! +10 Poin.");
+
+                    // Ubah warna tombol setelah diklik
+                    const adButton = document.getElementById("watchAdButton");
+                    adButton.classList.add("clicked");
+
+                    // Mulai hitung mundur
+                    startCountdown();
+                }, 1000); // Simulasi delay setelah iklan selesai (1 detik)
+            } else {
+                showToast("Iklan tidak muncul. Coba lagi nanti.");
+            }
+
+            // Nonaktifkan tombol jika batas iklan tercapai
+            if (adCount >= maxAdsPerDay) {
+                document.getElementById("watchAdButton").disabled = true;
+            }
+        }
+
+        // Fungsi untuk hitung mundur
+        function startCountdown() {
+            let countdownTime = 10; // 10 detik hitung mundur
+            const countdownElement = document.getElementById("countdown");
+            const adButton = document.getElementById("watchAdButton");
+
+            adButton.disabled = true;
+            countdownActive = true;
+
+            const countdownInterval = setInterval(() => {
+                countdownElement.textContent = `Tunggu ${countdownTime} detik...`;
+                countdownTime--;
+
+                if (countdownTime < 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.textContent = "";
+                    adButton.disabled = false;
+                    countdownActive = false;
+
+                    // Kembalikan warna tombol ke aslinya
+                    adButton.classList.remove("clicked");
+                }
+            }, 1000);
+        }
+
+        // Muat data saat aplikasi dimulai
+        loadData();
+    </script>
+</body>
+</html>
