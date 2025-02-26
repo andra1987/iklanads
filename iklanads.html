@@ -210,15 +210,18 @@
             localStorage.setItem('withdrawalHistory', JSON.stringify(withdrawalHistory));
         }
 
-        // Fungsi untuk memperbarui UI
+        // Fungsi updateUI yang dimodifikasi
         function updateUI() {
+            // Update header informasi
             document.getElementById('adsViewed').textContent = adsViewedToday;
-            document.getElementById('totalAdsViewed').textContent = totalAdsViewed;
             document.getElementById('dailyLimit').textContent = dailyLimit;
+            document.getElementById('totalAdsViewed').textContent = totalAdsViewed;
             document.getElementById('points').textContent = points;
 
+            // Update tombol
+            document.getElementById('viewAdButton').disabled = adsViewedToday >= dailyLimit;
+
             if (adsViewedToday >= dailyLimit) {
-                document.getElementById('viewAdButton').disabled = true;
                 showMessage("Anda telah mencapai batas iklan harian.", true);
             }
         }
