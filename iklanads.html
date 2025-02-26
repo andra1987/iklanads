@@ -223,7 +223,7 @@
                 return;
             }
 
-            // Validasi jumlah poin
+            / Validasi jumlah poin
             if (withdrawPoints > points) {
                 alert('Poin Anda tidak cukup!');
                 return;
@@ -234,11 +234,6 @@
                 alert('Minimal penarikan adalah 1000 poin!');
                 return;
             }
-
-            // Kurangi poin pengguna
-            points -= withdrawPoints;
-            localStorage.setItem('points', points);
-            updateStats();
 
             // Kirim data penarikan ke admin Telegram
             const botToken = 'YOUR_TELEGRAM_BOT_TOKEN';
@@ -259,20 +254,25 @@
                 });
 
                 if (response.ok) {
+                    // Kurangi poin pengguna hanya jika pengiriman data berhasil
+                    points -= withdrawPoints;
+                    localStorage.setItem('points', points);
+                    updateStats();
+
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm();
 
-        // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
+        // Reload halaman setelah 1 detik
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000); // Delay 1 detik sebelum reload
-                    
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
+                // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
         
