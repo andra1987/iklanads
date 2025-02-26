@@ -86,7 +86,8 @@
 
         <!-- Menampilkan statistik iklan dan poin -->
         <div class="stats">
-            <p>Iklan dilihat: <span id="adCount">0</span></p>
+            <p>Iklan dilihat hari ini: <span id="adCountToday">0</span>/10</p>
+            <p>Total Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
         </div>
 
@@ -127,13 +128,26 @@
 
     <script>
         // Inisialisasi variabel untuk jumlah iklan dan poin
-        let adCount = localStorage.getItem('adCount') || 0; // Jumlah iklan yang dilihat
+        let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
+        let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
+        const maxAdsPerDay = 10; // Batas maksimal iklan per hari
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
             document.getElementById('adCount').textContent = adCount;
             document.getElementById('points').textContent = points;
+            document.getElementById('adCountToday').textContent = adCountToday;
+
+            // Nonaktifkan tombol jika batas harian terpenuhi
+            const watchAdButton = document.getElementById('watchAdButton');
+            if (adCountToday >= maxAdsPerDay) {
+                watchAdButton.disabled = true;
+                watchAdButton.textContent = 'Batas harian tercapai';
+            } else {
+                watchAdButton.disabled = false;
+                watchAdButton.textContent = 'Tonton Iklan';
+            }
         }
 
         // Fungsi untuk menampilkan iklan Rewarded Interstitial
@@ -145,11 +159,13 @@
             // Panggil fungsi show_8654720() dari Monetag
             show_8654720().then(() => {
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
-                adCount = parseInt(adCount) + 1; // Tambah 1 ke jumlah iklan
+                adCount = parseInt(adCount) + 1; // Tambah 1 ke total iklan
+                adCountToday = parseInt(adCountToday) + 1; // Tambah 1 ke iklan hari ini
                 points = parseInt(points) + 10;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
 
                 // Simpan data ke localStorage
                 localStorage.setItem('adCount', adCount);
+                localStorage.setItem('adCountToday', adCountToday);
                 localStorage.setItem('points', points);
 
                 // Perbarui tampilan statistik
@@ -259,7 +275,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Penarikan berhasil! Saldo akan admin kirim segera.');
+                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
@@ -270,8 +286,23 @@
             }
         }
 
-        // Saat halaman dimuat, tampilkan statistik terbaru
+        // Fungsi untuk mereset hitungan iklan harian setiap hari
+        function resetDailyAdCount() {
+            const today = new Date().toLocaleDateString(); // Ambil tanggal hari ini
+            const lastResetDate = localStorage.getItem('lastResetDate');
+
+            // Jika tanggal terakhir reset bukan hari ini, reset hitungan iklan harian
+            if (lastResetDate !== today) {
+                localStorage.setItem('adCountToday', 0);
+                localStorage.setItem('lastResetDate', today);
+                adCountToday = 0;
+                updateStats();
+            }
+        }
+
+        // Saat halaman dimuat, tampilkan statistik terbaru dan reset hitungan harian jika perlu
         window.onload = function() {
+            resetDailyAdCount();
             updateStats();
         };
     </script>
