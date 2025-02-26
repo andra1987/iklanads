@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App with Monetag</title>
+    <title>BINTANG IKLAN</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,13 +98,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Telegram Mini App</h1>
-        <p>Tonton iklan untuk mendapatkan hadiah!</p>
+        <h1>Bintang Iklan App</h1>
+        <p>🚀 Bermain setiap hari dan kumpulkan poin lebih banyak🚀</p>
         <button id="watchAdButton" onclick="showRewardedAd()">Tonton Iklan</button>
 
         <!-- Informasi tulisan berjalan -->
         <div class="marquee">
-            <span>🚀 Tonton iklan setiap hari untuk mendapatkan poin lebih banyak! 🚀</span>
+            <span>Info: Silahkan Gabung Group. Pengiriman hadiah dilakukan pukul 22.00. Silahkan cek Riwayat Penarikan 🚀</span>
         </div>
 
         <!-- Menampilkan statistik iklan dan poin -->
@@ -139,7 +139,7 @@
             <select id="paymentMethod" required>
                 <option value="" disabled selected>Pilih metode pembayaran</option>
                 <option value="DANA">DANA</option>
-                <option value="Shopee">Shopee</option>
+               <!-- <option value="Shopee">Shopee</option> -->
             </select>
 
             <div class="form-buttons">
@@ -155,7 +155,7 @@
         let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
         let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
-        const maxAdsPerDay = 10; // Batas maksimal iklan per hari
+        const maxAdsPerDay = 55; // Batas maksimal iklan per hari
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
@@ -185,7 +185,7 @@
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
                 adCount = parseInt(adCount) + 1; // Tambah 1 ke total iklan
                 adCountToday = parseInt(adCountToday) + 1; // Tambah 1 ke iklan hari ini
-                points = parseInt(points) + 1000;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
+                points = parseInt(points) + 20;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
 
                 // Simpan data ke localStorage
                 localStorage.setItem('adCount', adCount);
@@ -196,7 +196,7 @@
                 updateStats();
 
                 // Berikan feedback ke pengguna
-                alert('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
+                alert('Terima kasih telah menonton iklan! Anda mendapatkan 20 poin.');
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
                 startCountdown(30);
@@ -240,7 +240,7 @@
 
         // Fungsi untuk membuka riwayat penarikan (Google Spreadsheet)
         function openWithdrawalHistory() {
-            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit'; // Ganti dengan link spreadsheet Anda
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1PIr3_cyO7pVHmIrbLPWVSCgkXfUhIx9BGCpTGsONP1M/edit?usp=sharing'; // Ganti dengan link spreadsheet Anda
             window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
         }
 
