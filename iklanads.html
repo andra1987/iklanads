@@ -87,7 +87,6 @@
         <button class="button" id="viewAdButton" onclick="viewAd()">Lihat Iklan</button>
         <button class="button" id="withdrawalButton" onclick="showWithdrawalForm()">Penarikan</button>
         <button class="button" id="historyButton" onclick="showHistory()">Riwayat Penarikan</button>
-        <button class="button" id="joinGroupButton" onclick="joinGroup()">Gabung Group Telegram</button>
 
         <!-- Hitungan mundur -->
         <div id="countdown" class="countdown"></div>
@@ -133,10 +132,9 @@
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 
     <script>
-         // Data yang disimpan di localStorage
-        let adsViewedToday = parseInt(localStorage.getItem('adsViewedToday')) || 0;
-        let totalAdsViewed = parseInt(localStorage.getItem('totalAdsViewed')) || 0;
-        let points = parseInt(localStorage.getItem('points')) || 0; // Poin awal (contoh: 100 poin)
+        let adsViewedToday = 0;
+        let totalAdsViewed = 0;
+        let points = 100; // Poin awal (contoh: 100 poin)
         const dailyLimit = 5;
         let countdownInterval;
         const countdownDuration = 10; // Hitungan mundur dalam detik
@@ -148,16 +146,6 @@
         // URL Google Spreadsheet (CSV)
         const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/SPREADSHEET_ID/pub?output=csv';
 
-        // Link Group Telegram
-        const telegramGroupLink = 'https://t.me/namagroup'; // Ganti dengan link group Telegram Anda
-
-       // Fungsi untuk menyimpan data ke localStorage
-        function saveToLocalStorage() {
-            localStorage.setItem('adsViewedToday', adsViewedToday);
-            localStorage.setItem('totalAdsViewed', totalAdsViewed);
-            localStorage.setItem('points', points);
-            
-            
         function updateUI() {
             document.getElementById('adsViewed').textContent = adsViewedToday;
             document.getElementById('totalAdsViewed').textContent = totalAdsViewed;
@@ -221,7 +209,6 @@
             adsViewedToday++;
             totalAdsViewed++;
             points += 10; // Tambahkan 10 poin setiap iklan selesai dilihat
-            saveToLocalStorage(); // Simpan perubahan ke localStorage
             updateUI();
             showMessage("Iklan selesai dilihat! Poin bertambah.");
 
@@ -321,10 +308,6 @@
             } catch (error) {
                 showMessage("Gagal memuat riwayat penarikan.", true);
             }
-        }
-
-        function joinGroup() {
-            window.open(telegramGroupLink, '_blank'); // Buka link group Telegram di tab baru
         }
 
         // Initialize UI
