@@ -20,6 +20,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
         }
         button {
             padding: 10px 20px;
@@ -29,6 +31,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:disabled {
             background-color: #ccc;
@@ -37,6 +40,32 @@
         .stats {
             margin-top: 20px;
             font-size: 18px;
+        }
+        .withdraw-form {
+            margin-top: 20px;
+            text-align: left;
+            display: none; /* Sembunyikan formulir secara default */
+        }
+        .withdraw-form input, .withdraw-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .withdraw-form label {
+            font-weight: bold;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .form-buttons button {
+            width: 48%;
+        }
+        .form-buttons button.cancel {
+            background-color: #dc3545;
         }
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
@@ -52,6 +81,34 @@
         <div class="stats">
             <p>Iklan dilihat: <span id="adCount">0</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
+        </div>
+
+        <!-- Tombol Penarikan -->
+        <button id="withdrawButton" onclick="showWithdrawForm()">Penarikan</button>
+
+        <!-- Formulir Penarikan -->
+        <div class="withdraw-form" id="withdrawForm">
+            <h2>Penarikan Poin</h2>
+            <label for="name">Nama:</label>
+            <input type="text" id="name" placeholder="Masukkan nama Anda" required>
+
+            <label for="phone">Nomor HP:</label>
+            <input type="text" id="phone" placeholder="Masukkan nomor HP Anda" required>
+
+            <label for="withdrawPoints">Jumlah Poin:</label>
+            <input type="number" id="withdrawPoints" placeholder="Masukkan jumlah poin" required>
+
+            <label for="paymentMethod">Metode Pembayaran:</label>
+            <select id="paymentMethod" required>
+                <option value="" disabled selected>Pilih metode pembayaran</option>
+                <option value="DANA">DANA</option>
+                <option value="Shopee">Shopee</option>
+            </select>
+
+            <div class="form-buttons">
+                <button onclick="submitWithdrawal()">Kirim</button>
+                <button class="cancel" onclick="hideWithdrawForm()">Batal</button>
+            </div>
         </div>
     </div>
 
@@ -114,6 +171,72 @@
                     watchAdButton.disabled = false; // Aktifkan kembali tombol
                 }
             }, 1000); // Update setiap 1 detik
+        }
+
+        // Fungsi untuk menampilkan formulir penarikan
+        function showWithdrawForm() {
+            document.getElementById('withdrawForm').style.display = 'block';
+            document.getElementById('withdrawButton').style.display = 'none'; // Sembunyikan tombol Penarikan
+        }
+
+        // Fungsi untuk menyembunyikan formulir penarikan
+        function hideWithdrawForm() {
+            document.getElementById('withdrawForm').style.display = 'none';
+            document.getElementById('withdrawButton').style.display = 'block'; // Tampilkan kembali tombol Penarikan
+        }
+
+        // Fungsi untuk mengirim data penarikan
+        async function submitWithdrawal() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const withdrawPoints = parseInt(document.getElementById('withdrawPoints').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            // Validasi input
+            if (!name || !phone || !withdrawPoints || !paymentMethod) {
+                alert('Harap isi semua field!');
+                return;
+            }
+
+            // Validasi jumlah poin
+            if (withdrawPoints > points) {
+                alert('Poin Anda tidak cukup!');
+                return;
+            }
+
+            // Kurangi poin pengguna
+            points -= withdrawPoints;
+            localStorage.setItem('points', points);
+            updateStats();
+
+            // Kirim data penarikan ke admin Telegram
+            const botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Anda
+            const chatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin
+            const message = `📝 *Penarikan Poin Baru*:\n\nNama: ${name}\nNomor HP: ${phone}\nJumlah Poin: ${withdrawPoints}\nMetode Pembayaran: ${paymentMethod}`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown',
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
+                    hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
+                } else {
+                    throw new Error('Gagal mengirim pesan ke admin.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim data penarikan. Silakan coba lagi.');
+            }
         }
 
         // Saat halaman dimuat, tampilkan statistik terbaru
