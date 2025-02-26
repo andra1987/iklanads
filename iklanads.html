@@ -5,45 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Mini App - Iklan & Penarikan</title>
     <style>
-        /* Tambahan style untuk header informasi */
-        .info-header {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-around;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .info-item {
-            text-align: center;
-            min-width: 120px;
-        }
-        .info-label {
-            color: #6c757d;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        .info-value {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #007bff;
-        }
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #f4f4f4;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .info {
             margin-bottom: 20px;
@@ -107,33 +76,13 @@
 <body>
     <div class="container">
         <h1>Iklan Harian</h1>
-        <h1>Iklan Harian</h1>
         
-        <!-- Header Informasi -->
-        <div class="info-header">
-            <div class="info-item">
-                <div class="info-label">Poin Anda</div>
-                <div class="info-value" id="points">0</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Iklan Hari Ini</div>
-                <div class="info-value">
-                    <span id="adsViewed">0</span>/<span id="dailyLimit">5</span>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Total Iklan</div>
-                <div class="info-value" id="totalAdsViewed">0</div>
-            </div>
-        </div>
-
-        
-        <!-- <div class="info">
+        <div class="info">
             <p>Iklan Dilihat Hari Ini: <span id="adsViewed">0</span></p>
             <p>Total Iklan Dilihat: <span id="totalAdsViewed">0</span></p>
             <p>Batas Iklan per Hari: <span id="dailyLimit">5</span></p>
             <p>Poin Anda: <span id="points">0</span></p>
-        </div> -->
+        </div>
 
         <button class="button" id="viewAdButton" onclick="viewAd()">Lihat Iklan</button>
         <button class="button" id="withdrawalButton" onclick="showWithdrawalForm()">Penarikan</button>
@@ -210,18 +159,15 @@
             localStorage.setItem('withdrawalHistory', JSON.stringify(withdrawalHistory));
         }
 
-        // Fungsi updateUI yang dimodifikasi
+        // Fungsi untuk memperbarui UI
         function updateUI() {
-            // Update header informasi
             document.getElementById('adsViewed').textContent = adsViewedToday;
-            document.getElementById('dailyLimit').textContent = dailyLimit;
             document.getElementById('totalAdsViewed').textContent = totalAdsViewed;
+            document.getElementById('dailyLimit').textContent = dailyLimit;
             document.getElementById('points').textContent = points;
 
-            // Update tombol
-            document.getElementById('viewAdButton').disabled = adsViewedToday >= dailyLimit;
-
             if (adsViewedToday >= dailyLimit) {
+                document.getElementById('viewAdButton').disabled = true;
                 showMessage("Anda telah mencapai batas iklan harian.", true);
             }
         }
