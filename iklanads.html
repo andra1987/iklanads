@@ -168,7 +168,8 @@
         let adCount = localStorage.getItem('adCount') || 0; // Total iklan yang dilihat
         let points = localStorage.getItem('points') || 0;   // Total poin pengguna
         let adCountToday = localStorage.getItem('adCountToday') || 0; // Iklan yang dilihat hari ini
-        const maxAdsPerDay = 55; // Batas maksimal iklan per hari
+        const maxAdsPerDay = 10; // Batas maksimal iklan per hari
+        let isCountdownRunning = false; // Status hitungan mundur
 
         // Fungsi untuk memperbarui tampilan statistik
         function updateStats() {
@@ -176,30 +177,34 @@
             document.getElementById('points').textContent = points;
             document.getElementById('adCountToday').textContent = adCountToday;
 
-            // Nonaktifkan tombol jika batas harian terpenuhi
             const watchAdButton = document.getElementById('watchAdButton');
-            if (adCountToday >= maxAdsPerDay) {
+
+             // Nonaktifkan tombol jika hitungan mundur berjalan atau batas harian terpenuhi
+            if (isCountdownRunning || adCountToday >= maxAdsPerDay) {
                 watchAdButton.disabled = true;
-                watchAdButton.textContent = 'Batas harian tercapai';
+                watchAdButton.textContent = adCountToday >= maxAdsPerDay ? 'Batas harian tercapai' : 'Coba lagi dalam ...';
             } else {
                 watchAdButton.disabled = false;
                 watchAdButton.textContent = 'Tonton Iklan';
             }
         }
-
         // Fungsi untuk menampilkan iklan Rewarded Interstitial
         function showRewardedAd() {
+            if (adCountToday >= maxAdsPerDay) {
+                showMessage('Batas harian iklan sudah tercapai!', true);
+                return;
+            }
             
             // Nonaktifkan tombol selama hitungan mundur
-             const watchAdButton = document.getElementById('watchAdButton');
-                watchAdButton.disabled = true;
+            isCountdownRunning = true;
+            updateStats();
 
             // Panggil fungsi show_8654720() dari Monetag
             show_8654720().then(() => {
                 // Iklan selesai ditonton, tambahkan jumlah iklan dan poin
                 adCount = parseInt(adCount) + 1; // Tambah 1 ke total iklan
                 adCountToday = parseInt(adCountToday) + 1; // Tambah 1 ke iklan hari ini
-                points = parseInt(points) + 20;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
+                points = parseInt(points) + 10;  // Tambah 10 poin (sesuaikan dengan kebutuhan)
 
                 // Simpan data ke localStorage
                 localStorage.setItem('adCount', adCount);
@@ -210,16 +215,18 @@
                 updateStats();
 
                 // Berikan feedback ke pengguna
-                alert('Terima kasih telah menonton iklan! Anda mendapatkan 20 poin.',);
+                showMessage('Terima kasih telah menonton iklan! Anda mendapatkan 10 poin.');
 
                 // Mulai hitungan mundur 30 detik sebelum tombol bisa diklik lagi
-                startCountdown(20);
+                startCountdown(30);
             }).catch((error) => {
                 console.error('Gagal menampilkan iklan:', error);
-                alert('Gagal menampilkan iklan. Silakan coba lagi.');
-                watchAdButton.disabled = false; // Aktifkan kembali tombol jika iklan gagal
+                showMessage('Gagal menampilkan iklan. Silakan coba lagi.', true);
+                isCountdownRunning = false; // Aktifkan kembali tombol jika iklan gagal
+                updateStats();
             });
         }
+
 
         // Fungsi untuk memulai hitungan mundur
         function startCountdown(seconds) {
@@ -231,11 +238,11 @@
                 watchAdButton.textContent = `Coba lagi dalam ${remainingTime} detik`;
                 remainingTime--;
 
-                // Jika hitungan mundur selesai
+                / Jika hitungan mundur selesai
                 if (remainingTime < 0) {
                     clearInterval(countdownInterval); // Hentikan interval
-                    watchAdButton.textContent = 'Tonton Iklan'; // Kembalikan teks tombol
-                    watchAdButton.disabled = false; // Aktifkan kembali tombol
+                    isCountdownRunning = false; // Hitungan mundur selesai
+                    updateStats();
                 }
             }, 1000); // Update setiap 1 detik
         }
