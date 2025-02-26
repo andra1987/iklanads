@@ -32,6 +32,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
+            width: 100%;
         }
         button:disabled {
             background-color: #ccc;
@@ -67,6 +68,9 @@
         .form-buttons button.cancel {
             background-color: #dc3545;
         }
+        .history-button {
+            background-color: #28a745; /* Warna hijau untuk tombol riwayat */
+        }
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -85,6 +89,9 @@
 
         <!-- Tombol Penarikan -->
         <button id="withdrawButton" onclick="showWithdrawForm()">Penarikan</button>
+
+        <!-- Tombol Riwayat Penarikan -->
+        <button class="history-button" onclick="openWithdrawalHistory()">Riwayat Penarikan</button>
 
         <!-- Formulir Penarikan -->
         <div class="withdraw-form" id="withdrawForm">
@@ -183,6 +190,12 @@
         function hideWithdrawForm() {
             document.getElementById('withdrawForm').style.display = 'none';
             document.getElementById('withdrawButton').style.display = 'block'; // Tampilkan kembali tombol Penarikan
+        }
+
+        // Fungsi untuk membuka riwayat penarikan (Google Spreadsheet)
+        function openWithdrawalHistory() {
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit'; // Ganti dengan link spreadsheet Anda
+            window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
         }
 
         // Fungsi untuk mengirim data penarikan
