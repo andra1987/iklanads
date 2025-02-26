@@ -277,6 +277,10 @@
                 if (response.ok) {
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm(); // Sembunyikan formulir setelah berhasil
+                    // Reload halaman setelah 1 detik (opsional: bisa langsung tanpa setTimeout)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000); // Delay 1 detik sebelum reload
                 } else {
                     throw new Error('Gagal mengirim pesan ke admin.');
                 }
