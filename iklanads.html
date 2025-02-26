@@ -71,6 +71,9 @@
         .history-button {
             background-color: #28a745; /* Warna hijau untuk tombol riwayat */
         }
+        .group-button {
+            background-color: #6f42c1; /* Warna ungu untuk tombol group */
+        }
     </style>
     <!-- Tambahkan skrip Monetag di sini -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
@@ -92,6 +95,9 @@
 
         <!-- Tombol Riwayat Penarikan -->
         <button class="history-button" onclick="openWithdrawalHistory()">Riwayat Penarikan</button>
+
+        <!-- Tombol Group -->
+        <button class="group-button" onclick="openTelegramGroup()">Group Telegram</button>
 
         <!-- Formulir Penarikan -->
         <div class="withdraw-form" id="withdrawForm">
@@ -196,6 +202,12 @@
         function openWithdrawalHistory() {
             const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit'; // Ganti dengan link spreadsheet Anda
             window.open(spreadsheetUrl, '_blank'); // Buka link di tab baru
+        }
+
+        // Fungsi untuk membuka grup Telegram
+        function openTelegramGroup() {
+            const telegramGroupUrl = 'https://t.me/namagrup'; // Ganti dengan link grup Telegram Anda
+            window.open(telegramGroupUrl, '_blank'); // Buka link di tab baru
         }
 
         // Fungsi untuk mengirim data penarikan
