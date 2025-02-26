@@ -223,7 +223,7 @@
                 return;
             }
 
-            / Validasi jumlah poin
+            // Validasi jumlah poin
             if (withdrawPoints > points) {
                 alert('Poin Anda tidak cukup!');
                 return;
@@ -262,7 +262,7 @@
                     alert('Penarikan berhasil! Admin akan menghubungi Anda segera.');
                     hideWithdrawForm();
 
-        // Reload halaman setelah 1 detik
+                    // Reload halaman setelah 1 detik
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000); // Delay 1 detik sebelum reload
@@ -275,11 +275,6 @@
                 // Poin TIDAK dikurangi jika terjadi kesalahan
             }
         }
-        
-        // Saat halaman dimuat, tampilkan statistik terbaru
-        window.onload = function() {
-            updateStats();
-        };
     </script>
 </body>
 </html>
