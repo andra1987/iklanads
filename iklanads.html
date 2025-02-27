@@ -157,6 +157,53 @@
             display: none;
         }
 
+        /* Riwayat Penarikan */
+        .history {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .history h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .history ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history ul li {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .history .history-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .history .history-buttons button {
+            width: 48%;
+            margin: 0;
+        }
+
         /* Overlay */
         .overlay {
             display: none;
@@ -215,6 +262,9 @@
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
 
+        <!-- Tombol Riwayat Penarikan -->
+        <button id="historyButton" onclick="showHistory()">📜 Riwayat Penarikan</button>
+
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
             <!-- Iklan Monetag akan ditampilkan di sini -->
@@ -252,6 +302,16 @@
                 <button type="button" onclick="hideWithdrawalForm()">Batal</button>
             </div>
         </form>
+    </div>
+
+    <!-- Riwayat Penarikan -->
+    <div class="history" id="history">
+        <h2>Riwayat Penarikan</h2>
+        <ul id="historyList"></ul>
+        <div class="history-buttons">
+            <button type="button" onclick="deleteHistory()">🗑️ Hapus Riwayat</button>
+            <button type="button" onclick="hideHistory()">❌ Tutup</button>
+        </div>
     </div>
 
     <!-- Pesan mengambang (toast) -->
@@ -396,6 +456,10 @@
                     points -= parseInt(pointsToWithdraw);
                     document.getElementById('points').innerText = points;
                     saveData(); // Simpan perubahan poin ke local storage
+
+                    // Simpan riwayat penarikan
+                    saveWithdrawalHistory(name, pointsToWithdraw, paymentMethod, phoneNumber, date);
+
                     showToast("Permintaan penarikan poin berhasil dikirim ke admin.", 3000);
                 } else {
                     showToast("Gagal mengirim permintaan penarikan poin. Silakan coba lagi.", 3000);
@@ -408,6 +472,52 @@
             // Reset formulir dan sembunyikan
             resetWithdrawalForm();
             hideWithdrawalForm();
+        }
+
+        // Fungsi untuk menyimpan riwayat penarikan
+        function saveWithdrawalHistory(name, pointsToWithdraw, paymentMethod, phoneNumber, date) {
+            const history = JSON.parse(localStorage.getItem('withdrawalHistory')) || [];
+            history.push({ name, pointsToWithdraw, paymentMethod, phoneNumber, date });
+            localStorage.setItem('withdrawalHistory', JSON.stringify(history));
+        }
+
+        // Fungsi untuk menampilkan riwayat penarikan
+        function showHistory() {
+            const history = JSON.parse(localStorage.getItem('withdrawalHistory')) || [];
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<li>Tidak ada riwayat penarikan.</li>';
+            } else {
+                history.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <strong>${index + 1}. ${item.name}</strong><br>
+                        Poin: ${item.pointsToWithdraw}<br>
+                        Metode: ${item.paymentMethod}<br>
+                        Nomor HP: ${item.phoneNumber}<br>
+                        Tanggal: ${item.date}
+                    `;
+                    historyList.appendChild(li);
+                });
+            }
+
+            document.getElementById('history').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        // Fungsi untuk menyembunyikan riwayat penarikan
+        function hideHistory() {
+            document.getElementById('history').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Fungsi untuk menghapus riwayat penarikan
+        function deleteHistory() {
+            localStorage.removeItem('withdrawalHistory');
+            showHistory(); // Perbarui tampilan riwayat
+            showToast("Riwayat penarikan berhasil dihapus.", 3000);
         }
 
         // Fungsi untuk memulai iklan
