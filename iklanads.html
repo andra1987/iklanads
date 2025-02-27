@@ -584,6 +584,25 @@
                 return;
             }
 
+        // Show interstitial ad
+    show_8978526({
+        type: 'inApp',
+        inAppSettings: {
+            frequency: 2,
+            capping: 0.01,
+            interval: 30,
+            timeout: 5,
+            everyPage: false
+        }
+    });
+
+    // Simulate ad completion
+    setTimeout(() => {
+        onAdComplete();
+    }, 5000); // Simulate ad completion after 5 seconds
+}
+        
+
             // Nonaktifkan tombol sementara
             disableAdButton();
             // Tampilkan iklan Monetag
