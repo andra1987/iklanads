@@ -265,6 +265,9 @@
         <!-- Tombol Riwayat Penarikan -->
         <button id="historyButton" onclick="showHistory()">📜 Riwayat Penarikan</button>
 
+        <!-- Tombol Group Telegram Baru -->
+        <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
+
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
             <!-- Iklan Monetag akan ditampilkan di sini -->
@@ -321,6 +324,12 @@
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
 
     <script>
+        // Fungsi untuk membuka grup Telegram
+        function openTelegramGroup() {
+            const telegramGroupLink = 'https://t.me/your_group_link'; // Ganti dengan link grup Telegram Anda
+            window.open(telegramGroupLink, '_blank');
+        }
+
         // Data simulasi
         let adsToday = 0;
         const dailyAdLimit = 5; // Batasan iklan per hari
