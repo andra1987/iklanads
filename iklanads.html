@@ -279,7 +279,7 @@
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
-            transition: opacity 20s, visibility 10s;
+            transition: opacity 10, visibility 10s;
         }
 
         .toast.show {
@@ -290,7 +290,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Bintang Iklan App</h1>
+        <h1>Bintang Iklan App(Versi UJI COBA)</h1>
+        <strong>Powered By: SUPERMIN</strong>
         
         <!-- Pengumuman -->
         <div class="announcement">
@@ -307,9 +308,6 @@
         <!-- Tombol untuk melihat iklan -->
         <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
-        <!-- Tombol untuk direck link adstera -->
-        <button id="directLinkButton" onclick="startDirectLink()">🔗 Tugas 2</button>
-
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
 
@@ -318,20 +316,6 @@
 
         <!-- Tombol Group Telegram Baru -->
         <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
-
-        <!-- Container untuk banner Adstera -->
-    <div id="adstera-banner">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b71e9e4134fa3983b9b081e102507d63',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-    </div>
 
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
@@ -387,6 +371,8 @@
 
     <!-- Skrip Monetag -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
+  
+  
 
     <script>
         // Fungsi untuk membuka grup Telegram
@@ -394,73 +380,6 @@
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupLink, '_blank');
         }
-
-
-        // Fungsi baru untuk reload banner Adstera
-        function reloadAdsteraBanner() {
-            const adsteraContainer = document.getElementById('adstera-banner');
-            if (adsteraContainer) {
-                setInterval(() => {
-                    adsteraContainer.innerHTML = '';
-                    const script1 = document.createElement('script');
-                    script1.type = 'text/javascript';
-                    script1.innerHTML = `
-                        atOptions = {
-                            'key' : 'b71e9e4134fa3983b9b081e102507d63',
-                            'format' : 'iframe',
-                            'height' : 50,
-                            'width' : 320,
-                            'params' : {}
-                        };
-                    `;
-                    adsteraContainer.appendChild(script1);
-
-                    const script2 = document.createElement('script');
-                    script2.type = 'text/javascript';
-                    script2.src = '//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js';
-                    adsteraContainer.appendChild(script2);
-                }, 15000); // Reload setiap 30 detik
-            }
-        }
-
-        // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
-        window.onload = function() {
-            loadData(); // Fungsi yang sudah ada
-            reloadAdsteraBanner(); // Fungsi baru untuk reload banner
-        };
-
-
-        // Fungsi baru untuk Direct Link
-        function startDirectLink() {
-            const directLinkUrl = 'https://www.effectiveratecpm.com/vngk5frk3?key=1d96874ac9fe19fb3ecd6165e905e1ca'; // Ganti dengan URL Direct Link Adstera Anda
-            const newWindow = window.open(directLinkUrl, '_blank');
-            const startTime = new Date().getTime();
-
-            const checkWindowClosed = setInterval(() => {
-                if (newWindow.closed) {
-                    clearInterval(checkWindowClosed);
-                    const endTime = new Date().getTime();
-                    const duration = Math.floor((endTime - startTime) / 1000);
-
-                    if (duration >= 10) { // Durasi minimal 10 detik
-                        points += 20; // Tambahkan 50 poin
-                        document.getElementById('points').innerText = points;
-                        saveData();
-                        showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
-                    } else {
-                        showToast("Tugas Direct Link belum selesai. Silakan coba lagi.", 3000);
-                    }
-                }
-            }, 1000);
-        }
-
-        // Panggil fungsi loadData saat halaman dimuat
-        window.onload = function() {
-            loadData();
-        };
-
-
-        
 
         // Data simulasi
         let adsToday = 0;
@@ -667,19 +586,18 @@
                 showToast("Anda telah mencapai batas iklan hari ini.", 3000);
                 return;
             }
-
-        // Show interstitial ad
+          
+          // Show interstitial ad
     show_8654720({
         type: 'inApp',
         inAppSettings: {
             frequency: 2,
             capping: 0.01,
-            interval: 50,
+            interval: 40,
             timeout: 5,
             everyPage: false
         }
     });
-
 
             // Nonaktifkan tombol sementara
             disableAdButton();
@@ -765,6 +683,9 @@
 
         // Inisialisasi data awal
         loadData();
-    </script>
+      
+     
+</script>
+
 </body>
 </html>
