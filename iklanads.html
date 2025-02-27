@@ -430,6 +430,36 @@
         };
 
 
+        // Fungsi baru untuk Direct Link
+        function startDirectLink() {
+            const directLinkUrl = 'https://www.effectiveratecpm.com/vngk5frk3?key=1d96874ac9fe19fb3ecd6165e905e1ca'; // Ganti dengan URL Direct Link Adstera Anda
+            const newWindow = window.open(directLinkUrl, '_blank');
+            const startTime = new Date().getTime();
+
+            const checkWindowClosed = setInterval(() => {
+                if (newWindow.closed) {
+                    clearInterval(checkWindowClosed);
+                    const endTime = new Date().getTime();
+                    const duration = Math.floor((endTime - startTime) / 1000);
+
+                    if (duration >= 10) { // Durasi minimal 10 detik
+                        points += 20; // Tambahkan 50 poin
+                        document.getElementById('points').innerText = points;
+                        saveData();
+                        showToast("🎉 Terima kasih! Anda mendapatkan 50 poin.", 3000);
+                    } else {
+                        showToast("Tugas Direct Link belum selesai. Silakan coba lagi.", 3000);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Panggil fungsi loadData saat halaman dimuat
+        window.onload = function() {
+            loadData();
+        };
+
+
         
 
         // Data simulasi
