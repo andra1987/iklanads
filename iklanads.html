@@ -22,12 +22,15 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
-            width: 100%;
+            padding: 20px;
+            width: 90%;
             max-width: 500px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         h1 {
@@ -38,14 +41,59 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .announcement {
+        .announcement, .stats {
             background: rgba(255, 255, 255, 0.2);
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            width: 100%;
             text-align: center;
             font-size: 1rem;
             color: #fff;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            button {
+                font-size: 1rem;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .announcement, .stats {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
         }
 
         .stats {
