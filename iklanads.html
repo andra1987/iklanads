@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App Monetag</title>
+    <title>BINTANG IKLAN</title>
     <style>
         /* General Styles */
         body {
@@ -242,16 +242,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Mini App Monetag</h1>
+        <h1>Bintang Iklan App</h1>
         
         <!-- Pengumuman -->
         <div class="announcement">
-            <strong>🎉 Pengumuman:</strong> Selamat datang di Mini App Monetag! Lihat iklan dan kumpulkan poin Anda sekarang!
+            <strong>🎉 Pengumuman:</strong> Selamat datang di Bintang Iklan App! Bermain dan kumpulkan poin Anda, Jangan lupa gabung group!
         </div>
 
         <!-- Statistik Iklan dan Poin -->
         <div class="stats">
-            <div class="ads-today">📊 Iklan yang dilihat hari ini: <span id="adsToday">0</span>/5</div>
+            <div class="ads-today">📊 Iklan yang dilihat hari ini: <span id="adsToday">0</span>/hari</div>
             <div class="total-ads">📈 Total iklan yang dilihat: <span id="totalAds">0</span></div>
             <div class="points">💰 Poin Anda: <span id="points">0</span></div>
         </div>
@@ -284,14 +284,14 @@
 
             <label for="pointsToWithdraw">Poin yang Ditukar:</label>
             <input type="number" id="pointsToWithdraw" required oninput="checkMinWithdrawal()">
-            <div id="minWithdrawalMessage" class="error-message">Minimal penarikan adalah 100 poin.</div>
+            <div id="minWithdrawalMessage" class="error-message">Minimal penarikan adalah 0 poin.</div>
 
             <label for="paymentMethod">Metode Pembayaran:</label>
             <select id="paymentMethod" required>
-                <option value="DANA">DANA</option>
-                <option value="OVO">OVO</option>
-                <option value="Gopay">Gopay</option>
-                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="DANA">DANA (potongan 100/penarikan)</option>
+                <option value="SHOPEE">SHOPEE (potongan 100/penarikan)(</option> 
+               <!-- <option value="Gopay">Gopay</option> -->
+               <!-- <option value="Bank Transfer">Bank Transfer</option> -->
             </select>
 
             <label for="phoneNumber">Nomor HP Pembayaran:</label>
@@ -326,21 +326,21 @@
     <script>
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
-            const telegramGroupLink = 'https://t.me/your_group_link'; // Ganti dengan link grup Telegram Anda
+            const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupLink, '_blank');
         }
 
         // Data simulasi
         let adsToday = 0;
-        const dailyAdLimit = 5; // Batasan iklan per hari
+        const dailyAdLimit = 55; // Batasan iklan per hari
         let totalAds = 0;
         let points = 0;
         let isAdButtonDisabled = false;
-        const minWithdrawal = 100; // Minimal penarikan poin
+        const minWithdrawal = 0; // MINIMAL PEARIKAN
 
         // Token dan Chat ID Admin Telegram
-        const botToken = 'YOUR_BOT_TOKEN'; // Ganti dengan token bot Telegram Anda
-        const adminChatId = 'ADMIN_CHAT_ID'; // Ganti dengan chat ID admin Telegram
+        const botToken = '7035581953:AAGinoLxWqPTJ6odVATZxQj6kRvCEpTk9OI'; // Ganti dengan token bot Telegram Anda
+        const adminChatId = '306327811'; // Ganti dengan chat ID admin Telegram
 
         // Fungsi untuk menampilkan pesan mengambang
         function showToast(message, duration = 3000) {
@@ -563,7 +563,7 @@
         function onAdComplete() {
             adsToday++;
             totalAds++;
-            points += 10; // Setiap iklan memberikan 10 poin
+            points += 20; // Setiap iklan memberikan 10 poin
 
             // Update tampilan
             document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
@@ -574,7 +574,7 @@
             saveData();
 
             // Tampilkan pesan mengambang
-            showToast("🎉 Terima kasih! Anda mendapatkan 10 poin.", 3000);
+            showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
 
             // Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
             if (adsToday >= dailyAdLimit) {
@@ -582,7 +582,7 @@
                 document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
             } else {
                 // Aktifkan tombol setelah hitungan mundur
-                startCountdown(10); // Hitungan mundur 10 detik
+                startCountdown(20); // Hitungan mundur 10 detik
             }
         }
 
