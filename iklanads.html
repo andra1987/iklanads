@@ -97,197 +97,6 @@
                 padding: 10px;
             }
         }
-
-        .stats {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stats div {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .stats div span {
-            font-weight: bold;
-            color: #ffdd57;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        button:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        #ad-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        /* Formulir Penarikan Poin */
-        .withdrawal-form {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            z-index: 1000;
-        }
-
-        .withdrawal-form h2 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .withdrawal-form label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .withdrawal-form input,
-        .withdrawal-form select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        .withdrawal-form .form-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .withdrawal-form .form-buttons button {
-            width: 48%;
-            margin: 0;
-        }
-
-        .withdrawal-form .error-message {
-            color: red;
-            font-size: 0.9rem;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            display: none;
-        }
-
-        /* Riwayat Penarikan */
-        .history {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            z-index: 1000;
-        }
-
-        .history h2 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .history ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .history ul li {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .history .history-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .history .history-buttons button {
-            width: 48%;
-            margin: 0;
-        }
-
-        /* Overlay */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        /* Toast Notification */
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            text-align: center;
-            border-radius: 10px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 10, visibility 10s;
-        }
-
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
@@ -310,8 +119,8 @@
         <!-- Tombol untuk melihat iklan -->
         <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
-         <!-- Tombol untuk direck link -->
-        <button id="task2Button" onclick="startTask2()">🎯 Tugas 2(klik dan tunggu 10 detik)</button>
+        <!-- Tombol Tugas 2 -->
+        <button id="task2Button" onclick="startTask2()">🎯 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -338,10 +147,10 @@
             window.open(monetagLink, '_blank');
 
             setTimeout(() => {
-                points += 10;
+                points += 15;
                 document.getElementById('points').innerText = points;
                 saveData();
-                showToast("🎉 Tugas 2 selesai! Anda mendapatkan 10 poin.", 3000);
+                showToast("🎉 Tugas 2 selesai! Anda mendapatkan 15 poin.", 3000);
                 enableTask2Button();
             }, 15000);
         }
@@ -355,7 +164,7 @@
         function enableTask2Button() {
             const button = document.getElementById('task2Button');
             button.disabled = false;
-            button.innerText = "🎯 Tugas 2(klik dan tunggu 10 detik)";
+            button.innerText = "🎯 Tugas 2";
         }
 
     <!-- Formulir Penarikan Poin -->
