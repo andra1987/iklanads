@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script data-cfasync="false" src="//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1156093"></script>
-    <meta name='admaven-placement' content=Bqdg6rdaG>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BINTANG IKLAN</title>
@@ -97,12 +95,202 @@
                 padding: 10px;
             }
         }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stats div {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .stats div span {
+            font-weight: bold;
+            color: #ffdd57;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #ad-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Formulir Penarikan Poin */
+        .withdrawal-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .withdrawal-form h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .withdrawal-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .withdrawal-form input,
+        .withdrawal-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .withdrawal-form .form-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .withdrawal-form .form-buttons button {
+            width: 48%;
+            margin: 0;
+        }
+
+        .withdrawal-form .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        /* Riwayat Penarikan */
+        .history {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .history h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .history ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history ul li {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .history .history-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .history .history-buttons button {
+            width: 48%;
+            margin: 0;
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Toast Notification */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 20s, visibility 10s;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Bintang Iklan App(Versi UJI COBA)</h1>
-        <strong>Powered By: SUPERMIN</strong>
+        <h1>Bintang Iklan App</h1>
         
         <!-- Pengumuman -->
         <div class="announcement">
@@ -119,8 +307,8 @@
         <!-- Tombol untuk melihat iklan -->
         <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
-        <!-- Tombol Tugas 2 -->
-        <button id="task2Button" onclick="startTask2()">🎯 Tugas 2</button>
+        <!-- Tombol untuk direck link adstera -->
+        <button id="directLinkButton" onclick="startDirectLink()">🔗 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -131,41 +319,25 @@
         <!-- Tombol Group Telegram Baru -->
         <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
 
+        <!-- Container untuk banner Adstera -->
+    <div id="adstera-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b71e9e4134fa3983b9b081e102507d63',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+    </div>
+
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
             <!-- Iklan Monetag akan ditampilkan di sini -->
         </div>
     </div>
-
-    <!-- Skrip JavaScript -->
-    <script>
-        // Fungsi untuk tombol Tugas 2
-        function startTask2() {
-            disableTask2Button();
-
-            const monetagLink = 'https://example.com/monetag-link'; // Ganti dengan link Monetag Anda
-            window.open(monetagLink, '_blank');
-
-            setTimeout(() => {
-                points += 15;
-                document.getElementById('points').innerText = points;
-                saveData();
-                showToast("🎉 Tugas 2 selesai! Anda mendapatkan 15 poin.", 3000);
-                enableTask2Button();
-            }, 15000);
-        }
-
-        function disableTask2Button() {
-            const button = document.getElementById('task2Button');
-            button.disabled = true;
-            button.innerText = "Tunggu 15 detik...";
-        }
-
-        function enableTask2Button() {
-            const button = document.getElementById('task2Button');
-            button.disabled = false;
-            button.innerText = "🎯 Tugas 2";
-        }
 
     <!-- Formulir Penarikan Poin -->
     <div class="overlay" id="overlay" onclick="hideWithdrawalForm()"></div>
@@ -215,8 +387,6 @@
 
     <!-- Skrip Monetag -->
     <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
-  
-  
 
     <script>
         // Fungsi untuk membuka grup Telegram
@@ -224,6 +394,73 @@
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupLink, '_blank');
         }
+
+
+        // Fungsi baru untuk reload banner Adstera
+        function reloadAdsteraBanner() {
+            const adsteraContainer = document.getElementById('adstera-banner');
+            if (adsteraContainer) {
+                setInterval(() => {
+                    adsteraContainer.innerHTML = '';
+                    const script1 = document.createElement('script');
+                    script1.type = 'text/javascript';
+                    script1.innerHTML = `
+                        atOptions = {
+                            'key' : 'b71e9e4134fa3983b9b081e102507d63',
+                            'format' : 'iframe',
+                            'height' : 50,
+                            'width' : 320,
+                            'params' : {}
+                        };
+                    `;
+                    adsteraContainer.appendChild(script1);
+
+                    const script2 = document.createElement('script');
+                    script2.type = 'text/javascript';
+                    script2.src = '//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js';
+                    adsteraContainer.appendChild(script2);
+                }, 15000); // Reload setiap 30 detik
+            }
+        }
+
+        // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
+        window.onload = function() {
+            loadData(); // Fungsi yang sudah ada
+            reloadAdsteraBanner(); // Fungsi baru untuk reload banner
+        };
+
+
+        // Fungsi baru untuk Direct Link
+        function startDirectLink() {
+            const directLinkUrl = 'https://www.effectiveratecpm.com/vngk5frk3?key=1d96874ac9fe19fb3ecd6165e905e1ca'; // Ganti dengan URL Direct Link Adstera Anda
+            const newWindow = window.open(directLinkUrl, '_blank');
+            const startTime = new Date().getTime();
+
+            const checkWindowClosed = setInterval(() => {
+                if (newWindow.closed) {
+                    clearInterval(checkWindowClosed);
+                    const endTime = new Date().getTime();
+                    const duration = Math.floor((endTime - startTime) / 1000);
+
+                    if (duration >= 10) { // Durasi minimal 10 detik
+                        points += 20; // Tambahkan 50 poin
+                        document.getElementById('points').innerText = points;
+                        saveData();
+                        showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
+                    } else {
+                        showToast("Tugas Direct Link belum selesai. Silakan coba lagi.", 3000);
+                    }
+                }
+            }, 1000);
+        }
+
+        // Panggil fungsi loadData saat halaman dimuat
+        window.onload = function() {
+            loadData();
+        };
+
+
+        
 
         // Data simulasi
         let adsToday = 0;
@@ -430,18 +667,19 @@
                 showToast("Anda telah mencapai batas iklan hari ini.", 3000);
                 return;
             }
-          
-          // Show interstitial ad
+
+        // Show interstitial ad
     show_8654720({
         type: 'inApp',
         inAppSettings: {
-            frequency: 1,
+            frequency: 2,
             capping: 0.01,
-            interval: 40,
+            interval: 50,
             timeout: 5,
             everyPage: false
         }
     });
+
 
             // Nonaktifkan tombol sementara
             disableAdButton();
@@ -527,9 +765,6 @@
 
         // Inisialisasi data awal
         loadData();
-      
-     
-</script>
-
+    </script>
 </body>
 </html>
