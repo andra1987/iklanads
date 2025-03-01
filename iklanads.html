@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BINTANG IKLAN</title>
@@ -267,19 +268,19 @@
         /* Toast Notification */
         .toast {
             visibility: hidden;
-            min-width: 250px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            text-align: center;
-            border-radius: 10px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 20s, visibility 10s;
+    		min-width: 250px;
+    		background: rgba(0, 0, 0, 0.7);
+    		color: #fff;
+    		text-align: center;
+    		border-radius: 10px;
+    		padding: 16px;
+    		position: fixed;
+    		z-index: 1001; /* Pastikan z-index lebih tinggi dari elemen lain */
+    		top: 20px; /* Posisi toast di bagian atas */
+    		left: 50%;
+    		transform: translateX(-50%);
+    		opacity: 0;
+            transition: opacity 10, visibility 10s;
         }
 
         .toast.show {
