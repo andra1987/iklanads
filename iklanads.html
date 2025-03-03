@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+	
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BINTANG IKLAN</title>
@@ -280,7 +280,7 @@
     		left: 50%;
     		transform: translateX(-50%);
     		opacity: 0;
-            transition: opacity 10, visibility 10s;
+            transition: opacity 10, visibility 20s;
         }
 
         .toast.show {
@@ -292,6 +292,7 @@
 <body>
     <div class="container">
         <h1>Bintang Iklan App</h1>
+      <strong>Powered By: supermin</strong>
         
         <!-- Pengumuman -->
         <div class="announcement">
@@ -308,9 +309,6 @@
         <!-- Tombol untuk melihat iklan -->
         <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
-        <!-- Tombol untuk direck link adstera -->
-        <button id="directLinkButton" onclick="startDirectLink()">🔗 Tugas 2</button>
-
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
 
@@ -319,20 +317,36 @@
 
         <!-- Tombol Group Telegram Baru -->
         <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
-
-        <!-- Container untuk banner Adstera -->
-    <div id="adstera-banner">
+		
+		<!-- Container untuk banner Adstera -->
+    <!-- <div id="adstera-banner">
         <script type="text/javascript">
             atOptions = {
                 'key' : 'b71e9e4134fa3983b9b081e102507d63',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
+				'format' : 'iframe',
+				'height' : 50,
+				'width' : 320,
+				'params' : {}
             };
         </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-    </div>
+       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+    </div> -->
+      
+      <!-- Container untuk banner Adstera -->
+      <!-- <div id="adstera-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b71e9e4134fa3983b9b081e102507d63',
+				'format' : 'iframe',
+				'height' : 50,
+				'width' : 320,
+				'params' : {}
+            };
+        </script>
+       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+    </div> -->
+	
+	
 
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
@@ -387,7 +401,9 @@
     <div id="toast" class="toast"></div>
 
     <!-- Skrip Monetag -->
-    <script src='//whephiwums.com/sdk.js' data-zone='8654720' data-sdk='show_8654720'></script>
+    <!-- <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script> -->
+  
+  
 
     <script>
         // Fungsi untuk membuka grup Telegram
@@ -395,9 +411,8 @@
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupLink, '_blank');
         }
-
-
-        // Fungsi baru untuk reload banner Adstera
+		
+		// Fungsi baru untuk reload banner Adstera
         function reloadAdsteraBanner() {
             const adsteraContainer = document.getElementById('adstera-banner');
             if (adsteraContainer) {
@@ -420,48 +435,16 @@
                     script2.type = 'text/javascript';
                     script2.src = '//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js';
                     adsteraContainer.appendChild(script2);
-                }, 15000); // Reload setiap 30 detik
+                }, 10000); // Reload setiap 10 detik
             }
         }
-
-        // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
+      
+      
+      // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
         window.onload = function() {
             loadData(); // Fungsi yang sudah ada
             reloadAdsteraBanner(); // Fungsi baru untuk reload banner
         };
-
-
-        // Fungsi baru untuk Direct Link
-        function startDirectLink() {
-            const directLinkUrl = 'https://www.effectiveratecpm.com/vngk5frk3?key=1d96874ac9fe19fb3ecd6165e905e1ca'; // Ganti dengan URL Direct Link Adstera Anda
-            const newWindow = window.open(directLinkUrl, '_blank');
-            const startTime = new Date().getTime();
-
-            const checkWindowClosed = setInterval(() => {
-                if (newWindow.closed) {
-                    clearInterval(checkWindowClosed);
-                    const endTime = new Date().getTime();
-                    const duration = Math.floor((endTime - startTime) / 1000);
-
-                    if (duration >= 10) { // Durasi minimal 10 detik
-                        points += 10; // Tambahkan 50 poin
-                        document.getElementById('points').innerText = points;
-                        saveData();
-                        showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
-                    } else {
-                        showToast("Tugas Direct Link belum selesai. Silakan coba lagi.", 3000);
-                    }
-                }
-            }, 1000);
-        }
-
-        // Panggil fungsi loadData saat halaman dimuat
-        window.onload = function() {
-            loadData();
-        };
-
-
-        
 
         // Data simulasi
         let adsToday = 0;
@@ -668,19 +651,18 @@
                 showToast("Anda telah mencapai batas iklan hari ini.", 3000);
                 return;
             }
-
-        // Show interstitial ad
-    show_8654720({
+          
+          // Show interstitial ad
+     show_({
         type: 'inApp',
         inAppSettings: {
-            frequency: 2,
+            frequency: 1,
             capping: 0.01,
-            interval: 50,
+            interval: 40,
             timeout: 5,
             everyPage: false
         }
-    });
-
+    });-->
 
             // Nonaktifkan tombol sementara
             disableAdButton();
@@ -691,9 +673,9 @@
         // Fungsi untuk menampilkan iklan Monetag
         function showMonetagAd() {
             // Pastikan skrip Monetag sudah dimuat
-            if (typeof window.show_8654720 === 'function') {
+            if (typeof window.show_ === 'function') {
                 // Simulasi callback ketika iklan selesai dilihat
-                window.show_8654720();
+                window.show_();
                 setTimeout(() => {
                     // Asumsikan iklan selesai dilihat setelah 5 detik
                     onAdComplete();
@@ -766,6 +748,75 @@
 
         // Inisialisasi data awal
         loadData();
-    </script>
+		
+		<script>
+    // Fungsi untuk mendeteksi sistem operasi
+    function detectOS() {
+        const userAgent = window.navigator.userAgent;
+        const platform = window.navigator.platform;
+        const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+        const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+        const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+        if (macosPlatforms.indexOf(platform) !== -1) {
+            return 'Mac OS';
+        } else if (iosPlatforms.indexOf(platform) !== -1) {
+            return 'iOS';
+        } else if (windowsPlatforms.indexOf(platform) !== -1) {
+            return 'Windows';
+        } else if (/Android/.test(userAgent)) {
+            return 'Android';
+        } else if (/Linux/.test(platform)) {
+            return 'Linux';
+        }
+
+        return 'Unknown OS';
+    }
+
+    // Blokir akses jika OS tidak diizinkan
+    const allowedOS = ['Android', 'iOS'];
+    const detectedOS = detectOS();
+
+    if (!allowedOS.includes(detectedOS)) {
+        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
+                                  '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
+    }
+</script>
+      
+     
+</script>
+<script>
+    // Fungsi untuk mendeteksi sistem operasi
+    function detectOS() {
+        const userAgent = window.navigator.userAgent;
+        const platform = window.navigator.platform;
+        const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+        const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+        const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+        if (macosPlatforms.indexOf(platform) !== -1) {
+            return 'Mac OS';
+        } else if (iosPlatforms.indexOf(platform) !== -1) {
+            return 'iOS';
+        } else if (windowsPlatforms.indexOf(platform) !== -1) {
+            return 'Windows';
+        } else if (/Android/.test(userAgent)) {
+            return 'Android';
+        } else if (/Linux/.test(platform)) {
+            return 'Linux';
+        }
+
+        return 'Unknown OS';
+    }
+
+    // Blokir akses jika OS tidak diizinkan
+    const allowedOS = ['Android', 'iOS'];
+    const detectedOS = detectOS();
+
+    if (!allowedOS.includes(detectedOS)) {
+        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
+                                  '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
+    }
+</script>
 </body>
 </html>
