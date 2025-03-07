@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script type='text/javascript' src='//pl25922450.effectiveratecpm.com/8e/21/72/8e217214c7821830975f6c979b762d43.js'></script>
+    <script type='text/javascript' src='//pl25922450.effectiveratecpm.com/8e/21/72/8e217214c7821830975f6c979b762d43.js'></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BINTANG IKLAN</title>
@@ -268,18 +268,18 @@
         /* Toast Notification */
         .toast {
             visibility: hidden;
-    		min-width: 250px;
-    		background: rgba(0, 0, 0, 0.7);
-    		color: #fff;
-    		text-align: center;
-    		border-radius: 10px;
-    		padding: 16px;
-    		position: fixed;
-    		z-index: 1001; /* Pastikan z-index lebih tinggi dari elemen lain */
-    		top: 20px; /* Posisi toast di bagian atas */
-    		left: 50%;
-    		transform: translateX(-50%);
-    		opacity: 0;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1001; /* Pastikan z-index lebih tinggi dari elemen lain */
+            top: 20px; /* Posisi toast di bagian atas */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
             transition: opacity 10, visibility 20s;
         }
 
@@ -292,7 +292,7 @@
 <body>
     <div class="container">
         <h1>Bintang Iklan App</h1>
-      <strong>Powered By: supermin</strong>
+        <strong>Powered By: supermin</strong>
         
         <!-- Pengumuman -->
         <div class="announcement">
@@ -306,11 +306,11 @@
             <div class="points">💰 Poin Anda: <span id="points">0</span></div>
         </div>
 
-        <!-- Tombol Tugas 1 -->
-	<button id="watchAdButton1" onclick="startAd()">🎯 Tugas 1</button>
+        <!-- Tombol untuk melihat iklan -->
+        <button id="watchAdButton" onclick="startAd()">🎬 Tugas 1</button>
 
-	<!-- Tombol Tugas 2 -->
-	<button id="watchAdButton2" onclick="startAd()">🎯 Tugas 2</button>
+        <!-- Tombol Tugas 2 -->
+        <button id="task2Button" onclick="startTask2()">📝 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -322,35 +322,33 @@
         <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
 		
 		<!-- Container untuk banner Adstera -->
-    <div id="adstera-banner">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b71e9e4134fa3983b9b081e102507d63',
-				'format' : 'iframe',
-				'height' : 50,
-				'width' : 320,
-				'params' : {}
-            };
-        </script>
-       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-    </div>
+        <div id="adstera-banner">
+            <script type='text/javascript'>
+                atOptions = {
+                    'key' : 'b71e9e4134fa3983b9b081e102507d63',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+        </div>
       
-      <!-- Container untuk banner Adstera -->
-      <div id="adstera-banner">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b71e9e4134fa3983b9b081e102507d63',
-				'format' : 'iframe',
-				'height' : 50,
-				'width' : 320,
-				'params' : {}
-            };
-        </script>
-       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-    </div>
+        <!-- Container untuk banner Adstera -->
+        <div id="adstera-banner">
+            <script type='text/javascript'>
+                atOptions = {
+                    'key' : 'b71e9e4134fa3983b9b081e102507d63',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+        </div>
 	
-	
-
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
             <!-- Iklan Monetag akan ditampilkan di sini -->
@@ -406,8 +404,6 @@
     <!-- Skrip Monetag -->
     <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
   
-  
-
     <script>
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
@@ -442,8 +438,7 @@
             }
         }
       
-      
-      // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
+        // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
         window.onload = function() {
             loadData(); // Fungsi yang sudah ada
             reloadAdsteraBanner(); // Fungsi baru untuk reload banner
@@ -650,22 +645,22 @@
 
         // Fungsi untuk memulai iklan
         function startAd() {
-    	if (adsToday >= dailyAdLimit) {
-        showToast("Anda telah mencapai batas iklan hari ini.", 3000);
-        return;
-    	}
+            if (adsToday >= dailyAdLimit) {
+                showToast("Anda telah mencapai batas iklan hari ini.", 3000);
+                return;
+            }
           
-          // Show interstitial ad
-    show_8978526({
-        type: 'inApp',
-        inAppSettings: {
-            frequency: 1,
-            capping: 0.01,
-            interval: 40,
-            timeout: 5,
-            everyPage: false
-        }
-    });
+            // Show interstitial ad
+            show_8978526({
+                type: 'inApp',
+                inAppSettings: {
+                    frequency: 1,
+                    capping: 0.01,
+                    interval: 40,
+                    timeout: 5,
+                    everyPage: false
+                }
+            });
 
             // Nonaktifkan tombol sementara
             disableAdButton();
@@ -718,82 +713,130 @@
         }
 
         // Fungsi untuk menonaktifkan tombol sementara
-        function disableAdButtons() {
-    		const button1 = document.getElementById('watchAdButton1');
-    		const button2 = document.getElementById('watchAdButton2');
-    		button1.disabled = true;
-    		button2.disabled = true;
-    		button1.innerText = "Memuat Iklan...";
-    		button2.innerText = "Memuat Iklan...";
-	}
+        function disableAdButton() {
+            const button = document.getElementById('watchAdButton');
+            button.disabled = true;
+            button.innerText = "Memuat Iklan...";
+            isAdButtonDisabled = true;
+        }
 
         // Fungsi untuk mengaktifkan tombol setelah hitungan mundur
-        function enableAdButtons() {
-    		const button1 = document.getElementById('watchAdButton1');
-    		const button2 = document.getElementById('watchAdButton2');
-    		button1.disabled = false;
-    		button2.disabled = false;
-    		button1.innerText = "🎯 Tugas 1";
-    		button2.innerText = "🎯 Tugas 2";
-	}
+        function enableAdButton() {
+            const button = document.getElementById('watchAdButton');
+            button.disabled = false;
+            button.innerText = "🎬 Tugas 1";
+            isAdButtonDisabled = false;
+        }
 
         // Fungsi untuk hitungan mundur
         function startCountdown(seconds) {
-    		const button1 = document.getElementById('watchAdButton1');
-    		const button2 = document.getElementById('watchAdButton2');
-    		let countdown = seconds;
+            const button = document.getElementById('watchAdButton');
+            let countdown = seconds;
 
-    	const interval = setInterval(() => {
-        	button1.innerText = `Tunggu ${countdown} detik...`;
-        	button2.innerText = `Tunggu ${countdown} detik...`;
-        	countdown--;
+            const interval = setInterval(() => {
+                button.innerText = `Tunggu ${countdown} detik...`;
+                countdown--;
 
-        if (countdown < 0) {
-            clearInterval(interval);
-            enableAdButtons();
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    enableAdButton();
+                }
+            }, 1000);
         }
-   	 }, 1000);
-	}
-	    
+
+        // Fungsi untuk memulai Tugas 2
+        function startTask2() {
+            if (adsToday >= dailyAdLimit) {
+                showToast("Anda telah mencapai batas iklan hari ini.", 3000);
+                return;
+            }
+
+            // Nonaktifkan tombol sementara
+            const task2Button = document.getElementById('task2Button');
+            task2Button.disabled = true;
+            task2Button.innerText = "Memuat Iklan...";
+
+            // Tampilkan iklan sosial bar Adsterra
+            const adScript = document.createElement('script');
+            adScript.type = 'text/javascript';
+            adScript.src = '//pl25922060.effectiveratecpm.com/e9/8e/22/e98e22038d60a40c7d095ee8fdce6169.js';
+            document.body.appendChild(adScript);
+
+            // Simulasikan callback ketika iklan selesai dimuat
+            setTimeout(() => {
+                if (Math.random() > 0.5) { // Asumsikan iklan berhasil dimuat 50% dari waktu
+                    adsToday++;
+                    totalAds++;
+                    points += 10; // Poin untuk Tugas 2
+                    document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
+                    document.getElementById('totalAds').innerText = totalAds;
+                    document.getElementById('points').innerText = points;
+                    saveData();
+                    showToast("🎉 Iklan berhasil dimuat! Anda mendapatkan 10 poin.", 3000);
+                } else {
+                    showToast("Iklan gagal dimuat. Silakan coba lagi.", 3000);
+                }
+
+                // Aktifkan tombol setelah hitungan mundur
+                startCountdownTask2(25); // Hitungan mundur 30 detik
+            }, 5000); // Simulasi waktu muat iklan
+        }
+
+        // Fungsi untuk hitungan mundur Tugas 2
+        function startCountdownTask2(seconds) {
+            const task2Button = document.getElementById('task2Button');
+            let countdown = seconds;
+
+            const interval = setInterval(() => {
+                task2Button.innerText = `Tunggu ${countdown} detik...`;
+                countdown--;
+
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    task2Button.disabled = false;
+                    task2Button.innerText = "📝 Tugas 2";
+                }
+            }, 1000);
+        }
+
         // Inisialisasi data awal
         loadData();
       
-     
-</script>
+    </script>
   
-  <script>
-    // Fungsi untuk mendeteksi sistem operasi
-    function detectOS() {
-        const userAgent = window.navigator.userAgent;
-        const platform = window.navigator.platform;
-        const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
-        const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
-        const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+    <script>
+        // Fungsi untuk mendeteksi sistem operasi
+        function detectOS() {
+            const userAgent = window.navigator.userAgent;
+            const platform = window.navigator.platform;
+            const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+            const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
 
-        if (macosPlatforms.indexOf(platform) !== -1) {
-            return 'Mac OS';
-        } else if (iosPlatforms.indexOf(platform) !== -1) {
-            return 'iOS';
-        } else if (windowsPlatforms.indexOf(platform) !== -1) {
-            return 'Windows';
-        } else if (/Android/.test(userAgent)) {
-            return 'Android';
-        } else if (/Linux/.test(platform)) {
-            return 'Linux';
+            if (macosPlatforms.indexOf(platform) !== -1) {
+                return 'Mac OS';
+            } else if (iosPlatforms.indexOf(platform) !== -1) {
+                return 'iOS';
+            } else if (windowsPlatforms.indexOf(platform) !== -1) {
+                return 'Windows';
+            } else if (/Android/.test(userAgent)) {
+                return 'Android';
+            } else if (/Linux/.test(platform)) {
+                return 'Linux';
+            }
+
+            return 'Unknown OS';
         }
 
-        return 'Unknown OS';
-    }
+        // Blokir akses jika OS tidak diizinkan
+        const allowedOS = ['Android', 'iOS'];
+        const detectedOS = detectOS();
 
-    // Blokir akses jika OS tidak diizinkan
-    const allowedOS = ['Android', 'iOS'];
-    const detectedOS = detectOS();
-
-    if (!allowedOS.includes(detectedOS)) {
-        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
-                                  '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
-    }
-</script>
+        if (!allowedOS.includes(detectedOS)) {
+            document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
+                                      '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
+        }
+    </script>
 
 </body>
 </html>
