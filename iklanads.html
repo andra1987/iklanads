@@ -306,8 +306,11 @@
             <div class="points">💰 Poin Anda: <span id="points">0</span></div>
         </div>
 
-        <!-- Tombol untuk melihat iklan -->
-        <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
+        <!-- Tombol Tugas 1 -->
+	<button id="watchAdButton1" onclick="startAd()">🎯 Tugas 1</button>
+
+	<!-- Tombol Tugas 2 -->
+	<button id="watchAdButton2" onclick="startAd()">🎯 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -647,10 +650,10 @@
 
         // Fungsi untuk memulai iklan
         function startAd() {
-            if (adsToday >= dailyAdLimit) {
-                showToast("Anda telah mencapai batas iklan hari ini.", 3000);
-                return;
-            }
+    	if (adsToday >= dailyAdLimit) {
+        showToast("Anda telah mencapai batas iklan hari ini.", 3000);
+        return;
+    	}
           
           // Show interstitial ad
     show_8978526({
@@ -715,37 +718,43 @@
         }
 
         // Fungsi untuk menonaktifkan tombol sementara
-        function disableAdButton() {
-            const button = document.getElementById('watchAdButton');
-            button.disabled = true;
-            button.innerText = "Memuat Iklan...";
-            isAdButtonDisabled = true;
-        }
+        function disableAdButtons() {
+    		const button1 = document.getElementById('watchAdButton1');
+    		const button2 = document.getElementById('watchAdButton2');
+    		button1.disabled = true;
+    		button2.disabled = true;
+    		button1.innerText = "Memuat Iklan...";
+    		button2.innerText = "Memuat Iklan...";
+	}
 
         // Fungsi untuk mengaktifkan tombol setelah hitungan mundur
-        function enableAdButton() {
-            const button = document.getElementById('watchAdButton');
-            button.disabled = false;
-            button.innerText = "🎬 Lihat Iklan";
-            isAdButtonDisabled = false;
-        }
+        function enableAdButtons() {
+    		const button1 = document.getElementById('watchAdButton1');
+    		const button2 = document.getElementById('watchAdButton2');
+    		button1.disabled = false;
+    		button2.disabled = false;
+    		button1.innerText = "🎯 Tugas 1";
+    		button2.innerText = "🎯 Tugas 2";
+	}
 
         // Fungsi untuk hitungan mundur
         function startCountdown(seconds) {
-            const button = document.getElementById('watchAdButton');
-            let countdown = seconds;
+    		const button1 = document.getElementById('watchAdButton1');
+    		const button2 = document.getElementById('watchAdButton2');
+    		let countdown = seconds;
 
-            const interval = setInterval(() => {
-                button.innerText = `Tunggu ${countdown} detik...`;
-                countdown--;
+    	const interval = setInterval(() => {
+        	button1.innerText = `Tunggu ${countdown} detik...`;
+        	button2.innerText = `Tunggu ${countdown} detik...`;
+        	countdown--;
 
-                if (countdown < 0) {
-                    clearInterval(interval);
-                    enableAdButton();
-                }
-            }, 1000);
+        if (countdown < 0) {
+            clearInterval(interval);
+            enableAdButtons();
         }
-
+   	 }, 1000);
+	}
+	    
         // Inisialisasi data awal
         loadData();
       
