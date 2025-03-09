@@ -287,16 +287,6 @@
             visibility: visible;
             opacity: 1;
         }
-
-        #task2Button {
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-        margin-bottom: 10px;
-        }
-
-        #task2Button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
     </style>
 </head>
 <body>
@@ -317,10 +307,10 @@
         </div>
 
         <!-- Tombol untuk melihat iklan -->
-        <button id="watchAdButton" onclick="startAd()">🎬 Tugas 1</button>
+        <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
-        <!-- Tombol Tugas 2 -->
-        <button id="task2Button" onclick="startTask2()">📋 Tugas 2</button>
+	<!-- Tombol Tugas 2 -->
+	<button id="task2Button" onclick="startTask2()">📝 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -664,13 +654,6 @@
                 showToast("Anda telah mencapai batas iklan hari ini.", 3000);
                 return;
             }
-
-            // Fungsi untuk memulai Tugas 2
-            function startTask2() {
-                if (adsToday >= dailyAdLimit) {
-                    showToast("Anda telah mencapai batas iklan hari ini.", 3000);
-                    return;
-            }
           
           // Show interstitial ad
     show_8978526({
@@ -746,7 +729,7 @@
         function enableAdButton() {
             const button = document.getElementById('watchAdButton');
             button.disabled = false;
-            button.innerText = "🎬 Tugas 1";
+            button.innerText = "🎬 Lihat Iklan";
             isAdButtonDisabled = false;
         }
 
@@ -770,21 +753,83 @@
         loadData();
 
 
-       // Fungsi untuk menonaktifkan tombol Tugas 2 sementara
-    function disableTask2Button() {
+	    // Variabel untuk batasan iklan Tugas 2
+let task2AdsToday = 0;
+const dailyTask2AdLimit = 5; // Batasan iklan Tugas 2 per hari
+
+// Fungsi untuk memulai Tugas 2
+function startTask2() {
+    if (task2AdsToday >= dailyTask2AdLimit) {
+        showToast("Anda telah mencapai batas iklan Tugas 2 hari ini.", 3000);
+        return;
+    }
+
+    // Nonaktifkan tombol Tugas 2 sementara
+    disableTask2Button();
+
+    // Tampilkan iklan Monetag
+    showMonetagTask2Ad();
+}
+
+// Fungsi untuk menampilkan iklan Monetag untuk Tugas 2
+function showMonetagTask2Ad() {
+    if (typeof window.show_8978526 === 'function') {
+        // Tampilkan iklan popup
+        show_8978526('pop')
+            .then(() => {
+                // Iklan berhasil ditampilkan, tambahkan poin
+                onTask2AdComplete();
+            })
+            .catch((e) => {
+                // Iklan gagal ditampilkan
+                console.error('Error displaying ad:', e);
+                showToast("Iklan gagal dimuat. Silakan coba lagi.", 3000);
+                enableTask2Button(); // Aktifkan kembali tombol jika iklan gagal
+            });
+    } else {
+        console.error('Monetag SDK belum dimuat.');
+        showToast("Iklan tidak dapat dimuat. Silakan coba lagi.", 3000);
+        enableTask2Button(); // Aktifkan kembali tombol jika iklan gagal
+    }
+}
+
+// Fungsi yang dipanggil ketika iklan Tugas 2 selesai dilihat
+function onTask2AdComplete() {
+    task2AdsToday++;
+    points += 30; // Setiap iklan Tugas 2 memberikan 30 poin
+
+    // Update tampilan
+    document.getElementById('points').innerText = points;
+    saveData(); // Simpan perubahan poin ke local storage
+
+    // Tampilkan pesan mengambang
+    showToast("🎉 Terima kasih! Anda mendapatkan 30 poin dari Tugas 2.", 5000);
+
+    // Jika batasan iklan Tugas 2 per hari terpenuhi, nonaktifkan tombol
+    if (task2AdsToday >= dailyTask2AdLimit) {
+        document.getElementById('task2Button').disabled = true;
+        document.getElementById('task2Button').innerText = "Batas Iklan Tugas 2 Hari Ini Terpenuhi";
+    } else {
+        // Aktifkan tombol setelah hitungan mundur
+        startTask2Countdown(30); // Hitungan mundur 30 detik
+    }
+}
+
+// Fungsi untuk menonaktifkan tombol Tugas 2 sementara
+function disableTask2Button() {
     const button = document.getElementById('task2Button');
     button.disabled = true;
     button.innerText = "Memuat Iklan...";
-    }
+}
 
-    // Fungsi untuk mengaktifkan tombol Tugas 2 setelah hitungan mundur
-    function enableTask2Button() {
+// Fungsi untuk mengaktifkan tombol Tugas 2 setelah hitungan mundur
+function enableTask2Button() {
     const button = document.getElementById('task2Button');
     button.disabled = false;
-    button.innerText = "📋 Tugas 2";
-    }
+    button.innerText = "📝 Tugas 2";
+}
 
-    // Fungsi untuk hitungan mundur tombol Tugas 2
+// Fungsi untuk hitungan mundur tombol Tugas 2
 function startTask2Countdown(seconds) {
     const button = document.getElementById('task2Button');
     let countdown = seconds;
@@ -798,51 +843,49 @@ function startTask2Countdown(seconds) {
             enableTask2Button();
         }
     }, 1000);
+}
+
+// Inisialisasi data awal
+function loadData() {
+    const lastResetDate = localStorage.getItem('lastResetDate');
+    const currentDate = new Date().toLocaleDateString();
+
+    // Reset data harian jika tanggal terakhir reset berbeda dengan tanggal sekarang
+    if (lastResetDate !== currentDate) {
+        localStorage.setItem('adsToday', 0);
+        localStorage.setItem('task2AdsToday', 0); // Reset iklan Tugas 2 yang dilihat hari ini
+        localStorage.setItem('lastResetDate', currentDate);
     }
 
-    // Tampilkan iklan Monetag dengan format pop (rewarded popup)
-    show_8978526('pop')
-        .then(() => {
-            // Iklan berhasil ditonton hingga selesai
-            onTask2Complete(); // Berikan reward kepada pengguna
-        })
-        .catch((e) => {
-            // Iklan gagal ditampilkan atau ditutup sebelum selesai
-            console.error('Error during ad playback:', e);
-            showToast("Iklan tidak selesai ditonton. Silakan coba lagi.", 3000);
-            enableTask2Button(); // Aktifkan kembali tombol Tugas 2
-        });
-        }
+    adsToday = parseInt(localStorage.getItem('adsToday')) || 0;
+    task2AdsToday = parseInt(localStorage.getItem('task2AdsToday')) || 0; // Load iklan Tugas 2 yang dilihat hari ini
+    totalAds = parseInt(localStorage.getItem('totalAds')) || 0;
+    points = parseInt(localStorage.getItem('points')) || 0;
 
-
-    // Fungsi yang dipanggil ketika iklan Tugas 2 selesai ditonton
-    function onTask2Complete() {
-        adsToday++;
-        totalAds++;
-        points += 10; // Berikan 20 poin sebagai reward
-
-      // Update tampilan
+    // Update tampilan
     document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
     document.getElementById('totalAds').innerText = totalAds;
     document.getElementById('points').innerText = points;
 
-    // Simpan perubahan ke local storage
-    saveData();
-
-    // Tampilkan pesan mengambang
-    showToast("🎉 Terima kasih! Anda mendapatkan 10 poin dari Tugas 2.", 5000);
-
-    // Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
-    if (adsToday >= dailyAdLimit) {
-        document.getElementById('watchAdButton').disabled = true;
-        document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
+    // Nonaktifkan tombol Tugas 2 jika batas harian terpenuhi
+    if (task2AdsToday >= dailyTask2AdLimit) {
         document.getElementById('task2Button').disabled = true;
-        document.getElementById('task2Button').innerText = "Batas Iklan Hari Ini Terpenuhi";
-    } else {
-        // Aktifkan tombol setelah hitungan mundur
-        startTask2Countdown(25); // Hitungan mundur 25 detik untuk tombol Tugas 2
+        document.getElementById('task2Button').innerText = "Batas Iklan Tugas 2 Hari Ini Terpenuhi";
     }
-    }
+}
+
+// Simpan data ke local storage
+function saveData() {
+    localStorage.setItem('adsToday', adsToday);
+    localStorage.setItem('task2AdsToday', task2AdsToday); // Simpan iklan Tugas 2 yang dilihat hari ini
+    localStorage.setItem('totalAds', totalAds);
+    localStorage.setItem('points', points);
+    localStorage.setItem('lastResetDate', new Date().toLocaleDateString());
+}
+
+
+
+	    
      
 </script>
   
