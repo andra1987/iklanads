@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type='text/javascript' src='//pl25922450.effectiveratecpm.com/8e/21/72/8e217214c7821830975f6c979b762d43.js'></script>
+	<script type='text/javascript' src='//pl25922450.effectiveratecpm.com/8e/21/72/8e217214c7821830975f6c979b762d43.js'></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BINTANG IKLAN</title>
@@ -268,18 +268,18 @@
         /* Toast Notification */
         .toast {
             visibility: hidden;
-            min-width: 250px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            text-align: center;
-            border-radius: 10px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1001; /* Pastikan z-index lebih tinggi dari elemen lain */
-            top: 20px; /* Posisi toast di bagian atas */
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
+    		min-width: 250px;
+    		background: rgba(0, 0, 0, 0.7);
+    		color: #fff;
+    		text-align: center;
+    		border-radius: 10px;
+    		padding: 16px;
+    		position: fixed;
+    		z-index: 1001; /* Pastikan z-index lebih tinggi dari elemen lain */
+    		top: 20px; /* Posisi toast di bagian atas */
+    		left: 50%;
+    		transform: translateX(-50%);
+    		opacity: 0;
             transition: opacity 10, visibility 20s;
         }
 
@@ -287,13 +287,23 @@
             visibility: visible;
             opacity: 1;
         }
+
+        #task2Button {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        margin-bottom: 10px;
+        }
+
+        #task2Button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Bintang Iklan App</h1>
-        <strong>Powered By: supermin</strong>
-
+      <strong>Powered By: supermin</strong>
+        
         <!-- Pengumuman -->
         <div class="announcement">
             <strong>🎉 Pengumuman:</strong> Selamat datang di Bintang Iklan App! Bermain dan kumpulkan poin Anda, Jangan lupa gabung group!
@@ -307,7 +317,10 @@
         </div>
 
         <!-- Tombol untuk melihat iklan -->
-        <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
+        <button id="watchAdButton" onclick="startAd()">🎬 Tugas 1</button>
+
+        <!-- Tombol Tugas 2 -->
+        <button id="task2Button" onclick="startTask2()">📋 Tugas 2</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -317,34 +330,36 @@
 
         <!-- Tombol Group Telegram Baru -->
         <button onclick="openTelegramGroup()">📢 Gabung Grup Telegram</button>
-
-        <!-- Container untuk banner Adstera -->
-        <div id="adstera-banner">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'b71e9e4134fa3983b9b081e102507d63',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-        </div>
-
-        <!-- Container untuk banner Adstera -->
-        <div id="adstera-banner">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'b71e9e4134fa3983b9b081e102507d63',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
-        </div>
+		
+		<!-- Container untuk banner Adstera -->
+    <div id="adstera-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b71e9e4134fa3983b9b081e102507d63',
+				'format' : 'iframe',
+				'height' : 50,
+				'width' : 320,
+				'params' : {}
+            };
+        </script>
+       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+    </div>
+      
+      <!-- Container untuk banner Adstera -->
+      <div id="adstera-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b71e9e4134fa3983b9b081e102507d63',
+				'format' : 'iframe',
+				'height' : 50,
+				'width' : 320,
+				'params' : {}
+            };
+        </script>
+       <script type="text/javascript" src="//www.highperformanceformat.com/b71e9e4134fa3983b9b081e102507d63/invoke.js"></script>
+    </div>
+	
+	
 
         <!-- Container untuk menampilkan iklan Monetag -->
         <div id="ad-container">
@@ -367,9 +382,9 @@
             <label for="paymentMethod">Metode Pembayaran:</label>
             <select id="paymentMethod" required>
                 <option value="DANA">DANA (potongan 100/penarikan)</option>
-                <option value="SHOPEE">SHOPEE (potongan 100/penarikan)</option>
-                <!-- <option value="Gopay">Gopay</option> -->
-                <!-- <option value="Bank Transfer">Bank Transfer</option> -->
+                <option value="SHOPEE">SHOPEE (potongan 100/penarikan)</option> 
+               <!-- <option value="Gopay">Gopay</option> -->
+               <!-- <option value="Bank Transfer">Bank Transfer</option> -->
             </select>
 
             <label for="phoneNumber">Nomor HP Pembayaran:</label>
@@ -400,6 +415,8 @@
 
     <!-- Skrip Monetag -->
     <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+  
+  
 
     <script>
         // Fungsi untuk membuka grup Telegram
@@ -407,8 +424,8 @@
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
             window.open(telegramGroupLink, '_blank');
         }
-
-        // Fungsi baru untuk reload banner Adstera
+		
+		// Fungsi baru untuk reload banner Adstera
         function reloadAdsteraBanner() {
             const adsteraContainer = document.getElementById('adstera-banner');
             if (adsteraContainer) {
@@ -434,8 +451,9 @@
                 }, 10000); // Reload setiap 10 detik
             }
         }
-
-        // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
+      
+      
+      // Panggil fungsi reloadAdsteraBanner saat halaman dimuat
         window.onload = function() {
             loadData(); // Fungsi yang sudah ada
             reloadAdsteraBanner(); // Fungsi baru untuk reload banner
@@ -647,9 +665,27 @@
                 return;
             }
 
+            // Fungsi untuk memulai Tugas 2
+            function startTask2() {
+                if (adsToday >= dailyAdLimit) {
+                    showToast("Anda telah mencapai batas iklan hari ini.", 3000);
+                    return;
+            }
+          
+          // Show interstitial ad
+    show_8978526({
+        type: 'inApp',
+        inAppSettings: {
+            frequency: 1,
+            capping: 0.01,
+            interval: 40,
+            timeout: 5,
+            everyPage: false
+        }
+    });
+
             // Nonaktifkan tombol sementara
             disableAdButton();
-
             // Tampilkan iklan Monetag
             showMonetagAd();
         }
@@ -658,32 +694,12 @@
         function showMonetagAd() {
             // Pastikan skrip Monetag sudah dimuat
             if (typeof window.show_8978526 === 'function') {
-                // Tampilkan iklan
-                window.show_8978526({
-                    type: 'inApp',
-                    inAppSettings: {
-                        frequency: 1,
-                        capping: 0.01,
-                        interval: 40,
-                        timeout: 5,
-                        everyPage: false
-                    },
-                    onAdLoad: function() {
-                        // Iklan berhasil dimuat
-                        console.log('Iklan berhasil dimuat');
-                    },
-                    onAdShow: function() {
-                        // Iklan berhasil ditampilkan
-                        console.log('Iklan berhasil ditampilkan');
-                        onAdComplete(); // Panggil fungsi onAdComplete setelah iklan ditampilkan
-                    },
-                    onAdError: function(error) {
-                        // Terjadi kesalahan saat menampilkan iklan
-                        console.error('Error:', error);
-                        showToast("Iklan tidak dapat dimuat. Silakan coba lagi.", 3000);
-                        enableAdButton(); // Aktifkan kembali tombol jika iklan gagal
-                    }
-                });
+                // Simulasi callback ketika iklan selesai dilihat
+                window.show_8978526();
+                setTimeout(() => {
+                    // Asumsikan iklan selesai dilihat setelah 5 detik
+                    onAdComplete();
+                }, 10000); // Ganti dengan callback asli dari SDK Monetag jika ada
             } else {
                 console.error('Monetag SDK belum dimuat.');
                 showToast("Iklan tidak dapat dimuat. Silakan coba lagi.", 3000);
@@ -695,7 +711,7 @@
         function onAdComplete() {
             adsToday++;
             totalAds++;
-            points += 20; // Setiap iklan memberikan 20 poin
+            points += 20; // Setiap iklan memberikan 10 poin
 
             // Update tampilan
             document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
@@ -706,7 +722,7 @@
             saveData();
 
             // Tampilkan pesan mengambang
-            showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
+            showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 5000);
 
             // Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
             if (adsToday >= dailyAdLimit) {
@@ -714,7 +730,7 @@
                 document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
             } else {
                 // Aktifkan tombol setelah hitungan mundur
-                startCountdown(25); // Hitungan mundur 25 detik
+                startCountdown(25); // Hitungan mundur 10 detik
             }
         }
 
@@ -730,7 +746,7 @@
         function enableAdButton() {
             const button = document.getElementById('watchAdButton');
             button.disabled = false;
-            button.innerText = "🎬 Lihat Iklan";
+            button.innerText = "🎬 Tugas 1";
             isAdButtonDisabled = false;
         }
 
@@ -753,37 +769,192 @@
         // Inisialisasi data awal
         loadData();
 
-        // Fungsi untuk mendeteksi sistem operasi
-        function detectOS() {
-            const userAgent = window.navigator.userAgent;
-            const platform = window.navigator.platform;
-            const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
-            const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
-            const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
 
-            if (macosPlatforms.indexOf(platform) !== -1) {
-                return 'Mac OS';
-            } else if (iosPlatforms.indexOf(platform) !== -1) {
-                return 'iOS';
-            } else if (windowsPlatforms.indexOf(platform) !== -1) {
-                return 'Windows';
-            } else if (/Android/.test(userAgent)) {
-                return 'Android';
-            } else if (/Linux/.test(platform)) {
-                return 'Linux';
+       // Fungsi untuk menonaktifkan tombol Tugas 2 sementara
+    function disableTask2Button() {
+    const button = document.getElementById('task2Button');
+    button.disabled = true;
+    button.innerText = "Memuat Iklan...";
+    }
+
+    // Fungsi untuk mengaktifkan tombol Tugas 2 setelah hitungan mundur
+    function enableTask2Button() {
+    const button = document.getElementById('task2Button');
+    button.disabled = false;
+    button.innerText = "📋 Tugas 2";
+    }
+
+    // Fungsi untuk hitungan mundur tombol Tugas 2
+function startTask2Countdown(seconds) {
+    const button = document.getElementById('task2Button');
+    let countdown = seconds;
+
+    const interval = setInterval(() => {
+        button.innerText = `Tunggu ${countdown} detik...`;
+        countdown--;
+
+        if (countdown < 0) {
+            clearInterval(interval);
+            enableTask2Button();
+        }
+    }, 1000);
+    }
+
+    // Tampilkan iklan Monetag dengan format pop (rewarded popup)
+    show_8978526('pop')
+        .then(() => {
+            // Iklan berhasil ditonton hingga selesai
+            onTask2Complete(); // Berikan reward kepada pengguna
+        })
+        .catch((e) => {
+            // Iklan gagal ditampilkan atau ditutup sebelum selesai
+            console.error('Error during ad playback:', e);
+            showToast("Iklan tidak selesai ditonton. Silakan coba lagi.", 3000);
+            enableTask2Button(); // Aktifkan kembali tombol Tugas 2
+        });
+        }
+
+
+    // Fungsi yang dipanggil ketika iklan Tugas 2 selesai ditonton
+    function onTask2Complete() {
+        adsToday++;
+        totalAds++;
+        points += 10; // Berikan 20 poin sebagai reward
+
+      // Update tampilan
+    document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
+    document.getElementById('totalAds').innerText = totalAds;
+    document.getElementById('points').innerText = points;
+
+    // Simpan perubahan ke local storage
+    saveData();
+
+    // Tampilkan pesan mengambang
+    showToast("🎉 Terima kasih! Anda mendapatkan 10 poin dari Tugas 2.", 5000);
+
+    // Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
+    if (adsToday >= dailyAdLimit) {
+        document.getElementById('watchAdButton').disabled = true;
+        document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
+        document.getElementById('task2Button').disabled = true;
+        document.getElementById('task2Button').innerText = "Batas Iklan Hari Ini Terpenuhi";
+    } else {
+        // Aktifkan tombol setelah hitungan mundur
+        startTask2Countdown(25); // Hitungan mundur 25 detik untuk tombol Tugas 2
+    }
+    }
+     
+</script>
+  
+  <script>
+    // Fungsi untuk mendeteksi sistem operasi
+    function detectOS() {
+        const userAgent = window.navigator.userAgent;
+        const platform = window.navigator.platform;
+        const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+        const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+        const iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+        if (macosPlatforms.indexOf(platform) !== -1) {
+            return 'Mac OS';
+        } else if (iosPlatforms.indexOf(platform) !== -1) {
+            return 'iOS';
+        } else if (windowsPlatforms.indexOf(platform) !== -1) {
+            return 'Windows';
+        } else if (/Android/.test(userAgent)) {
+            return 'Android';
+        } else if (/Linux/.test(platform)) {
+            return 'Linux';
+        }
+
+        return 'Unknown OS';
+    }
+
+    // Blokir akses jika OS tidak diizinkan
+    const allowedOS = ['Android', 'iOS'];
+    const detectedOS = detectOS();
+
+    if (!allowedOS.includes(detectedOS)) {
+        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
+                                  '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
+    }
+    
+    
+    // Fungsi untuk mendeteksi VPN menggunakan API pihak ketiga
+        async function detectVPN() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+
+                // Cek apakah IP berasal dari VPN atau proxy
+                if (data.vpn || data.proxy) {
+                    return true; // VPN terdeteksi
+                }
+                return false; // Tidak ada VPN
+            } catch (error) {
+                console.error('Error detecting VPN:', error);
+                return false; // Jika terjadi error, anggap tidak ada VPN
+            }
+        }
+
+        // Fungsi untuk memeriksa IP yang sama
+        function checkSameIP() {
+            const storedIP = localStorage.getItem('userIP');
+            const currentIP = getUserIP(); // Dapatkan IP pengguna saat ini
+
+            if (storedIP && storedIP === currentIP) {
+                return true; // IP sama terdeteksi
+            }
+            return false; // IP berbeda
+        }
+
+        // Fungsi untuk mendapatkan IP pengguna
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip; // Kembalikan IP pengguna
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk memblokir akses jika menggunakan VPN atau IP yang sama
+        async function blockAccess() {
+            const isVPN = await detectVPN();
+            const isSameIP = checkSameIP();
+
+            if (isVPN) {
+                document.body.innerHTML = `
+                    <h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>
+                    <p style="text-align: center;">Penggunaan VPN atau proxy tidak diizinkan.</p>
+                `;
+                return;
             }
 
-            return 'Unknown OS';
+            if (isSameIP) {
+                document.body.innerHTML = `
+                    <h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>
+                    <p style="text-align: center;">Hanya satu perangkat yang diizinkan per IP.</p>
+                `;
+                return;
+            }
+
+            // Simpan IP pengguna ke local storage
+            const userIP = await getUserIP();
+            localStorage.setItem('userIP', userIP);
         }
 
-        // Blokir akses jika OS tidak diizinkan
-        const allowedOS = ['Android', 'iOS'];
-        const detectedOS = detectOS();
+        // Panggil fungsi blockAccess saat halaman dimuat
+        window.onload = function() {
+            loadData(); // Fungsi yang sudah ada
+            reloadAdsteraBanner(); // Fungsi baru untuk reload banner
+            blockAccess(); // Blokir akses jika menggunakan VPN atau IP yang sama
+        };
+    
+    
+</script>
 
-        if (!allowedOS.includes(detectedOS)) {
-            document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Akses Ditolak</h1>' +
-                                    '<p style="text-align: center;">Hanya perangkat Android dan iOS yang diizinkan mengakses halaman ini.</p>';
-        }
-    </script>
 </body>
 </html>
