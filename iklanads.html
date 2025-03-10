@@ -1,8 +1,67 @@
-<script type="text/javascript">
-    var monetag = monetag || {};
-    monetag.adUnitId = "show_8978526";
-    monetag.adType = "banner";
-    monetag.adSize = "300x250";
-</script>
 
-<script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+
+
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App dengan Monetag Ads</title>
+    <!-- Skrip Monetag -->
+    <script type="text/javascript">
+        var monetag_adv = {
+            "id": "show_8978526"  // Ganti dengan ID iklan Monetag Anda
+        };
+    </script>
+    <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .ad-container {
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Telegram Mini App dengan Monetag Ads</h1>
+    <p>Contoh integrasi berbagai jenis iklan Monetag.</p>
+
+    <!-- Banner Ad -->
+    <div class="ad-container">
+        <h2>Banner Ad</h2>
+        <div id="monetag-banner-ad"></div>
+    </div>
+
+    <!-- Interstitial Ad -->
+    <div class="ad-container">
+        <h2>Interstitial Ad</h2>
+        <button onclick="showInterstitialAd()">Tampilkan Interstitial Ad</button>
+    </div>
+
+    <!-- Native Ad -->
+    <div class="ad-container">
+        <h2>Native Ad</h2>
+        <div id="monetag-native-ad"></div>
+    </div>
+
+    <script>
+        // Fungsi untuk menampilkan interstitial ad
+        function showInterstitialAd() {
+            monetag.showInterstitialAd();
+        }
+
+        // Inisialisasi banner ad
+        monetag.displayAd("monetag-banner-ad", "banner");
+
+        // Inisialisasi native ad
+        monetag.displayAd("monetag-native-ad", "native");
+    </script>
+</body>
+</html>
