@@ -8,8 +8,8 @@
         /* Global Styles */
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
+            background: linear-gradient(135deg, #a8e6cf, #dcedc1); /* Hijau muda */
+            color: #ebc459; /* Warna teks lebih gelap untuk kontras */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,10 +19,10 @@
 
         .container {
             text-align: center;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8); /* Latar belakang semi-transparan */
             padding: 2rem;
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
             width: 90%;
             max-width: 400px;
@@ -32,11 +32,11 @@
             font-size: 2rem;
             margin-bottom: 1.5rem;
             font-weight: 600;
-            color: #ffcc00;
+            color: #2e7d32; /* Hijau tua untuk judul */
         }
 
         .btn {
-            background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+            background: linear-gradient(135deg, #4caf50, #81c784); /* Hijau */
             color: #fff;
             border: none;
             padding: 1rem 2rem;
@@ -58,7 +58,7 @@
 
         .btn:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); /* Bayangan hijau */
         }
 
         .points-container {
@@ -68,31 +68,31 @@
         .points-label {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
-            color: #ddd;
+            color: #555; /* Warna teks lebih gelap */
         }
 
         .points-value {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #ffcc00;
+            color: #2e7d32; /* Hijau tua untuk poin */
         }
 
         .ads-container {
             margin-top: 1rem;
             font-size: 1rem;
-            color: #ddd;
+            color: #555; /* Warna teks lebih gelap */
         }
 
         .countdown {
             margin-top: 1rem;
             font-size: 1.2rem;
-            color: #ffcc00;
+            color: #2e7d32; /* Hijau tua untuk hitungan mundur */
         }
 
         .limit-info {
             margin-top: 1rem;
             font-size: 1rem;
-            color: #ff6f61;
+            color: #d32f2f; /* Merah untuk pesan batas harian */
         }
 
         /* Responsive Design */
@@ -128,11 +128,11 @@
         </div>
         <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 1 -->
         <div class="ads-container">
-            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">6</span>
+            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">3</span>
         </div>
         <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 2 -->
         <div class="ads-container">
-            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">6</span>
+            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">2</span>
         </div>
         <!-- Informasi batas harian -->
         <div class="limit-info" id="limitInfo"></div>
@@ -154,8 +154,8 @@
         let points = 0;
         let adsWatched1 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 1
         let adsWatched2 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 2
-        const dailyLimit1 = 6; // Batas harian iklan untuk Tugas 1
-        const dailyLimit2 = 6; // Batas harian iklan untuk Tugas 2
+        const dailyLimit1 = 3; // Batas harian iklan untuk Tugas 1
+        const dailyLimit2 = 2; // Batas harian iklan untuk Tugas 2
         let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
         let countdownInterval1; // Variabel untuk menyimpan interval hitungan mundur Tugas 1
         let countdownInterval2; // Variabel untuk menyimpan interval hitungan mundur Tugas 2
