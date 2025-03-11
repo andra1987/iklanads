@@ -1,676 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bintang Iklan Full Eps</title>
+    <title>Telegram Mini App</title>
     <style>
-        /* Global Styles */
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #a8e6cf, #dcedc1); /* Hijau muda */
-            color: #333; /* Warna teks lebih gelap untuk kontras */
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
-
         .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8); /* Latar belakang semi-transparan */
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 400px;
-            position: relative;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-            color: #2e7d32; /* Hijau tua untuk judul */
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #4caf50, #81c784); /* Hijau */
-            color: #fff;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 1rem;
-            width: 100%;
-            max-width: 200px;
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); /* Bayangan hijau */
-        }
-
-        .points-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .points-label {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: #555; /* Warna teks lebih gelap */
-        }
-
-        .points-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #2e7d32; /* Hijau tua untuk poin */
-        }
-
-        .ads-container {
-            margin-top: 1rem;
-            font-size: 1rem;
-            color: #555; /* Warna teks lebih gelap */
-        }
-
-        .countdown {
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            color: #2e7d32; /* Hijau tua untuk hitungan mundur */
-        }
-
-        .limit-info {
-            margin-top: 1rem;
-            font-size: 1rem;
-            color: #d32f2f; /* Merah untuk pesan batas harian */
-        }
-
-        /* Formulir Penukaran Poin */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .form-container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .form-container h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #2e7d32;
             text-align: center;
         }
-
-        .form-container label {
+        .button {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #555;
-        }
-
-        .form-container input,
-        .form-container select {
             width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            color: #333;
-        }
-
-        .form-container input:focus,
-        .form-container select:focus {
-            border-color: #4caf50;
-            outline: none;
-        }
-
-        .form-container button {
-            background: #4caf50;
-            color: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007bff;
             border: none;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .form-container button.cancel-btn {
-            background: #d32f2f;
-        }
-
-        .form-container button:hover {
-            background: #45a049;
-        }
-
-        .form-container button.cancel-btn:hover {
-            background: #c62828;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: #d32f2f;
-            color: #fff;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        /* Riwayat Penukaran Poin */
-        .history-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .history-container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .history-container h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #2e7d32;
-            text-align: center;
-        }
-
-        .history-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-
-        .history-item {
-            background: #f9f9f9;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .history-item button {
-            background: #d32f2f;
-            color: #fff;
-            border: none;
-            padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
+            transition: background-color 0.3s ease;
         }
-
-        .history-item button:hover {
-            background: #c62828;
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
-
-        /* Toast Message */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            font-size: 1rem;
-            z-index: 1001;
-            display: none;
-            animation: fadeInOut 3s ease;
+        .button:hover:not(:disabled) {
+            background-color: #0056b3;
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .button-success {
+            background-color: #28a745;
         }
-
-        @keyframes fadeInOut {
-            0%, 100% {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            10%, 90% {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+        .button-success:hover:not(:disabled) {
+            background-color: #218838;
         }
-
-        /* Responsive Design */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
-            }
-
-            .points-value {
-                font-size: 2rem;
-            }
-
-            .ads-container, .limit-info, .countdown {
-                font-size: 0.9rem;
-            }
+        .countdown {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
         }
     </style>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Bintang Iklan Full Eps</h1>
-        <!-- Tampilan poin -->
-        <div class="points-container">
-            <div class="points-label">Point:</div>
-            <div class="points-value" id="points">0</div>
-        </div>
-        <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 1 -->
-        <div class="ads-container">
-            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">3</span>
-        </div>
-        <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 2 -->
-        <div class="ads-container">
-            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">2</span>
-        </div>
-        <!-- Informasi batas harian -->
-        <div class="limit-info" id="limitInfo"></div>
-        <!-- Tombol Tugas 1 -->
-        <button class="btn" id="taskButton1">Tugas 1</button>
-        <!-- Hitungan mundur untuk Tugas 1 -->
-        <div class="countdown" id="countdown1"></div>
-        <!-- Tombol Tugas 2 -->
-        <button class="btn" id="taskButton2">Tugas 2</button>
-        <!-- Hitungan mundur untuk Tugas 2 -->
-        <div class="countdown" id="countdown2"></div>
-        <!-- Tombol Penukaran Poin -->
-        <button class="btn" id="exchangeButton">Tukar Poin</button>
-        <!-- Tombol Riwayat Penukaran -->
-        <button class="btn" id="historyButton">Riwayat Penukaran</button>
+        <h1>Mini App</h1>
+        <button id="game1Button" class="button button-success" onclick="handleGame1()">GAME 1</button>
+        <button id="game2Button" class="button button-success" onclick="handleGame2()">GAME 2</button>
+        <button class="button" onclick="window.location.href='#'">PENARIKAN POIN</button>
+        <button class="button" onclick="window.location.href='#'">RIWAYAT PENARIKAN</button>
+        <button class="button" onclick="window.location.href='#'">GROUP TELEGRAM</button>
+        <div id="countdown" class="countdown"></div>
+        <p>Poin: <span id="poin">0</span></p>
+        <p>Iklan GAME 1 hari ini: <span id="adsCountGame1">0</span>/50</p>
+        <p>Iklan GAME 2 hari ini: <span id="adsCountGame2">0</span>/50</p>
     </div>
 
-    <!-- Formulir Penukaran Poin -->
-    <div class="overlay" id="overlay">
-        <div class="form-container">
-            <button class="close-btn" id="closeBtn">&times;</button>
-            <h2>Permintaan Penukaran Poin</h2>
-            <form id="exchangeForm">
-                <label for="name">Nama:</label>
-                <input type="text" id="name" name="name" required>
-
-                <label for="pointsToExchange">Poin yang Ditukar:</label>
-                <input type="number" id="pointsToExchange" name="pointsToExchange" required min="1">
-
-                <label for="paymentMethod">Metode Pembayaran:</label>
-                <select id="paymentMethod" name="paymentMethod" required>
-                    <option value="DANA">DANA</option>
-                    <option value="OVO">OVO</option>
-                    <option value="GOPAY">GOPAY</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                </select>
-
-                <label for="phoneNumber">Nomor HP:</label>
-                <input type="text" id="phoneNumber" name="phoneNumber" required>
-
-                <label for="date">Tanggal:</label>
-                <input type="date" id="date" name="date" required>
-
-                <button type="submit">Kirim</button>
-                <button type="button" class="cancel-btn" id="cancelBtn">Batal</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Riwayat Penukaran Poin -->
-    <div class="history-overlay" id="historyOverlay">
-        <div class="history-container">
-            <h2>Riwayat Penukaran Poin</h2>
-            <div class="history-list" id="historyList">
-                <!-- Riwayat penukaran akan ditampilkan di sini -->
-            </div>
-            <button class="btn cancel-btn" id="closeHistoryBtn">Batal</button>
-        </div>
-    </div>
-
-    <!-- Toast Message -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Script untuk Tugas 1 -->
-    <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
-    <!-- Script untuk Tugas 2 -->
-    <script src='//whephiwums.com/sdk.js' data-zone='9063226' data-sdk='show_9063226'></script>
+    <!-- Script untuk iklan GAME 1 -->
+    <script src="//whephiwums.com/sdk.js" data-zone="8978526" data-sdk="show_8978526"></script>
+    <!-- Script untuk iklan GAME 2 -->
+    <script src="//whephiwums.com/sdk.js" data-zone="9063226" data-sdk="show_9063226"></script>
     <script>
-        let points = 0;
-        let adsWatched1 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 1
-        let adsWatched2 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 2
-        const dailyLimit1 = 3; // Batas harian iklan untuk Tugas 1
-        const dailyLimit2 = 2; // Batas harian iklan untuk Tugas 2
-        let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
-        let countdownInterval1; // Variabel untuk menyimpan interval hitungan mundur Tugas 1
-        let countdownInterval2; // Variabel untuk menyimpan interval hitungan mundur Tugas 2
-        const countdownDuration = 10; // Durasi hitungan mundur dalam detik
+        // Inisialisasi data dari localStorage
+        let poin = parseInt(localStorage.getItem("poin")) || 0;
+        let adsCountGame1 = parseInt(localStorage.getItem("adsCountGame1")) || 0;
+        let adsCountGame2 = parseInt(localStorage.getItem("adsCountGame2")) || 0;
+        const maxAdsPerDay = 50;
 
-        const taskButton1 = document.getElementById('taskButton1');
-        const taskButton2 = document.getElementById('taskButton2');
-        const pointsDisplay = document.getElementById('points');
-        const adsWatchedDisplay1 = document.getElementById('adsWatched1');
-        const adsWatchedDisplay2 = document.getElementById('adsWatched2');
-        const dailyLimitDisplay1 = document.getElementById('dailyLimit1');
-        const dailyLimitDisplay2 = document.getElementById('dailyLimit2');
-        const limitInfo = document.getElementById('limitInfo');
-        const countdownDisplay1 = document.getElementById('countdown1');
-        const countdownDisplay2 = document.getElementById('countdown2');
-        const exchangeButton = document.getElementById('exchangeButton');
-        const historyButton = document.getElementById('historyButton');
-        const overlay = document.getElementById('overlay');
-        const historyOverlay = document.getElementById('historyOverlay');
-        const closeBtn = document.getElementById('closeBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-        const exchangeForm = document.getElementById('exchangeForm');
-        const historyList = document.getElementById('historyList');
-        const toast = document.getElementById('toast');
-        const dateInput = document.getElementById('date');
+        // Update tampilan dengan data dari localStorage
+        document.getElementById("poin").textContent = poin;
+        document.getElementById("adsCountGame1").textContent = adsCountGame1;
+        document.getElementById("adsCountGame2").textContent = adsCountGame2;
 
-        let exchangeHistory = []; // Menyimpan riwayat penukaran poin
-
-        // Fungsi untuk menyimpan data ke localStorage
-        function savePointsToLocalStorage() {
-            localStorage.setItem('points', points);
-        }
-
-        function saveExchangeHistoryToLocalStorage() {
-            localStorage.setItem('exchangeHistory', JSON.stringify(exchangeHistory));
-        }
-
-        function saveAdsWatchedToLocalStorage() {
-            localStorage.setItem('adsWatched1', adsWatched1);
-            localStorage.setItem('adsWatched2', adsWatched2);
-        }
-
-        // Fungsi untuk memuat data dari localStorage
-        function loadPointsFromLocalStorage() {
-            const savedPoints = localStorage.getItem('points');
-            if (savedPoints) {
-                points = parseInt(savedPoints);
-                pointsDisplay.textContent = points;
-            }
-        }
-
-        function loadExchangeHistoryFromLocalStorage() {
-            const savedHistory = localStorage.getItem('exchangeHistory');
-            if (savedHistory) {
-                exchangeHistory = JSON.parse(savedHistory);
-            }
-        }
-
-        function loadAdsWatchedFromLocalStorage() {
-            const savedAdsWatched1 = localStorage.getItem('adsWatched1');
-            const savedAdsWatched2 = localStorage.getItem('adsWatched2');
-            if (savedAdsWatched1) adsWatched1 = parseInt(savedAdsWatched1);
-            if (savedAdsWatched2) adsWatched2 = parseInt(savedAdsWatched2);
-            adsWatchedDisplay1.textContent = adsWatched1;
-            adsWatchedDisplay2.textContent = adsWatched2;
-        }
-
-        // Fungsi untuk mereset jumlah iklan setiap hari
-        function resetDailyAdsIfNeeded() {
-            const lastResetDate = localStorage.getItem('lastResetDate');
-            const today = new Date().toDateString();
-
-            if (lastResetDate !== today) {
-                localStorage.setItem('adsWatched1', 0);
-                localStorage.setItem('adsWatched2', 0);
-                localStorage.setItem('lastResetDate', today);
-                adsWatched1 = 0;
-                adsWatched2 = 0;
-                adsWatchedDisplay1.textContent = adsWatched1;
-                adsWatchedDisplay2.textContent = adsWatched2;
-            }
-        }
-
-        // Panggil fungsi untuk memuat data saat aplikasi dimulai
-        loadPointsFromLocalStorage();
-        loadExchangeHistoryFromLocalStorage();
-        loadAdsWatchedFromLocalStorage();
-        resetDailyAdsIfNeeded();
-
-        // Event listener untuk tombol Tugas 1
-        taskButton1.addEventListener('click', function() {
-            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1, countdownDisplay1);
-        });
-
-        // Event listener untuk tombol Tugas 2
-        taskButton2.addEventListener('click', function() {
-            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2, countdownDisplay2);
-        });
-
-        // Fungsi untuk menangani klik tombol
-        function handleTaskButtonClick(adZone, adsWatchedKey, dailyLimit, button, countdownDisplay) {
-            // Nonaktifkan tombol sementara
-            button.disabled = true;
-
-            // Coba tampilkan iklan
-            try {
-                window[`show_${adZone}`]();
-                adDisplayed = true; // Set flag ke true jika iklan berhasil dimuat
-
-                // Simulasikan callback ketika iklan ditutup
-                setTimeout(function() {
-                    if (adDisplayed) {
-                        // Tambahkan poin hanya jika iklan muncul dan ditutup
-                        points += 1;
-                        pointsDisplay.textContent = points;
-                        savePointsToLocalStorage();
-
-                        // Tambahkan jumlah iklan yang berhasil dilihat
-                        if (adZone === '8978526') {
-                            adsWatched1 += 1;
-                            localStorage.setItem('adsWatched1', adsWatched1);
-                            adsWatchedDisplay1.textContent = adsWatched1;
-                        } else if (adZone === '9063226') {
-                            adsWatched2 += 1;
-                            localStorage.setItem('adsWatched2', adsWatched2);
-                            adsWatchedDisplay2.textContent = adsWatched2;
-                        }
-
-                        // Cek batas harian
-                        if (adsWatched1 >= dailyLimit1) {
-                            taskButton1.disabled = true;
-                            limitInfo.textContent = 'Batas harian Tugas 1 tercapai. Coba lagi besok!';
-                        }
-                        if (adsWatched2 >= dailyLimit2) {
-                            taskButton2.disabled = true;
-                            limitInfo.textContent = 'Batas harian Tugas 2 tercapai. Coba lagi besok!';
-                        }
-
-                        // Mulai hitungan mundur
-                        startCountdown(countdownDisplay, button, adsWatchedKey === 'adsWatched1' ? dailyLimit1 : dailyLimit2);
-                    }
-                    adDisplayed = false; // Reset flag setelah iklan ditutup
-                }, 1000); // Delay untuk simulasi penutupan iklan
-            } catch (error) {
-                adDisplayed = false; // Set flag ke false jika iklan gagal dimuat
-                alert('Iklan tidak dapat dimuat. Silakan coba lagi.');
-                button.disabled = false; // Aktifkan kembali tombol jika iklan gagal
-            }
-        }
-
-        // Fungsi untuk memulai hitungan mundur
-        function startCountdown(countdownDisplay, button, dailyLimit) {
-            let timeLeft = countdownDuration;
-            countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
-
-            const countdownInterval = setInterval(function() {
-                timeLeft -= 1;
-                countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
-
-                // Jika hitungan mundur selesai
-                if (timeLeft <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownDisplay.textContent = '';
-                    button.disabled = (button === taskButton1 ? adsWatched1 : adsWatched2) >= dailyLimit; // Aktifkan kembali tombol jika batas harian belum tercapai
-                }
-            }, 1000); // Update setiap 1 detik
-        }
-
-        // Event listener untuk tombol Penukaran Poin
-        exchangeButton.addEventListener('click', function() {
-            exchangeForm.reset(); // Reset formulir saat dibuka
-            // Set tanggal sesuai waktu perangkat
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`; // Format: YYYY-MM-DD
-            overlay.style.display = 'flex'; // Tampilkan formulir
-        });
-
-        // Event listener untuk tombol Riwayat Penukaran
-        historyButton.addEventListener('click', function() {
-            renderHistory(); // Render riwayat penukaran
-            historyOverlay.style.display = 'flex'; // Tampilkan riwayat
-        });
-
-        // Event listener untuk tombol close formulir
-        closeBtn.addEventListener('click', function() {
-            overlay.style.display = 'none'; // Sembunyikan formulir
-        });
-
-        // Event listener untuk tombol batal
-        cancelBtn.addEventListener('click', function() {
-            overlay.style.display = 'none'; // Sembunyikan formulir
-        });
-
-        // Event listener untuk tombol close riwayat
-        closeHistoryBtn.addEventListener('click', function() {
-            historyOverlay.style.display = 'none'; // Sembunyikan riwayat
-        });
-
-        // Fungsi untuk menampilkan toast message
-        function showToast(message) {
-            toast.textContent = message;
-            toast.style.display = 'block';
-            setTimeout(function() {
-                toast.style.display = 'none';
-            }, 3000); // Toast akan hilang setelah 3 detik
-        }
-
-        // Fungsi untuk merender riwayat penukaran
-        function renderHistory() {
-            historyList.innerHTML = ''; // Kosongkan riwayat sebelum merender ulang
-            exchangeHistory.forEach((item, index) => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <div><strong>Nama:</strong> ${item.name}</div>
-                    <div><strong>Poin:</strong> ${item.points}</div>
-                    <div><strong>Metode:</strong> ${item.paymentMethod}</div>
-                    <div><strong>Tanggal:</strong> ${item.date}</div>
-                    <button onclick="deleteHistoryItem(${index})">Hapus</button>
-                `;
-                historyList.appendChild(historyItem);
-            });
-        }
-
-        // Fungsi untuk menghapus riwayat
-        function deleteHistoryItem(index) {
-            exchangeHistory.splice(index, 1); // Hapus item dari array
-            saveExchangeHistoryToLocalStorage(); // Simpan perubahan ke localStorage
-            renderHistory(); // Render ulang riwayat
-            showToast('Riwayat berhasil dihapus.');
-        }
-
-        // Event listener untuk submit formulir
-        exchangeForm.addEventListener('submit', async function(event) {
-            event.preventDefault(); // Mencegah form submit default
-
-            // Ambil nilai dari form
-            const name = document.getElementById('name').value;
-            const pointsToExchange = parseInt(document.getElementById('pointsToExchange').value);
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const phoneNumber = document.getElementById('phoneNumber').value;
-            const date = document.getElementById('date').value;
-
-            // Validasi poin yang ditukar
-            if (pointsToExchange > points) {
-                showToast('Poin yang diminta melebihi poin yang Anda miliki.');
+        // Fungsi untuk menangani klik tombol GAME 1
+        function handleGame1() {
+            if (adsCountGame1 >= maxAdsPerDay) {
+                alert("Batas iklan GAME 1 hari ini telah habis. Coba lagi besok!");
                 return;
             }
 
-            // Kurangi poin jika pengiriman berhasil
-            points -= pointsToExchange;
-            pointsDisplay.textContent = points;
-            savePointsToLocalStorage(); // Simpan poin ke localStorage
+            // Nonaktifkan tombol
+            const game1Button = document.getElementById("game1Button");
+            game1Button.disabled = true;
 
-            // Tambahkan ke riwayat penukaran
-            exchangeHistory.push({
-                name: name,
-                points: pointsToExchange,
-                paymentMethod: paymentMethod,
-                date: date,
+            // Tampilkan iklan
+            showAd("8978526", () => {
+                // Tambahkan poin jika iklan berhasil dimuat
+                poin += 10;
+                localStorage.setItem("poin", poin);
+                document.getElementById("poin").textContent = poin;
+
+                // Tambahkan jumlah iklan GAME 1 yang ditayangkan
+                adsCountGame1++;
+                localStorage.setItem("adsCountGame1", adsCountGame1);
+                document.getElementById("adsCountGame1").textContent = adsCountGame1;
+
+                alert("Iklan selesai! Anda mendapatkan 10 poin.");
+            }, () => {
+                alert("Iklan tidak dimuat. Poin tidak bertambah.");
             });
-            saveExchangeHistoryToLocalStorage(); // Simpan riwayat ke localStorage
 
-            // Reset form dan sembunyikan overlay
-            exchangeForm.reset();
-            overlay.style.display = 'none';
-            showToast('Penukaran poin berhasil dikirim!');
-        });
+            // Mulai hitung mundur 15 detik
+            startCountdown(15, () => {
+                // Aktifkan tombol setelah hitung mundur selesai
+                game1Button.disabled = false;
+                document.getElementById("countdown").textContent = "";
+            });
+        }
+
+        // Fungsi untuk menangani klik tombol GAME 2
+        function handleGame2() {
+            if (adsCountGame2 >= maxAdsPerDay) {
+                alert("Batas iklan GAME 2 hari ini telah habis. Coba lagi besok!");
+                return;
+            }
+
+            // Nonaktifkan tombol
+            const game2Button = document.getElementById("game2Button");
+            game2Button.disabled = true;
+
+            // Tampilkan iklan
+            showAd("9063226", () => {
+                // Tambahkan poin jika iklan berhasil dimuat
+                poin += 10;
+                localStorage.setItem("poin", poin);
+                document.getElementById("poin").textContent = poin;
+
+                // Tambahkan jumlah iklan GAME 2 yang ditayangkan
+                adsCountGame2++;
+                localStorage.setItem("adsCountGame2", adsCountGame2);
+                document.getElementById("adsCountGame2").textContent = adsCountGame2;
+
+                alert("Iklan selesai! Anda mendapatkan 10 poin.");
+            }, () => {
+                alert("Iklan tidak dimuat. Poin tidak bertambah.");
+            });
+
+            // Mulai hitung mundur 15 detik
+            startCountdown(15, () => {
+                // Aktifkan tombol setelah hitung mundur selesai
+                game2Button.disabled = false;
+                document.getElementById("countdown").textContent = "";
+            });
+        }
+
+        // Fungsi untuk memulai hitung mundur
+        function startCountdown(seconds, callback) {
+            const countdownElement = document.getElementById("countdown");
+            let remainingSeconds = seconds;
+
+            const interval = setInterval(() => {
+                countdownElement.textContent = `Tombol akan aktif dalam ${remainingSeconds} detik...`;
+                remainingSeconds--;
+
+                if (remainingSeconds < 0) {
+                    clearInterval(interval);
+                    callback();
+                }
+            }, 1000);
+        }
+
+        // Fungsi untuk menampilkan iklan
+        function showAd(zoneId, onSuccess, onFailure) {
+            // Simulasikan pemuatan iklan
+            setTimeout(() => {
+                const isAdSuccessfullyLoaded = Math.random() > 0.2; // 80% kemungkinan iklan berhasil dimuat
+                if (isAdSuccessfullyLoaded) {
+                    onSuccess();
+                } else {
+                    onFailure();
+                }
+            }, 1000); // Simulasi waktu pemuatan iklan
+        }
+
+        // Reset iklan setiap hari
+        function resetAdsDaily() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(now.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0); // Set ke tengah malam
+
+            const timeUntilReset = tomorrow - now;
+            setTimeout(() => {
+                localStorage.setItem("adsCountGame1", 0);
+                localStorage.setItem("adsCountGame2", 0);
+                document.getElementById("adsCountGame1").textContent = 0;
+                document.getElementById("adsCountGame2").textContent = 0;
+                resetAdsDaily(); // Jadwalkan reset lagi untuk hari berikutnya
+            }, timeUntilReset);
+        }
+
+        // Jalankan reset iklan setiap hari
+        resetAdsDaily();
     </script>
 </body>
 </html>
