@@ -289,7 +289,9 @@
             opacity: 1;
         }
     </style>
-
+<link rel="me" href="https://www.blogger.com/profile/03922156415101130490" />
+<meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
+<meta name='google-adsense-platform-domain' content='blogspot.com'/>
 </head>
 <body>
     <div class="container">
@@ -675,42 +677,28 @@
       <!--  }
   <!--  });
 
-          // Nonaktifkan tombol sementara
+            // Nonaktifkan tombol sementara
             disableAdButton();
-          // Tampilkan iklan Monetag
+            // Tampilkan iklan Monetag
             showMonetagAd();
         }
 
         // Fungsi untuk menampilkan iklan Monetag
         function showMonetagAd() {
             // Pastikan skrip Monetag sudah dimuat
-    if (typeof window.show_8978526 === 'function') {
-        // Tampilkan iklan dan tunggu callback
-        window.show_8978526({
-            type: 'inApp',
-            inAppSettings: {
-                frequency: 1,
-                capping: 0.01,
-                interval: 40,
-                timeout: 5,
-                everyPage: false
-            },
-            onAdClosed: function() {
-                // Callback ini dipanggil ketika iklan selesai dilihat
-                onAdComplete();
-            },
-            onAdFailed: function() {
-                // Callback ini dipanggil jika iklan gagal dimuat
+            if (typeof window.show_8978526 === 'function') {
+                // Simulasi callback ketika iklan selesai dilihat
+                window.show_8978526();
+                setTimeout(() => {
+                    // Asumsikan iklan selesai dilihat setelah 5 detik
+                    onAdComplete();
+                }, 10000); // Ganti dengan callback asli dari SDK Monetag jika ada
+            } else {
+                console.error('Monetag SDK belum dimuat.');
                 showToast("Iklan tidak dapat dimuat. Silakan coba lagi.", 3000);
                 enableAdButton(); // Aktifkan kembali tombol jika iklan gagal
             }
-        });
-    } else {
-        console.error('Monetag SDK belum dimuat.');
-        showToast("Iklan tidak dapat dimuat. Silakan coba lagi.", 3000);
-        enableAdButton(); // Aktifkan kembali tombol jika iklan gagal
-    }
-}
+        }
 
         // Fungsi yang dipanggil ketika iklan selesai dilihat
         function onAdComplete() {
@@ -735,7 +723,7 @@
                 document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
             } else {
                 // Aktifkan tombol setelah hitungan mundur
-                startCountdown(25); // Hitungan mundur 25 detik
+                startCountdown(25); // Hitungan mundur 10 detik
             }
         }
 
