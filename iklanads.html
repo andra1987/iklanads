@@ -22,6 +22,8 @@
             border-radius: 15px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
+            position: relative;
+            width: 300px;
         }
         h1 {
             font-size: 2.5rem;
@@ -36,47 +38,202 @@
             border-radius: 25px;
             cursor: pointer;
             transition: background 0.3s ease;
+            margin-top: 1rem; /* Jarak antara tombol */
         }
-        .btn:hover {
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn:hover:not(:disabled) {
             background: #ff3b2f;
         }
-        .points {
-            margin-top: 1.5rem;
-            font-size: 1.5rem;
+        .points-container {
+            margin-bottom: 1rem; /* Jarak antara poin dan tombol */
+        }
+        .points-label {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .points-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .ads-container {
+            margin-top: 0.5rem; /* Jarak antara poin dan jumlah iklan */
+            font-size: 1rem;
+            color: #ddd;
+        }
+        .countdown {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #ffcc00;
+        }
+        .limit-info {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: #ff6f61;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Telegram Mini App</h1>
-        <button class="btn" id="taskButton">Tugas 1</button>
-        <div class="points">Point: <span id="points">0</span></div>
+        <!-- Tampilan poin -->
+        <div class="points-container">
+            <div class="points-label">Point:</div>
+            <div class="points-value" id="points">0</div>
+        </div>
+        <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 1 -->
+        <div class="ads-container">
+            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">3</span>
+        </div>
+        <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 2 -->
+        <div class="ads-container">
+            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">2</span>
+        </div>
+        <!-- Informasi batas harian -->
+        <div class="limit-info" id="limitInfo"></div>
+        <!-- Tombol Tugas 1 -->
+        <button class="btn" id="taskButton1">Tugas 1</button>
+        <!-- Tombol Tugas 2 -->
+        <button class="btn" id="taskButton2">Tugas 2</button>
+        <div class="countdown" id="countdown"></div>
     </div>
 
+    <!-- Script untuk Tugas 1 -->
     <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
+    <!-- Script untuk Tugas 2 -->
+    <script src='//whephiwums.com/sdk.js' data-zone='9063226' data-sdk='show_9063226'></script>
     <script>
         let points = 0;
+        let adsWatched1 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 1
+        let adsWatched2 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 2
+        const dailyLimit1 = 3; // Batas harian iklan untuk Tugas 1
+        const dailyLimit2 = 2; // Batas harian iklan untuk Tugas 2
         let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
+        let countdownInterval; // Variabel untuk menyimpan interval hitungan mundur
+        const countdownDuration = 15; // Durasi hitungan mundur dalam detik
 
-        document.getElementById('taskButton').addEventListener('click', function() {
+        const taskButton1 = document.getElementById('taskButton1');
+        const taskButton2 = document.getElementById('taskButton2');
+        const pointsDisplay = document.getElementById('points');
+        const adsWatchedDisplay1 = document.getElementById('adsWatched1');
+        const adsWatchedDisplay2 = document.getElementById('adsWatched2');
+        const dailyLimitDisplay1 = document.getElementById('dailyLimit1');
+        const dailyLimitDisplay2 = document.getElementById('dailyLimit2');
+        const limitInfo = document.getElementById('limitInfo');
+        const countdownDisplay = document.getElementById('countdown');
+
+        // Cek status batas harian dari localStorage
+        const lastResetDate = localStorage.getItem('lastResetDate');
+        const today = new Date().toDateString();
+
+        if (lastResetDate !== today) {
+            // Reset jumlah iklan yang dilihat jika sudah hari baru
+            localStorage.setItem('adsWatched1', 0);
+            localStorage.setItem('adsWatched2', 0);
+            localStorage.setItem('lastResetDate', today);
+            adsWatched1 = 0;
+            adsWatched2 = 0;
+        } else {
+            // Ambil jumlah iklan yang dilihat dari localStorage
+            adsWatched1 = parseInt(localStorage.getItem('adsWatched1')) || 0;
+            adsWatched2 = parseInt(localStorage.getItem('adsWatched2')) || 0;
+        }
+
+        // Update tampilan jumlah iklan yang dilihat
+        adsWatchedDisplay1.textContent = adsWatched1;
+        adsWatchedDisplay2.textContent = adsWatched2;
+
+        // Nonaktifkan tombol jika batas harian sudah tercapai
+        if (adsWatched1 >= dailyLimit1) {
+            taskButton1.disabled = true;
+            limitInfo.textContent = 'Batas harian Tugas 1 tercapai. Coba lagi besok!';
+        }
+        if (adsWatched2 >= dailyLimit2) {
+            taskButton2.disabled = true;
+            limitInfo.textContent = 'Batas harian Tugas 2 tercapai. Coba lagi besok!';
+        }
+
+        // Fungsi untuk menangani klik tombol
+        function handleTaskButtonClick(adZone, adsWatchedKey, dailyLimit, button) {
+            // Nonaktifkan tombol sementara
+            button.disabled = true;
+
             // Coba tampilkan iklan
             try {
-                window.show_8978526();
+                window[`show_${adZone}`]();
                 adDisplayed = true; // Set flag ke true jika iklan berhasil dimuat
+
+                // Simulasikan callback ketika iklan ditutup
+                setTimeout(function() {
+                    if (adDisplayed) {
+                        // Tambahkan poin hanya jika iklan muncul dan ditutup
+                        points += 1;
+                        pointsDisplay.textContent = points;
+
+                        // Tambahkan jumlah iklan yang berhasil dilihat
+                        if (adZone === '8978526') {
+                            adsWatched1 += 1;
+                            localStorage.setItem('adsWatched1', adsWatched1);
+                            adsWatchedDisplay1.textContent = adsWatched1;
+                        } else if (adZone === '9063226') {
+                            adsWatched2 += 1;
+                            localStorage.setItem('adsWatched2', adsWatched2);
+                            adsWatchedDisplay2.textContent = adsWatched2;
+                        }
+
+                        // Cek batas harian
+                        if (adsWatched1 >= dailyLimit1) {
+                            taskButton1.disabled = true;
+                            limitInfo.textContent = 'Batas harian Tugas 1 tercapai. Coba lagi besok!';
+                        }
+                        if (adsWatched2 >= dailyLimit2) {
+                            taskButton2.disabled = true;
+                            limitInfo.textContent = 'Batas harian Tugas 2 tercapai. Coba lagi besok!';
+                        }
+
+                        // Mulai hitungan mundur
+                        startCountdown(countdownDuration);
+                    }
+                    adDisplayed = false; // Reset flag setelah iklan ditutup
+                }, 1000); // Delay untuk simulasi penutupan iklan
             } catch (error) {
                 adDisplayed = false; // Set flag ke false jika iklan gagal dimuat
                 alert('Iklan tidak dapat dimuat. Silakan coba lagi.');
+                button.disabled = false; // Aktifkan kembali tombol jika iklan gagal
             }
+        }
 
-            // Jika iklan berhasil dimuat, tambahkan point setelah iklan ditutup
-            if (adDisplayed) {
-                setTimeout(function() {
-                    points += 1;
-                    document.getElementById('points').textContent = points;
-                    adDisplayed = false; // Reset flag setelah point ditambahkan
-                }, 1000); // Delay untuk simulasi penutupan iklan
-            }
+        // Event listener untuk tombol Tugas 1
+        taskButton1.addEventListener('click', function() {
+            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1);
         });
+
+        // Event listener untuk tombol Tugas 2
+        taskButton2.addEventListener('click', function() {
+            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2);
+        });
+
+        // Fungsi untuk memulai hitungan mundur
+        function startCountdown(duration) {
+            let timeLeft = duration;
+            countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
+
+            countdownInterval = setInterval(function() {
+                timeLeft -= 1;
+                countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
+
+                // Jika hitungan mundur selesai
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownDisplay.textContent = '';
+                    taskButton1.disabled = adsWatched1 >= dailyLimit1; // Aktifkan kembali tombol jika batas harian belum tercapai
+                    taskButton2.disabled = adsWatched2 >= dailyLimit2;
+                }
+            }, 1000); // Update setiap 1 detik
+        }
     </script>
 </body>
 </html>
