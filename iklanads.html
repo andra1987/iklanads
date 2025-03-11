@@ -625,7 +625,6 @@
             points += 15; // Poin berbeda untuk game anak
 
 	// Fungsi untuk update statistik
-        function updateStats() {
             document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
             document.getElementById('totalAds').innerText = totalAds;
             document.getElementById('points').innerText = points;
@@ -651,7 +650,7 @@
             const button = document.getElementById('kidGameButton');
             button.disabled = true;
             button.innerText = "Memuat Permainan...";
-	isAdButtonDisabled = true;
+	isKidGameButtonDisabled = true;
         }
 
         
