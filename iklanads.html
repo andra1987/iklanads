@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App</title>
+    <title>Bintang Iklan Full Eps</title>
     <style>
         /* Global Styles */
         body {
@@ -428,36 +428,76 @@
 
         let exchangeHistory = []; // Menyimpan riwayat penukaran poin
 
-        // Cek status batas harian dari localStorage
-        const lastResetDate = localStorage.getItem('lastResetDate');
-        const today = new Date().toDateString();
-
-        if (lastResetDate !== today) {
-            // Reset jumlah iklan yang dilihat jika sudah hari baru
-            localStorage.setItem('adsWatched1', 0);
-            localStorage.setItem('adsWatched2', 0);
-            localStorage.setItem('lastResetDate', today);
-            adsWatched1 = 0;
-            adsWatched2 = 0;
-        } else {
-            // Ambil jumlah iklan yang dilihat dari localStorage
-            adsWatched1 = parseInt(localStorage.getItem('adsWatched1')) || 0;
-            adsWatched2 = parseInt(localStorage.getItem('adsWatched2')) || 0;
+        // Fungsi untuk menyimpan data ke localStorage
+        function savePointsToLocalStorage() {
+            localStorage.setItem('points', points);
         }
 
-        // Update tampilan jumlah iklan yang dilihat
-        adsWatchedDisplay1.textContent = adsWatched1;
-        adsWatchedDisplay2.textContent = adsWatched2;
+        function saveExchangeHistoryToLocalStorage() {
+            localStorage.setItem('exchangeHistory', JSON.stringify(exchangeHistory));
+        }
 
-        // Nonaktifkan tombol jika batas harian sudah tercapai
-        if (adsWatched1 >= dailyLimit1) {
-            taskButton1.disabled = true;
-            limitInfo.textContent = 'Batas harian Tugas 1 tercapai. Coba lagi besok!';
+        function saveAdsWatchedToLocalStorage() {
+            localStorage.setItem('adsWatched1', adsWatched1);
+            localStorage.setItem('adsWatched2', adsWatched2);
         }
-        if (adsWatched2 >= dailyLimit2) {
-            taskButton2.disabled = true;
-            limitInfo.textContent = 'Batas harian Tugas 2 tercapai. Coba lagi besok!';
+
+        // Fungsi untuk memuat data dari localStorage
+        function loadPointsFromLocalStorage() {
+            const savedPoints = localStorage.getItem('points');
+            if (savedPoints) {
+                points = parseInt(savedPoints);
+                pointsDisplay.textContent = points;
+            }
         }
+
+        function loadExchangeHistoryFromLocalStorage() {
+            const savedHistory = localStorage.getItem('exchangeHistory');
+            if (savedHistory) {
+                exchangeHistory = JSON.parse(savedHistory);
+            }
+        }
+
+        function loadAdsWatchedFromLocalStorage() {
+            const savedAdsWatched1 = localStorage.getItem('adsWatched1');
+            const savedAdsWatched2 = localStorage.getItem('adsWatched2');
+            if (savedAdsWatched1) adsWatched1 = parseInt(savedAdsWatched1);
+            if (savedAdsWatched2) adsWatched2 = parseInt(savedAdsWatched2);
+            adsWatchedDisplay1.textContent = adsWatched1;
+            adsWatchedDisplay2.textContent = adsWatched2;
+        }
+
+        // Fungsi untuk mereset jumlah iklan setiap hari
+        function resetDailyAdsIfNeeded() {
+            const lastResetDate = localStorage.getItem('lastResetDate');
+            const today = new Date().toDateString();
+
+            if (lastResetDate !== today) {
+                localStorage.setItem('adsWatched1', 0);
+                localStorage.setItem('adsWatched2', 0);
+                localStorage.setItem('lastResetDate', today);
+                adsWatched1 = 0;
+                adsWatched2 = 0;
+                adsWatchedDisplay1.textContent = adsWatched1;
+                adsWatchedDisplay2.textContent = adsWatched2;
+            }
+        }
+
+        // Panggil fungsi untuk memuat data saat aplikasi dimulai
+        loadPointsFromLocalStorage();
+        loadExchangeHistoryFromLocalStorage();
+        loadAdsWatchedFromLocalStorage();
+        resetDailyAdsIfNeeded();
+
+        // Event listener untuk tombol Tugas 1
+        taskButton1.addEventListener('click', function() {
+            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1, countdownDisplay1);
+        });
+
+        // Event listener untuk tombol Tugas 2
+        taskButton2.addEventListener('click', function() {
+            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2, countdownDisplay2);
+        });
 
         // Fungsi untuk menangani klik tombol
         function handleTaskButtonClick(adZone, adsWatchedKey, dailyLimit, button, countdownDisplay) {
@@ -475,6 +515,7 @@
                         // Tambahkan poin hanya jika iklan muncul dan ditutup
                         points += 1;
                         pointsDisplay.textContent = points;
+                        savePointsToLocalStorage();
 
                         // Tambahkan jumlah iklan yang berhasil dilihat
                         if (adZone === '8978526') {
@@ -508,16 +549,6 @@
                 button.disabled = false; // Aktifkan kembali tombol jika iklan gagal
             }
         }
-
-        // Event listener untuk tombol Tugas 1
-        taskButton1.addEventListener('click', function() {
-            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1, countdownDisplay1);
-        });
-
-        // Event listener untuk tombol Tugas 2
-        taskButton2.addEventListener('click', function() {
-            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2, countdownDisplay2);
-        });
 
         // Fungsi untuk memulai hitungan mundur
         function startCountdown(countdownDisplay, button, dailyLimit) {
@@ -599,6 +630,7 @@
         // Fungsi untuk menghapus riwayat
         function deleteHistoryItem(index) {
             exchangeHistory.splice(index, 1); // Hapus item dari array
+            saveExchangeHistoryToLocalStorage(); // Simpan perubahan ke localStorage
             renderHistory(); // Render ulang riwayat
             showToast('Riwayat berhasil dihapus.');
         }
@@ -620,52 +652,24 @@
                 return;
             }
 
-            // Kirim data ke Telegram admin
-            const telegramBotToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Ganti dengan token bot Telegram Anda
-            const chatId = 'YOUR_CHAT_ID'; // Ganti dengan chat ID admin
-            const message = `Permintaan Penukaran Poin:\n
-Nama: ${name}\n
-Poin yang Ditukar: ${pointsToExchange}\n
-Metode Pembayaran: ${paymentMethod}\n
-Nomor HP: ${phoneNumber}\n
-Tanggal: ${date}`;
+            // Kurangi poin jika pengiriman berhasil
+            points -= pointsToExchange;
+            pointsDisplay.textContent = points;
+            savePointsToLocalStorage(); // Simpan poin ke localStorage
 
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                    }),
-                });
-
-                if (response.ok) {
-                    // Kurangi poin jika pengiriman berhasil
-                    points -= pointsToExchange;
-                    pointsDisplay.textContent = points;
-
-                    // Tambahkan ke riwayat penukaran
-                    exchangeHistory.push({
-                        name: name,
-                        points: pointsToExchange,
-                        paymentMethod: paymentMethod,
-                        date: date,
-                    });
-
-                    showToast('Penukaran poin berhasil dikirim!');
-                } else {
-                    showToast('Gagal mengirim permintaan penukaran poin.');
-                }
-            } catch (error) {
-                showToast('Terjadi kesalahan saat mengirim permintaan.');
-            }
+            // Tambahkan ke riwayat penukaran
+            exchangeHistory.push({
+                name: name,
+                points: pointsToExchange,
+                paymentMethod: paymentMethod,
+                date: date,
+            });
+            saveExchangeHistoryToLocalStorage(); // Simpan riwayat ke localStorage
 
             // Reset form dan sembunyikan overlay
             exchangeForm.reset();
             overlay.style.display = 'none';
+            showToast('Penukaran poin berhasil dikirim!');
         });
     </script>
 </body>
