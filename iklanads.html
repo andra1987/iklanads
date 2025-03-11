@@ -189,6 +189,67 @@
             font-size: 1rem;
         }
 
+        /* Riwayat Penukaran Poin */
+        .history-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .history-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .history-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #2e7d32;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .history-item {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .history-item button {
+            background: #d32f2f;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .history-item button:hover {
+            background: #c62828;
+        }
+
         /* Toast Message */
         .toast {
             position: fixed;
@@ -278,6 +339,8 @@
         <div class="countdown" id="countdown2"></div>
         <!-- Tombol Penukaran Poin -->
         <button class="btn" id="exchangeButton">Tukar Poin</button>
+        <!-- Tombol Riwayat Penukaran -->
+        <button class="btn" id="historyButton">Riwayat Penukaran</button>
     </div>
 
     <!-- Formulir Penukaran Poin -->
@@ -312,6 +375,17 @@
         </div>
     </div>
 
+    <!-- Riwayat Penukaran Poin -->
+    <div class="history-overlay" id="historyOverlay">
+        <div class="history-container">
+            <h2>Riwayat Penukaran Poin</h2>
+            <div class="history-list" id="historyList">
+                <!-- Riwayat penukaran akan ditampilkan di sini -->
+            </div>
+            <button class="btn cancel-btn" id="closeHistoryBtn">Batal</button>
+        </div>
+    </div>
+
     <!-- Toast Message -->
     <div class="toast" id="toast"></div>
 
@@ -341,12 +415,18 @@
         const countdownDisplay1 = document.getElementById('countdown1');
         const countdownDisplay2 = document.getElementById('countdown2');
         const exchangeButton = document.getElementById('exchangeButton');
+        const historyButton = document.getElementById('historyButton');
         const overlay = document.getElementById('overlay');
+        const historyOverlay = document.getElementById('historyOverlay');
         const closeBtn = document.getElementById('closeBtn');
         const cancelBtn = document.getElementById('cancelBtn');
+        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
         const exchangeForm = document.getElementById('exchangeForm');
+        const historyList = document.getElementById('historyList');
         const toast = document.getElementById('toast');
         const dateInput = document.getElementById('date');
+
+        let exchangeHistory = []; // Menyimpan riwayat penukaran poin
 
         // Cek status batas harian dari localStorage
         const lastResetDate = localStorage.getItem('lastResetDate');
@@ -469,6 +549,12 @@
             overlay.style.display = 'flex'; // Tampilkan formulir
         });
 
+        // Event listener untuk tombol Riwayat Penukaran
+        historyButton.addEventListener('click', function() {
+            renderHistory(); // Render riwayat penukaran
+            historyOverlay.style.display = 'flex'; // Tampilkan riwayat
+        });
+
         // Event listener untuk tombol close formulir
         closeBtn.addEventListener('click', function() {
             overlay.style.display = 'none'; // Sembunyikan formulir
@@ -479,6 +565,11 @@
             overlay.style.display = 'none'; // Sembunyikan formulir
         });
 
+        // Event listener untuk tombol close riwayat
+        closeHistoryBtn.addEventListener('click', function() {
+            historyOverlay.style.display = 'none'; // Sembunyikan riwayat
+        });
+
         // Fungsi untuk menampilkan toast message
         function showToast(message) {
             toast.textContent = message;
@@ -486,6 +577,30 @@
             setTimeout(function() {
                 toast.style.display = 'none';
             }, 3000); // Toast akan hilang setelah 3 detik
+        }
+
+        // Fungsi untuk merender riwayat penukaran
+        function renderHistory() {
+            historyList.innerHTML = ''; // Kosongkan riwayat sebelum merender ulang
+            exchangeHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div><strong>Nama:</strong> ${item.name}</div>
+                    <div><strong>Poin:</strong> ${item.points}</div>
+                    <div><strong>Metode:</strong> ${item.paymentMethod}</div>
+                    <div><strong>Tanggal:</strong> ${item.date}</div>
+                    <button onclick="deleteHistoryItem(${index})">Hapus</button>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Fungsi untuk menghapus riwayat
+        function deleteHistoryItem(index) {
+            exchangeHistory.splice(index, 1); // Hapus item dari array
+            renderHistory(); // Render ulang riwayat
+            showToast('Riwayat berhasil dihapus.');
         }
 
         // Event listener untuk submit formulir
@@ -531,6 +646,15 @@ Tanggal: ${date}`;
                     // Kurangi poin jika pengiriman berhasil
                     points -= pointsToExchange;
                     pointsDisplay.textContent = points;
+
+                    // Tambahkan ke riwayat penukaran
+                    exchangeHistory.push({
+                        name: name,
+                        points: pointsToExchange,
+                        paymentMethod: paymentMethod,
+                        date: date,
+                    });
+
                     showToast('Penukaran poin berhasil dikirim!');
                 } else {
                     showToast('Gagal mengirim permintaan penukaran poin.');
