@@ -86,19 +86,22 @@
         </div>
         <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 1 -->
         <div class="ads-container">
-            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">3</span>
+            Iklan Tugas 1: <span id="adsWatched1">0</span>/<span id="dailyLimit1">0</span>
         </div>
         <!-- Tampilan jumlah iklan yang berhasil dilihat untuk Tugas 2 -->
         <div class="ads-container">
-            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">2</span>
+            Iklan Tugas 2: <span id="adsWatched2">0</span>/<span id="dailyLimit2">0</span>
         </div>
         <!-- Informasi batas harian -->
         <div class="limit-info" id="limitInfo"></div>
         <!-- Tombol Tugas 1 -->
         <button class="btn" id="taskButton1">Tugas 1</button>
+        <!-- Hitungan mundur untuk Tugas 1 -->
+        <div class="countdown" id="countdown1"></div>
         <!-- Tombol Tugas 2 -->
         <button class="btn" id="taskButton2">Tugas 2</button>
-        <div class="countdown" id="countdown"></div>
+        <!-- Hitungan mundur untuk Tugas 2 -->
+        <div class="countdown" id="countdown2"></div>
     </div>
 
     <!-- Script untuk Tugas 1 -->
@@ -109,11 +112,12 @@
         let points = 0;
         let adsWatched1 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 1
         let adsWatched2 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 2
-        const dailyLimit1 = 3; // Batas harian iklan untuk Tugas 1
-        const dailyLimit2 = 2; // Batas harian iklan untuk Tugas 2
+        const dailyLimit1 = 6; // Batas harian iklan untuk Tugas 1
+        const dailyLimit2 = 6; // Batas harian iklan untuk Tugas 2
         let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
-        let countdownInterval; // Variabel untuk menyimpan interval hitungan mundur
-        const countdownDuration = 15; // Durasi hitungan mundur dalam detik
+        let countdownInterval1; // Variabel untuk menyimpan interval hitungan mundur Tugas 1
+        let countdownInterval2; // Variabel untuk menyimpan interval hitungan mundur Tugas 2
+        const countdownDuration = 10; // Durasi hitungan mundur dalam detik
 
         const taskButton1 = document.getElementById('taskButton1');
         const taskButton2 = document.getElementById('taskButton2');
@@ -123,7 +127,8 @@
         const dailyLimitDisplay1 = document.getElementById('dailyLimit1');
         const dailyLimitDisplay2 = document.getElementById('dailyLimit2');
         const limitInfo = document.getElementById('limitInfo');
-        const countdownDisplay = document.getElementById('countdown');
+        const countdownDisplay1 = document.getElementById('countdown1');
+        const countdownDisplay2 = document.getElementById('countdown2');
 
         // Cek status batas harian dari localStorage
         const lastResetDate = localStorage.getItem('lastResetDate');
@@ -157,7 +162,7 @@
         }
 
         // Fungsi untuk menangani klik tombol
-        function handleTaskButtonClick(adZone, adsWatchedKey, dailyLimit, button) {
+        function handleTaskButtonClick(adZone, adsWatchedKey, dailyLimit, button, countdownDisplay) {
             // Nonaktifkan tombol sementara
             button.disabled = true;
 
@@ -170,7 +175,7 @@
                 setTimeout(function() {
                     if (adDisplayed) {
                         // Tambahkan poin hanya jika iklan muncul dan ditutup
-                        points += 1;
+                        points += 100;
                         pointsDisplay.textContent = points;
 
                         // Tambahkan jumlah iklan yang berhasil dilihat
@@ -195,7 +200,7 @@
                         }
 
                         // Mulai hitungan mundur
-                        startCountdown(countdownDuration);
+                        startCountdown(countdownDisplay, button, adsWatchedKey === 'adsWatched1' ? dailyLimit1 : dailyLimit2);
                     }
                     adDisplayed = false; // Reset flag setelah iklan ditutup
                 }, 1000); // Delay untuk simulasi penutupan iklan
@@ -208,20 +213,20 @@
 
         // Event listener untuk tombol Tugas 1
         taskButton1.addEventListener('click', function() {
-            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1);
+            handleTaskButtonClick('8978526', 'adsWatched1', dailyLimit1, taskButton1, countdownDisplay1);
         });
 
         // Event listener untuk tombol Tugas 2
         taskButton2.addEventListener('click', function() {
-            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2);
+            handleTaskButtonClick('9063226', 'adsWatched2', dailyLimit2, taskButton2, countdownDisplay2);
         });
 
         // Fungsi untuk memulai hitungan mundur
-        function startCountdown(duration) {
-            let timeLeft = duration;
+        function startCountdown(countdownDisplay, button, dailyLimit) {
+            let timeLeft = countdownDuration;
             countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
 
-            countdownInterval = setInterval(function() {
+            const countdownInterval = setInterval(function() {
                 timeLeft -= 1;
                 countdownDisplay.textContent = `Tombol akan aktif dalam: ${timeLeft} detik`;
 
@@ -229,8 +234,7 @@
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
                     countdownDisplay.textContent = '';
-                    taskButton1.disabled = adsWatched1 >= dailyLimit1; // Aktifkan kembali tombol jika batas harian belum tercapai
-                    taskButton2.disabled = adsWatched2 >= dailyLimit2;
+                    button.disabled = (button === taskButton1 ? adsWatched1 : adsWatched2) >= dailyLimit; // Aktifkan kembali tombol jika batas harian belum tercapai
                 }
             }, 1000); // Update setiap 1 detik
         }
