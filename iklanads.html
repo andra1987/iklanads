@@ -595,15 +595,20 @@
                 return;
             }
 
-            disableKidGameButton();
+            // Nonaktifkan tombol sementara
+		disableKidGameButton();
+	// Tampilkan iklan Monetag
             showKidMonetagAd();
-        }
+        	}
 
 	// Fungsi untuk menampilkan iklan GAME ANAK
         function showKidMonetagAd() {
+	// Pastikan skrip Monetag sudah dimuat
             if (typeof window.show_9063226 === 'function') {
+	// Simulasi callback ketika iklan selesai dilihat
                 window.show_9063226();
                 setTimeout(() => {
+		 // Asumsikan iklan selesai dilihat setelah 5 detik
                     onKidAdComplete();
                 }, 5000);
             } else {
@@ -619,17 +624,6 @@
             totalAds++;
             points += 15; // Poin berbeda untuk game anak
 
-            updateStats();
-            saveData();
-            showToast("🎮 Terima kasih! Anda mendapatkan 15 poin dari permainan.", 3000);
-
-            if (adsToday >= dailyAdLimit) {
-                disableAllAdButtons();
-            } else {
-                startCountdown(25, 'kidGameButton');
-            }
-        }
-
 	// Fungsi untuk update statistik
         function updateStats() {
             document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
@@ -637,29 +631,42 @@
             document.getElementById('points').innerText = points;
         }
 
+	// Simpan perubahan ke local storage
+            saveData();
+	// Tampilkan pesan mengambang
+            showToast("🎮 Terima kasih! Anda mendapatkan 15 poin dari permainan.", 3000);
+
+	// Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
+            if (adsToday >= dailyAdLimit) {
+                document.getElementById('kidGameButton').disabled = true;
+                document.getElementById('kidGameButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
+            } else {
+                // Aktifkan tombol setelah hitungan mundur
+                startCountdown(25); // Hitungan mundur 10 detik
+            }
+        }
+
         // Fungsi untuk menonaktifkan tombol game anak
         function disableKidGameButton() {
             const button = document.getElementById('kidGameButton');
             button.disabled = true;
             button.innerText = "Memuat Permainan...";
+	isAdButtonDisabled = true;
         }
 
-        // Fungsi untuk mengaktifkan semua tombol iklan
-        function enableAllAdButtons() {
-            enableAdButton();
-            enableKidGameButton();
-        }
+        
 
         // Fungsi untuk mengaktifkan tombol game anak
         function enableKidGameButton() {
             const button = document.getElementById('kidGameButton');
             button.disabled = false;
             button.innerText = "👶 GAME ANAK";
+		isAdButtonDisabled = false;
         }
 
         // Fungsi hitungan mundur diperbarui
-        function startCountdown(seconds, buttonId) {
-            const button = document.getElementById(buttonId);
+        function startCountdown(seconds) {
+            const button = document.getElementById('kidGameButton');
             let countdown = seconds;
 
             const interval = setInterval(() => {
@@ -668,7 +675,6 @@
 
                 if (countdown < 0) {
                     clearInterval(interval);
-                    if (buttonId === 'watchAdButton') enableAdButton();
                     if (buttonId === 'kidGameButton') enableKidGameButton();
                 }
             }, 1000);
