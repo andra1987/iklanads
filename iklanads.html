@@ -308,6 +308,9 @@
         <!-- Tombol untuk melihat iklan -->
         <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
 
+	<!-- Tombol GAME ANAK -->
+        <button id="kidGameButton" onclick="startKidAd()">👶 GAME ANAK</button>
+
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
 
@@ -373,10 +376,11 @@
 
     <!-- Skrip Monetag -->
     <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
-  
-  
 
-    <script>
+	<!-- Skript Monetag untuk GAME ANAK (dengan kode berbeda) -->
+	<script src='//whephiwums.com/sdk.js' data-zone='9063226' data-sdk='show_9063226'></script>
+  
+      <script>
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
@@ -584,6 +588,94 @@
             showToast("Riwayat penarikan berhasil dihapus.", 3000);
         }
 
+	// Fungsi untuk memulai iklan GAME ANAK
+        function startKidAd() {
+            if (adsToday >= dailyAdLimit) {
+                showToast("Anda telah mencapai batas aktivitas hari ini.", 3000);
+                return;
+            }
+
+            disableKidGameButton();
+            showKidMonetagAd();
+        }
+
+	// Fungsi untuk menampilkan iklan GAME ANAK
+        function showKidMonetagAd() {
+            if (typeof window.show_kid_8978527 === 'function') {
+                window.show_kid_8978527();
+                setTimeout(() => {
+                    onKidAdComplete();
+                }, 5000);
+            } else {
+                console.error('Monetag SDK GAME ANAK belum dimuat.');
+                showToast("Permainan tidak dapat dimuat. Silakan coba lagi.", 3000);
+                enableKidGameButton();
+            }
+        }
+
+	// Fungsi yang dipanggil ketika game selesai
+        function onKidAdComplete() {
+            adsToday++;
+            totalAds++;
+            points += 15; // Poin berbeda untuk game anak
+
+            updateStats();
+            saveData();
+            showToast("🎮 Terima kasih! Anda mendapatkan 15 poin dari permainan.", 3000);
+
+            if (adsToday >= dailyAdLimit) {
+                disableAllAdButtons();
+            } else {
+                startCountdown(25, 'kidGameButton');
+            }
+        }
+
+	// Fungsi untuk update statistik
+        function updateStats() {
+            document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
+            document.getElementById('totalAds').innerText = totalAds;
+            document.getElementById('points').innerText = points;
+        }
+
+        // Fungsi untuk menonaktifkan tombol game anak
+        function disableKidGameButton() {
+            const button = document.getElementById('kidGameButton');
+            button.disabled = true;
+            button.innerText = "Memuat Permainan...";
+        }
+
+        // Fungsi untuk mengaktifkan semua tombol iklan
+        function enableAllAdButtons() {
+            enableAdButton();
+            enableKidGameButton();
+        }
+
+        // Fungsi untuk mengaktifkan tombol game anak
+        function enableKidGameButton() {
+            const button = document.getElementById('kidGameButton');
+            button.disabled = false;
+            button.innerText = "👶 GAME ANAK";
+        }
+
+        // Fungsi hitungan mundur diperbarui
+        function startCountdown(seconds, buttonId) {
+            const button = document.getElementById(buttonId);
+            let countdown = seconds;
+
+            const interval = setInterval(() => {
+                button.innerText = `Tunggu ${countdown} detik...`;
+                countdown--;
+
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    if (buttonId === 'watchAdButton') enableAdButton();
+                    if (buttonId === 'kidGameButton') enableKidGameButton();
+                }
+            }, 1000);
+        }
+
+
+
         // Fungsi untuk memulai iklan
         function startAd() {
             if (adsToday >= dailyAdLimit) {
@@ -591,8 +683,6 @@
                 return;
             }
           
-
-
             // Nonaktifkan tombol sementara
             disableAdButton();
             // Tampilkan iklan Monetag
