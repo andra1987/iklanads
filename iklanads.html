@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,8 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
             margin: 0;
             padding: 0;
             display: flex;
@@ -16,197 +17,114 @@
             height: 100vh;
         }
         .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
             text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
         }
         .button {
             display: block;
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #007bff;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            font-size: 1.2rem;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background 0.3s ease;
         }
-        .button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
-        .button:hover:not(:disabled) {
-            background-color: #0056b3;
+        .button:active {
+            background: rgba(255, 255, 255, 0.4);
         }
-        .button-success {
-            background-color: #28a745;
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
         }
-        .button-success:hover:not(:disabled) {
-            background-color: #218838;
+        /* Toast Styling */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
         }
-        .countdown {
-            font-size: 14px;
-            color: #555;
-            margin-top: 10px;
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Mini App</h1>
-        <button id="game1Button" class="button button-success" onclick="handleGame1()">GAME 1</button>
-        <button id="game2Button" class="button button-success" onclick="handleGame2()">GAME 2</button>
-        <button class="button" onclick="window.location.href='#'">PENARIKAN POIN</button>
-        <button class="button" onclick="window.location.href='#'">RIWAYAT PENARIKAN</button>
-        <button class="button" onclick="window.location.href='#'">GROUP TELEGRAM</button>
-        <div id="countdown" class="countdown"></div>
-        <p>Poin: <span id="poin">0</span></p>
-        <p>Iklan GAME 1 hari ini: <span id="adsCountGame1">0</span>/50</p>
-        <p>Iklan GAME 2 hari ini: <span id="adsCountGame2">0</span>/50</p>
+        <h1>Mini App Game</h1>
+        <button class="button" onclick="startGame1()">GAME 1</button>
+        <button class="button" onclick="showToast('Game 2 Dimulai!')">GAME 2</button>
+        <button class="button" onclick="showToast('Tukar Poin Diklik!')">TUKAR POIN</button>
+        <button class="button" onclick="showToast('Riwayat Diklik!')">RIWAYAT</button>
+        <button class="button" onclick="window.open('https://t.me/yourgroup', '_blank')">GROUP TELEGRAM</button>
+        <div class="footer">
+            &copy; 2023 Mini App Game. All rights reserved.
+        </div>
     </div>
 
-    <!-- Script untuk iklan GAME 1 -->
-    <script src="//whephiwums.com/sdk.js" data-zone="8978526" data-sdk="show_8978526"></script>
-    <!-- Script untuk iklan GAME 2 -->
-    <script src="//whephiwums.com/sdk.js" data-zone="9063226" data-sdk="show_9063226"></script>
+    <!-- Toast Element -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
     <script>
-        // Inisialisasi data dari localStorage
-        let poin = parseInt(localStorage.getItem("poin")) || 0;
-        let adsCountGame1 = parseInt(localStorage.getItem("adsCountGame1")) || 0;
-        let adsCountGame2 = parseInt(localStorage.getItem("adsCountGame2")) || 0;
-        const maxAdsPerDay = 50;
+        // Fungsi untuk menampilkan toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
 
-        // Update tampilan dengan data dari localStorage
-        document.getElementById("poin").textContent = poin;
-        document.getElementById("adsCountGame1").textContent = adsCountGame1;
-        document.getElementById("adsCountGame2").textContent = adsCountGame2;
-
-        // Fungsi untuk menangani klik tombol GAME 1
-        function handleGame1() {
-            if (adsCountGame1 >= maxAdsPerDay) {
-                alert("Batas iklan GAME 1 hari ini telah habis. Coba lagi besok!");
-                return;
-            }
-
-            // Nonaktifkan tombol
-            const game1Button = document.getElementById("game1Button");
-            game1Button.disabled = true;
-
-            // Tampilkan iklan
-            showAd("8978526", () => {
-                // Tambahkan poin jika iklan berhasil dimuat
-                poin += 10;
-                localStorage.setItem("poin", poin);
-                document.getElementById("poin").textContent = poin;
-
-                // Tambahkan jumlah iklan GAME 1 yang ditayangkan
-                adsCountGame1++;
-                localStorage.setItem("adsCountGame1", adsCountGame1);
-                document.getElementById("adsCountGame1").textContent = adsCountGame1;
-
-                alert("Iklan selesai! Anda mendapatkan 10 poin.");
-            }, () => {
-                alert("Iklan tidak dimuat. Poin tidak bertambah.");
-            });
-
-            // Mulai hitung mundur 15 detik
-            startCountdown(15, () => {
-                // Aktifkan tombol setelah hitung mundur selesai
-                game1Button.disabled = false;
-                document.getElementById("countdown").textContent = "";
-            });
-        }
-
-        // Fungsi untuk menangani klik tombol GAME 2
-        function handleGame2() {
-            if (adsCountGame2 >= maxAdsPerDay) {
-                alert("Batas iklan GAME 2 hari ini telah habis. Coba lagi besok!");
-                return;
-            }
-
-            // Nonaktifkan tombol
-            const game2Button = document.getElementById("game2Button");
-            game2Button.disabled = true;
-
-            // Tampilkan iklan
-            showAd("9063226", () => {
-                // Tambahkan poin jika iklan berhasil dimuat
-                poin += 10;
-                localStorage.setItem("poin", poin);
-                document.getElementById("poin").textContent = poin;
-
-                // Tambahkan jumlah iklan GAME 2 yang ditayangkan
-                adsCountGame2++;
-                localStorage.setItem("adsCountGame2", adsCountGame2);
-                document.getElementById("adsCountGame2").textContent = adsCountGame2;
-
-                alert("Iklan selesai! Anda mendapatkan 10 poin.");
-            }, () => {
-                alert("Iklan tidak dimuat. Poin tidak bertambah.");
-            });
-
-            // Mulai hitung mundur 15 detik
-            startCountdown(15, () => {
-                // Aktifkan tombol setelah hitung mundur selesai
-                game2Button.disabled = false;
-                document.getElementById("countdown").textContent = "";
-            });
-        }
-
-        // Fungsi untuk memulai hitung mundur
-        function startCountdown(seconds, callback) {
-            const countdownElement = document.getElementById("countdown");
-            let remainingSeconds = seconds;
-
-            const interval = setInterval(() => {
-                countdownElement.textContent = `Tombol akan aktif dalam ${remainingSeconds} detik...`;
-                remainingSeconds--;
-
-                if (remainingSeconds < 0) {
-                    clearInterval(interval);
-                    callback();
-                }
-            }, 1000);
-        }
-
-        // Fungsi untuk menampilkan iklan
-        function showAd(zoneId, onSuccess, onFailure) {
-            // Simulasikan pemuatan iklan
+            // Sembunyikan toast setelah 3 detik
             setTimeout(() => {
-                const isAdSuccessfullyLoaded = Math.random() > 0.2; // 80% kemungkinan iklan berhasil dimuat
-                if (isAdSuccessfullyLoaded) {
-                    onSuccess();
-                } else {
-                    onFailure();
-                }
-            }, 1000); // Simulasi waktu pemuatan iklan
+                toast.style.display = 'none';
+            }, 3000);
         }
 
-        // Reset iklan setiap hari
-        function resetAdsDaily() {
-            const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(now.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0); // Set ke tengah malam
-
-            const timeUntilReset = tomorrow - now;
-            setTimeout(() => {
-                localStorage.setItem("adsCountGame1", 0);
-                localStorage.setItem("adsCountGame2", 0);
-                document.getElementById("adsCountGame1").textContent = 0;
-                document.getElementById("adsCountGame2").textContent = 0;
-                resetAdsDaily(); // Jadwalkan reset lagi untuk hari berikutnya
-            }, timeUntilReset);
+        // Fungsi untuk memulai Game 1 dan menampilkan iklan
+        function startGame1() {
+            // Tampilkan iklan rewarded interstitial
+            show_8978526().then(() => {
+                // Reward pengguna setelah menonton iklan
+                showToast('Terima kasih telah menonton iklan! Game 1 dimulai.');
+                // Tambahkan logika reward di sini (misalnya, tambahkan poin atau buka fitur khusus)
+            }).catch((error) => {
+                // Tangani error jika iklan gagal dimuat
+                showToast('Iklan gagal dimuat. Silakan coba lagi.');
+                console.error('Error loading ad:', error);
+            });
         }
 
-        // Jalankan reset iklan setiap hari
-        resetAdsDaily();
+        // Mock function untuk iklan (gantikan dengan fungsi asli dari SDK iklan Anda)
+        function show_8978526() {
+            return new Promise((resolve, reject) => {
+                // Simulasikan iklan yang berhasil ditonton setelah 2 detik
+                setTimeout(() => {
+                    resolve();
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
