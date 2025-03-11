@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Mini App</title>
     <style>
+        /* Global Styles */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: #fff;
             display: flex;
@@ -15,66 +16,107 @@
             height: 100vh;
             margin: 0;
         }
+
         .container {
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
-            position: relative;
-            width: 300px;
+            width: 90%;
+            max-width: 400px;
         }
+
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #ffcc00;
         }
+
         .btn {
-            background: #ff6f61;
+            background: linear-gradient(135deg, #ff6f61, #ff3b2f);
             color: #fff;
             border: none;
             padding: 1rem 2rem;
-            font-size: 1.2rem;
+            font-size: 1rem;
             border-radius: 25px;
             cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 1rem; /* Jarak antara tombol */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 200px;
         }
+
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
+
         .btn:hover:not(:disabled) {
-            background: #ff3b2f;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
         }
+
         .points-container {
-            margin-bottom: 1rem; /* Jarak antara poin dan tombol */
+            margin-bottom: 1.5rem;
         }
+
         .points-label {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
+            color: #ddd;
         }
+
         .points-value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #ffcc00;
         }
+
         .ads-container {
-            margin-top: 0.5rem; /* Jarak antara poin dan jumlah iklan */
+            margin-top: 1rem;
             font-size: 1rem;
             color: #ddd;
         }
+
         .countdown {
             margin-top: 1rem;
             font-size: 1.2rem;
             color: #ffcc00;
         }
+
         .limit-info {
             margin-top: 1rem;
             font-size: 1rem;
             color: #ff6f61;
         }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .points-value {
+                font-size: 2rem;
+            }
+
+            .ads-container, .limit-info, .countdown {
+                font-size: 0.9rem;
+            }
+        }
     </style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -112,8 +154,8 @@
         let points = 0;
         let adsWatched1 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 1
         let adsWatched2 = 0; // Jumlah iklan yang berhasil dilihat untuk Tugas 2
-        const dailyLimit1 = 6; // Batas harian iklan untuk Tugas 1
-        const dailyLimit2 = 6; // Batas harian iklan untuk Tugas 2
+        const dailyLimit1 = 3; // Batas harian iklan untuk Tugas 1
+        const dailyLimit2 = 2; // Batas harian iklan untuk Tugas 2
         let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
         let countdownInterval1; // Variabel untuk menyimpan interval hitungan mundur Tugas 1
         let countdownInterval2; // Variabel untuk menyimpan interval hitungan mundur Tugas 2
@@ -175,7 +217,7 @@
                 setTimeout(function() {
                     if (adDisplayed) {
                         // Tambahkan poin hanya jika iklan muncul dan ditutup
-                        points += 100;
+                        points += 1;
                         pointsDisplay.textContent = points;
 
                         // Tambahkan jumlah iklan yang berhasil dilihat
