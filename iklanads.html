@@ -56,16 +56,26 @@
     <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
     <script>
         let points = 0;
+        let adDisplayed = false; // Flag untuk mengecek apakah iklan ditampilkan
 
         document.getElementById('taskButton').addEventListener('click', function() {
-            // Tampilkan iklan Monetag
-            window.show_8978526();
+            // Coba tampilkan iklan
+            try {
+                window.show_8978526();
+                adDisplayed = true; // Set flag ke true jika iklan berhasil dimuat
+            } catch (error) {
+                adDisplayed = false; // Set flag ke false jika iklan gagal dimuat
+                alert('Iklan tidak dapat dimuat. Silakan coba lagi.');
+            }
 
-            // Setelah iklan ditutup, tambahkan point
-            setTimeout(function() {
-                points += 1;
-                document.getElementById('points').textContent = points;
-            }, 1000); // Delay untuk simulasi penutupan iklan
+            // Jika iklan berhasil dimuat, tambahkan point setelah iklan ditutup
+            if (adDisplayed) {
+                setTimeout(function() {
+                    points += 1;
+                    document.getElementById('points').textContent = points;
+                    adDisplayed = false; // Reset flag setelah point ditambahkan
+                }, 1000); // Delay untuk simulasi penutupan iklan
+            }
         });
     </script>
 </body>
