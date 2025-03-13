@@ -626,10 +626,10 @@
         }
 
 
-	    // Fungsi untuk memeriksa koneksi internet
-		function checkInternetConnection() {
-    		return navigator.onLine; // Mengembalikan true jika online, false jika offline
-		}
+	 // Fungsi untuk memeriksa koneksi internet
+	function checkInternetConnection() {
+    	return navigator.onLine; // Mengembalikan true jika online, false jika offline
+	}
 
         // Fungsi yang dipanggil ketika iklan selesai dilihat
         function onAdComplete() {
@@ -709,7 +709,69 @@
 
         // Inisialisasi data awal
         loadData();
-      
+
+
+	    // Fungsi untuk memeriksa apakah perangkat adalah Android atau iOS
+        function isMobileDevice() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            return /android|iphone|ipad|ipod/.test(userAgent);
+        }
+
+        // Fungsi untuk memeriksa apakah pengguna mengakses dari Telegram PC atau Web PC
+        function isTelegramPC() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            return /telegram|web|desktop/.test(userAgent);
+        }
+
+        // Fungsi untuk memblokir akses
+        function blockAccess() {
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+                    <h1 style="color: red;">Akses Diblokir!</h1>
+                    <p>Website ini hanya dapat diakses melalui perangkat Android atau iOS.</p>
+                    <p>Penggunaan Telegram PC, Web PC, atau VPN tidak diizinkan.</p>
+                </div>
+            `;
+        }
+
+        // Fungsi untuk mendeteksi VPN menggunakan IPHub
+        async function detectVPN() {
+            const apiKey = 'YOUR_IPHUB_API_KEY'; // Ganti dengan API key Anda
+            const response = await fetch(`https://v2.api.iphub.info/ip/${await getPublicIP()}`, {
+                headers: { 'X-Key': apiKey }
+            });
+            const data = await response.json();
+            return data.block === 1; // Jika block = 1, berarti menggunakan VPN
+        }
+
+        // Fungsi untuk mendapatkan IP publik pengguna
+        async function getPublicIP() {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        }
+
+        // Fungsi utama untuk memeriksa akses
+        async function checkAccess() {
+            // Blokir jika bukan perangkat Android/iOS atau menggunakan Telegram PC/Web PC
+            if (!isMobileDevice() || isTelegramPC()) {
+                blockAccess();
+                return;
+            }
+
+            // Blokir jika menggunakan VPN
+            if (await detectVPN()) {
+                blockAccess();
+                return;
+            }
+        }
+
+        // Jalankan pengecekan akses saat halaman dimuat
+        window.onload = checkAccess;
+
+
+
+	    
      
 </script>
 
