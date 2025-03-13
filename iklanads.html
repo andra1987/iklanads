@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUNGA IKLAN</title>
+    <title>BUNGA IKLAN V.2.0</title>
     <style>
         /* General Styles */
         body {
@@ -290,12 +290,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Bunga Iklan New</h1>
+        <h1>BUNGA IKLAN V.2</h1>
       <strong>Powered By: supermin</strong>
         
         <!-- Pengumuman -->
         <div class="announcement">
-            <strong>🎉 Pengumuman:</strong> Selamat datang di Bunga Iklan New! Bermain dan kumpulkan poin Anda, Jangan lupa gabung group!
+            <strong>🎉 Pengumuman:</strong> Selamat datang di Bunga Iklan V.2! Bermain di VERSI 1 dan VERSI 2 bisa lebih banyak poin, Jangan lupa gabung group!
         </div>
 
         <!-- Statistik Iklan dan Poin -->
@@ -306,10 +306,10 @@
         </div>
 
         <!-- Tombol untuk melihat iklan -->
-        <button id="watchAdButton" onclick="startAd()">🎬 Lihat Iklan</button>
-
-	<!-- Tombol GAME ANAK -->
-        <button id="kidGameButton" onclick="startKidAd()">👶 GAME ANAK</button>
+        <button id="watchAdButton" onclick="startAd()">🎬 MAIN GAME</button>
+      
+      	<!-- Tombol Game Versi 1 -->
+        <button onclick="openTelegramBot()">🎬 MAIN GAME VERSI 1</button>
 
         <!-- Tombol Penarikan Poin -->
         <button id="withdrawButton" onclick="showWithdrawalForm()">💳 Penarikan Poin</button>
@@ -375,12 +375,17 @@
     <div id="toast" class="toast"></div>
 
     <!-- Skrip Monetag -->
-    <script src='//whephiwums.com/sdk.js' data-zone='8978526' data-sdk='show_8978526'></script>
-
-	<!-- Skript Monetag untuk GAME ANAK (dengan kode berbeda) -->
-	<script src='//whephiwums.com/sdk.js' data-zone='9063226' data-sdk='show_9063226'></script>
+    <script src='//whephiwums.com/sdk.js' data-zone='9063226' data-sdk='show_9063226'></script>
   
-      <script>
+  
+
+    <script>
+      // Fungsi untuk membuka grup Telegram
+        function openTelegramBot() {
+            const telegramBotLink = 'https://t.me/iklanads_bot'; // Ganti dengan link grup Telegram Anda
+            window.open(telegramBotLink, '_blank');
+        }
+      
         // Fungsi untuk membuka grup Telegram
         function openTelegramGroup() {
             const telegramGroupLink = 'https://t.me/+pRqQYA0oMnhiNzRl'; // Ganti dengan link grup Telegram Anda
@@ -497,7 +502,7 @@
             }
 
             // Kirim pesan ke admin Telegram
-            const message = `📝 *Permintaan Penarikan Poin*:\n\n` +
+            const message = `📝 *Permintaan Penarikan Poin V.2*:\n\n` +
                 `Nama: ${name}\n` +
                 `Poin yang Ditukar: ${pointsToWithdraw}\n` +
                 `Metode Pembayaran: ${paymentMethod}\n` +
@@ -588,94 +593,6 @@
             showToast("Riwayat penarikan berhasil dihapus.", 3000);
         }
 
-	// Fungsi untuk memulai iklan GAME ANAK
-        function startKidAd() {
-            if (adsToday >= dailyAdLimit) {
-                showToast("Anda telah mencapai batas aktivitas hari ini.", 3000);
-                return;
-            }
-
-            // Nonaktifkan tombol sementara
-		disableKidGameButton();
-	// Tampilkan iklan Monetag
-            showKidMonetagAd();
-        	}
-
-	// Fungsi untuk menampilkan iklan GAME ANAK
-        function showKidMonetagAd() {
-	// Pastikan skrip Monetag sudah dimuat
-            if (typeof window.show_9063226 === 'function') {
-	// Simulasi callback ketika iklan selesai dilihat
-                window.show_9063226();
-                setTimeout(() => {
-		 // Asumsikan iklan selesai dilihat setelah 5 detik
-                    onKidAdComplete();
-                }, 5000);
-            } else {
-                console.error('Monetag SDK GAME ANAK belum dimuat.');
-                showToast("Permainan tidak dapat dimuat. Silakan coba lagi.", 3000);
-                enableKidGameButton();
-            }
-        }
-
-	// Fungsi yang dipanggil ketika game selesai
-        function onKidAdComplete() {
-            adsToday++;
-            totalAds++;
-            points += 15; // Poin berbeda untuk game anak
-
-
-	// Simpan perubahan ke local storage
-            saveData();
-	// Tampilkan pesan mengambang
-            showToast("🎮 Terima kasih! Anda mendapatkan 15 poin dari permainan.", 3000);
-
-	// Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
-            if (adsToday >= dailyAdLimit) {
-                document.getElementById('kidGameButton').disabled = true;
-                document.getElementById('kidGameButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
-            } else {
-                // Aktifkan tombol setelah hitungan mundur
-                startCountdown(25); // Hitungan mundur 10 detik
-            }
-        }
-
-        // Fungsi untuk menonaktifkan tombol game anak
-        function disableKidGameButton() {
-            const button = document.getElementById('kidGameButton');
-            button.disabled = true;
-            button.innerText = "Memuat Permainan...";
-	isKidGameButtonDisabled = true;
-        }
-
-        
-
-        // Fungsi untuk mengaktifkan tombol game anak
-        function enableKidGameButton() {
-            const button = document.getElementById('kidGameButton');
-            button.disabled = false;
-            button.innerText = "👶 GAME ANAK";
-		isAdButtonDisabled = false;
-        }
-
-        // Fungsi hitungan mundur diperbarui
-        function startCountdown(seconds) {
-            const button = document.getElementById('kidGameButton');
-            let countdown = seconds;
-
-            const interval = setInterval(() => {
-                button.innerText = `Tunggu ${countdown} detik...`;
-                countdown--;
-
-                if (countdown < 0) {
-                    clearInterval(interval);
-                    if (buttonId === 'kidGameButton') enableKidGameButton();
-                }
-            }, 1000);
-        }
-
-
-
         // Fungsi untuk memulai iklan
         function startAd() {
             if (adsToday >= dailyAdLimit) {
@@ -683,6 +600,8 @@
                 return;
             }
           
+
+
             // Nonaktifkan tombol sementara
             disableAdButton();
             // Tampilkan iklan Monetag
@@ -692,9 +611,9 @@
         // Fungsi untuk menampilkan iklan Monetag
         function showMonetagAd() {
             // Pastikan skrip Monetag sudah dimuat
-            if (typeof window.show_8978526 === 'function') {
+            if (typeof window.show_9063226 === 'function') {
                 // Simulasi callback ketika iklan selesai dilihat
-                window.show_8978526();
+                window.show_9063226();
                 setTimeout(() => {
                     // Asumsikan iklan selesai dilihat setelah 5 detik
                     onAdComplete();
@@ -706,22 +625,36 @@
             }
         }
 
+
+	    // Fungsi untuk memeriksa koneksi internet
+		function checkInternetConnection() {
+    		return navigator.onLine; // Mengembalikan true jika online, false jika offline
+		}
+
         // Fungsi yang dipanggil ketika iklan selesai dilihat
         function onAdComplete() {
-            adsToday++;
-            totalAds++;
-            points += 20; // Setiap iklan memberikan 10 poin
+	// Periksa koneksi internet sebelum menyimpan poin
+    	if (!checkInternetConnection()) {
+        showToast("⚠️ Koneksi internet terputus! Poin tidak tersimpan.", 5000);
+        enableAdButton(); // Aktifkan tombol kembali
+        return; // Batalkan penyimpanan poin
+    	}
+            // Jika koneksi tersedia, lanjutkan proses
+    	adsToday++;
+    	totalAds++;
+    	points += 15; // Setiap iklan memberikan 15 poin
 
+		
             // Update tampilan
-            document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
-            document.getElementById('totalAds').innerText = totalAds;
-            document.getElementById('points').innerText = points;
+            	document.getElementById('adsToday').innerText = `${adsToday}/${dailyAdLimit}`;
+    		document.getElementById('totalAds').innerText = totalAds;
+    		document.getElementById('points').innerText = points;
 
             // Simpan perubahan ke local storage
             saveData();
 
             // Tampilkan pesan mengambang
-            showToast("🎉 Terima kasih! Anda mendapatkan 20 poin.", 3000);
+            showToast("🎉 Terima kasih! Anda mendapatkan 15 poin.", 5000);
 
             // Jika batasan iklan per hari terpenuhi, nonaktifkan tombol
             if (adsToday >= dailyAdLimit) {
@@ -729,9 +662,18 @@
                 document.getElementById('watchAdButton').innerText = "Batas Iklan Hari Ini Terpenuhi";
             } else {
                 // Aktifkan tombol setelah hitungan mundur
-                startCountdown(25); // Hitungan mundur 10 detik
+                startCountdown(20); // Hitungan mundur 10 detik
             }
         }
+
+	    // Deteksi perubahan status koneksi internet
+		window.addEventListener('online', () => {
+    		showToast("Koneksi internet kembali.", 3000);
+		});
+
+		window.addEventListener('offline', () => {
+    		showToast("⚠️ Koneksi internet terputus!", 3000);
+		});
 
         // Fungsi untuk menonaktifkan tombol sementara
         function disableAdButton() {
@@ -745,7 +687,7 @@
         function enableAdButton() {
             const button = document.getElementById('watchAdButton');
             button.disabled = false;
-            button.innerText = "🎬 Lihat Iklan";
+            button.innerText = "🎬 MAIN GAME";
             isAdButtonDisabled = false;
         }
 
