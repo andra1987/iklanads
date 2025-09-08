@@ -124,6 +124,12 @@
                         <h4 class="font-semibold text-gray-800 text-lg mb-2">Dokumen Kurikulum</h4>
                         <p class="text-gray-600 text-sm text-center">Akses Dokumen & Materi</p>
                     </div>
+                    
+                    <div onclick="showGallery()" class="bg-pink-50 hover:bg-pink-100 p-8 rounded-xl transition-all cursor-pointer border border-pink-200 min-h-[180px] flex flex-col justify-center items-center">
+                        <div class="text-5xl mb-4 text-pink-600">📸</div>
+                        <h4 class="font-semibold text-gray-800 text-lg mb-2">Galeri Kegiatan</h4>
+                        <p class="text-gray-600 text-sm text-center">Foto & Video Kegiatan Sekolah</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,6 +145,183 @@
 
 
 
+
+        <!-- Gallery Section (Hidden by default) -->
+        <div id="gallery-section" class="hidden">
+            <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Galeri Kegiatan Sekolah</h2>
+                    <button onclick="showDashboard()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        ← Kembali
+                    </button>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="filterGallery('all')" class="filter-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Semua
+                    </button>
+                    <button onclick="filterGallery('academic')" class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Akademik
+                    </button>
+                    <button onclick="filterGallery('competition')" class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Kompetisi
+                    </button>
+                    <button onclick="filterGallery('arts')" class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Seni & Budaya
+                    </button>
+                    <button onclick="filterGallery('sports')" class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Olahraga
+                    </button>
+                    <button onclick="filterGallery('social')" class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        Sosial
+                    </button>
+                </div>
+
+                <!-- Upload Button -->
+                <div class="flex gap-2 mb-6">
+                    <button onclick="showUploadModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
+                        📤 Upload Foto Kegiatan
+                    </button>
+                    <button onclick="showGoogleDriveSetupModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
+                        ⚙️ Setup Google Drive
+                    </button>
+                </div>
+
+
+
+                <!-- Google Drive Folder Display -->
+                <div class="mb-8 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-4xl">📁</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">Google Drive - Galeri Sekolah</h3>
+                                    <p class="text-blue-100">Akses langsung ke folder foto kegiatan sekolah</p>
+                                </div>
+                            </div>
+                            <button onclick="openGoogleDriveFolder()" class="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg">
+                                🔗 Buka Folder Drive
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Embedded Google Drive Folder -->
+                    <div class="p-6">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">ℹ️</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Akses Folder Google Drive</h4>
+                                    <p class="text-gray-600 text-sm">Klik tombol di bawah untuk melihat semua foto kegiatan sekolah yang tersimpan di Google Drive</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-2xl text-green-600">✅</div>
+                                    <div>
+                                        <h5 class="font-semibold text-green-800">Akses Langsung</h5>
+                                        <p class="text-green-700 text-sm">Lihat semua foto dalam folder yang dibagikan</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-2xl text-blue-600">🔄</div>
+                                    <div>
+                                        <h5 class="font-semibold text-blue-800">Sinkronisasi Real-time</h5>
+                                        <p class="text-blue-700 text-sm">Foto terbaru langsung tersedia</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button onclick="openGoogleDriveFolder()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg font-semibold transition-all flex items-center justify-center space-x-2">
+                                <span>🔗</span>
+                                <span>Buka Folder Google Drive</span>
+                            </button>
+                            
+                            <button onclick="openGoogleDriveEmbedded()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-semibold transition-all flex items-center justify-center space-x-2">
+                                <span>📱</span>
+                                <span>Tampilkan di Halaman Ini</span>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div class="flex items-start space-x-2">
+                                <div class="text-yellow-600 text-lg">💡</div>
+                                <div class="text-yellow-800 text-sm">
+                                    <strong>Tips:</strong> Untuk pengalaman terbaik, buka folder di tab baru. Anda dapat mendownload, berbagi, atau melihat detail setiap foto langsung dari Google Drive.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Embedded Drive Viewer (Hidden by default) -->
+                <div id="embedded-drive-viewer" class="hidden mb-8 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+                    <div class="bg-gray-100 p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-semibold text-gray-800 flex items-center space-x-2">
+                                <span>📁</span>
+                                <span>Google Drive - Galeri Sekolah (Embedded)</span>
+                            </h4>
+                            <button onclick="hideEmbeddedDrive()" class="text-gray-500 hover:text-gray-700 text-xl">×</button>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <iframe id="drive-iframe" src="" class="w-full h-96 border-0"></iframe>
+                        <div class="absolute inset-0 bg-gray-100 flex items-center justify-center" id="drive-loading">
+                            <div class="text-center">
+                                <div class="animate-spin text-4xl mb-4">⏳</div>
+                                <p class="text-gray-600">Memuat Google Drive...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty Gallery Display -->
+                <div id="gallery-empty-display" class="hidden text-center py-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                    <div class="max-w-md mx-auto">
+                        <div class="text-8xl mb-6 opacity-50">📷</div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-3">Galeri Kosong</h3>
+                        <p class="text-gray-500 mb-6 leading-relaxed">
+                            Belum ada foto kegiatan yang tersimpan di galeri ini.<br>
+                            Mulai upload foto untuk mengisi galeri sekolah.
+                        </p>
+                        <div class="space-y-3">
+                            <button onclick="showUploadModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg">
+                                📤 Upload Foto Kegiatan
+                            </button>
+                            <p class="text-xs text-gray-400">
+                                Format yang didukung: JPG, PNG, GIF (Maks. 5MB)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden sections for uploaded content -->
+                <div id="uploaded-images-section" class="hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Foto yang Diupload</h3>
+                        <div class="text-sm text-gray-600">
+                            <span id="upload-count">0</span> foto • 
+                            <span id="drive-storage">0 MB</span> tersimpan di Google Drive
+                        </div>
+                    </div>
+                    
+                    <div id="uploaded-images-grid" class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <!-- Uploaded images will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Profile Section (Hidden by default) -->
         <div id="profile-section" class="hidden">
@@ -552,6 +735,7 @@
         function hideAllSections() {
             document.getElementById('profile-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('gallery-section').classList.add('hidden');
         }
 
         // Load profile data
@@ -1013,12 +1197,20 @@
         function displayUploadedImages() {
             const uploadedImages = JSON.parse(localStorage.getItem('uploaded_images') || '[]');
             const container = document.getElementById('uploaded-images-grid');
+            const emptyDisplay = document.getElementById('gallery-empty-display');
+            const uploadedSection = document.getElementById('uploaded-images-section');
             
-            updateGalleryEmptyState();
             updateDriveStats();
             
             if (uploadedImages.length === 0) {
+                // Show empty state
+                emptyDisplay.classList.remove('hidden');
+                uploadedSection.classList.add('hidden');
                 return;
+            } else {
+                // Show uploaded images
+                emptyDisplay.classList.add('hidden');
+                uploadedSection.classList.remove('hidden');
             }
             
             container.innerHTML = uploadedImages.map(image => {
@@ -1407,8 +1599,104 @@
             hideAllSections();
             document.getElementById('gallery-section').classList.remove('hidden');
             displayUploadedImages();
-            loadDriveContent();
-            updateGalleryEmptyState();
+        }
+
+
+
+        // Update drive statistics
+        function updateDriveStats() {
+            const uploadedImages = JSON.parse(localStorage.getItem('uploaded_images') || '[]');
+            const uploadCount = document.getElementById('upload-count');
+            const driveStorage = document.getElementById('drive-storage');
+            
+            if (uploadCount) {
+                uploadCount.textContent = uploadedImages.length;
+            }
+            
+            if (driveStorage) {
+                // Calculate total storage (simulated)
+                const totalSize = uploadedImages.reduce((total, img) => {
+                    // Estimate size from base64 string length
+                    const sizeInBytes = img.imageData ? img.imageData.length * 0.75 : 0;
+                    return total + sizeInBytes;
+                }, 0);
+                
+                const sizeInMB = (totalSize / (1024 * 1024)).toFixed(1);
+                driveStorage.textContent = `${sizeInMB} MB`;
+            }
+        }
+
+        // Format file size helper
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Google Drive folder functions
+        function openGoogleDriveFolder() {
+            const driveUrl = 'https://drive.google.com/drive/folders/1ZhP4VR6xzOzBgvGOz9cezUBMm6ySWccT?usp=sharing';
+            
+            showNotification('🔗 Membuka Google Drive - Galeri Sekolah...', 'info');
+            
+            // Create a temporary link element to handle the navigation
+            const link = document.createElement('a');
+            link.href = driveUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            // Add to document, click, then remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show success notification
+            setTimeout(() => {
+                showNotification('📁 Folder Google Drive berhasil dibuka di tab baru!', 'success');
+            }, 1000);
+        }
+
+        function openGoogleDriveEmbedded() {
+            const embeddedViewer = document.getElementById('embedded-drive-viewer');
+            const driveIframe = document.getElementById('drive-iframe');
+            const loadingDiv = document.getElementById('drive-loading');
+            
+            // Show the embedded viewer
+            embeddedViewer.classList.remove('hidden');
+            
+            // Show loading state
+            loadingDiv.classList.remove('hidden');
+            
+            // Set the iframe source to the embedded view
+            const embedUrl = 'https://drive.google.com/embeddedfolderview?id=1ZhP4VR6xzOzBgvGOz9cezUBMm6ySWccT#grid';
+            
+            showNotification('📱 Memuat Google Drive di halaman ini...', 'info');
+            
+            // Load the iframe
+            driveIframe.src = embedUrl;
+            
+            // Hide loading after a delay
+            setTimeout(() => {
+                loadingDiv.classList.add('hidden');
+                showNotification('✅ Google Drive berhasil dimuat!', 'success');
+            }, 3000);
+            
+            // Scroll to the embedded viewer
+            setTimeout(() => {
+                embeddedViewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+
+        function hideEmbeddedDrive() {
+            const embeddedViewer = document.getElementById('embedded-drive-viewer');
+            const driveIframe = document.getElementById('drive-iframe');
+            
+            embeddedViewer.classList.add('hidden');
+            driveIframe.src = ''; // Clear the iframe to stop loading
+            
+            showNotification('📁 Tampilan Google Drive disembunyikan', 'info');
         }
 
 
@@ -1417,5 +1705,5 @@
 
 
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97babb4f0788fcef',t:'MTc1NzI5NTU2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbaf848721ce19',t:'MTc1NzMwNTU2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
