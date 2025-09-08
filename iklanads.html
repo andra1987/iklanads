@@ -180,15 +180,7 @@
                     </button>
                 </div>
 
-                <!-- Upload Button -->
-                <div class="flex gap-2 mb-6">
-                    <button onclick="showUploadModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
-                        📤 Upload Foto Kegiatan
-                    </button>
-                    <button onclick="showGoogleDriveSetupModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
-                        ⚙️ Setup Google Drive
-                    </button>
-                </div>
+
 
 
 
@@ -1757,22 +1749,7 @@
             showNotification('✅ Demo mode - All uploads are already simulated as successful!', 'success');
         }
 
-        // Add demo button for testing (can be removed in production)
-        function addDemoButton() {
-            const gallerySection = document.getElementById('gallery-section');
-            if (gallerySection && !document.getElementById('demo-button')) {
-                const demoButton = document.createElement('button');
-                demoButton.id = 'demo-button';
-                demoButton.className = 'bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all';
-                demoButton.innerHTML = '🧪 Demo: Simulasi Upload Berhasil';
-                demoButton.onclick = simulateSuccessfulUpload;
-                
-                const buttonContainer = gallerySection.querySelector('.flex.gap-2');
-                if (buttonContainer) {
-                    buttonContainer.appendChild(demoButton);
-                }
-            }
-        }
+
 
         function handleGoogleSignIn() {
             showNotification('🔐 Demo mode - Google sign-in simulation', 'info');
@@ -1849,9 +1826,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             displayUploadedImages();
             initializeGoogleAPI();
-            
-            // Add demo button for testing
-            setTimeout(addDemoButton, 1000);
         });
         
         // Load uploaded images when gallery section is shown
@@ -1965,5 +1939,5 @@
 
 
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbbf56b1cf9ccb',t:'MTc1NzMwNjIxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbcb85c091fcef',t:'MTc1NzMwNjcxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
