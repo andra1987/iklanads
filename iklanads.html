@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMA Nusantara - Portal Siswa</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -1064,8 +1066,30 @@
                 return;
             }
             
+            // Check Google Drive authentication
+            if (gapi_loaded && !checkGoogleAuth()) {
+                showNotification('🔐 Memerlukan izin Google Drive...', 'info');
+                requestGoogleAuth();
+                
+                // Wait for auth and retry
+                setTimeout(() => {
+                    if (checkGoogleAuth()) {
+                        processImageUpload(files, title, category, description);
+                    } else {
+                        showNotification('⚠️ Menggunakan mode manual upload', 'info');
+                        processImageUpload(files, title, category, description);
+                    }
+                }, 2000);
+            } else {
+                processImageUpload(files, title, category, description);
+            }
+            
+            hideUploadModal();
+        }
+
+        function processImageUpload(files, title, category, description) {
             // Show upload progress
-            showNotification('Mengupload gambar ke Google Drive admin...', 'info');
+            showNotification('📤 Memproses upload ke Google Drive...', 'info');
             
             // Process each file
             Array.from(files).forEach((file, index) => {
@@ -1084,7 +1108,7 @@
                 // Create FileReader to convert image to base64
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Simulate upload to Google Drive admin folder
+                    // Upload to Google Drive
                     uploadToGoogleDrive(file, e.target.result, {
                         title: title,
                         category: category,
@@ -1094,55 +1118,137 @@
                 };
                 reader.readAsDataURL(file);
             });
-            
-            hideUploadModal();
         }
 
-        // Function to upload to Google Drive (Demo version)
+        // Function to upload to Google Drive (Real implementation)
         function uploadToGoogleDrive(file, imageData, metadata) {
-            const adminDriveFolder = 'https://drive.google.com/drive/folders/1ZhP4VR6xzOzBgvGOz9cezUBMm6ySWccT';
+            const targetFolderId = '1ZhP4VR6xzOzBgvGOz9cezUBMm6ySWccT';
+            const adminDriveFolder = `https://drive.google.com/drive/folders/${targetFolderId}`;
             
             // Show upload progress
-            showNotification(`📤 Mengupload ${file.name} ke Google Drive admin...`, 'info');
+            showNotification(`📤 Mengupload ${file.name} ke Google Drive...`, 'info');
             
-            // Simulate upload delay
-            setTimeout(() => {
-                const imageRecord = {
-                    id: Date.now() + metadata.index,
-                    title: metadata.title,
-                    category: metadata.category,
-                    description: metadata.description,
-                    filename: file.name,
-                    size: formatFileSize(file.size),
-                    uploadDate: new Date().toLocaleDateString('id-ID'),
-                    uploadTime: new Date().toLocaleTimeString('id-ID'),
-                    imageData: imageData,
-                    driveUrl: `https://drive.google.com/file/d/${generateDriveFileId()}/view`,
-                    driveFileId: generateDriveFileId(),
-                    adminFolderUrl: adminDriveFolder,
-                    uploadStatus: 'demo',
-                    uploadedBy: currentUser ? currentUser.name : 'Anonymous'
+            // Check if Google Drive API is available
+            if (typeof gapi === 'undefined') {
+                // Fallback: Create a form to submit to Google Drive
+                uploadToGoogleDriveForm(file, imageData, metadata, targetFolderId);
+                return;
+            }
+            
+            // Real Google Drive API upload
+            const boundary = '-------314159265358979323846';
+            const delimiter = "\r\n--" + boundary + "\r\n";
+            const close_delim = "\r\n--" + boundary + "--";
+            
+            const reader = new FileReader();
+            reader.readAsBinaryString(file);
+            reader.onload = function(e) {
+                const contentType = file.type || 'application/octet-stream';
+                const metadata_obj = {
+                    'name': `${metadata.title}_${file.name}`,
+                    'parents': [targetFolderId],
+                    'description': `${metadata.description}\n\nKategori: ${metadata.category}\nDiupload oleh: ${currentUser ? currentUser.name : 'Anonymous'}\nTanggal: ${new Date().toLocaleDateString('id-ID')}`
                 };
                 
-                // Save to localStorage
-                let uploadedImages = JSON.parse(localStorage.getItem('uploaded_images') || '[]');
-                uploadedImages.push(imageRecord);
-                localStorage.setItem('uploaded_images', JSON.stringify(uploadedImages));
+                const multipartRequestBody =
+                    delimiter +
+                    'Content-Type: application/json\r\n\r\n' +
+                    JSON.stringify(metadata_obj) +
+                    delimiter +
+                    'Content-Type: ' + contentType + '\r\n\r\n' +
+                    e.target.result +
+                    close_delim;
                 
-                // Save to admin tracking
-                saveToAdminTracking(imageRecord);
+                const request = gapi.client.request({
+                    'path': 'https://www.googleapis.com/upload/drive/v3/files',
+                    'method': 'POST',
+                    'params': {'uploadType': 'multipart'},
+                    'headers': {
+                        'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+                    },
+                    'body': multipartRequestBody
+                });
                 
-                // Refresh gallery display
-                displayUploadedImages();
-                
-                showNotification(`✅ ${file.name} berhasil diupload ke Google Drive admin!`, 'success');
-                
-                // Show admin folder notification
-                setTimeout(() => {
-                    showAdminFolderNotification(adminDriveFolder);
-                }, 1000);
-                
-            }, 1500 + (metadata.index * 500)); // Stagger uploads
+                request.execute(function(response) {
+                    if (response.id) {
+                        // Success - file uploaded to Google Drive
+                        const imageRecord = {
+                            id: Date.now() + metadata.index,
+                            title: metadata.title,
+                            category: metadata.category,
+                            description: metadata.description,
+                            filename: file.name,
+                            size: formatFileSize(file.size),
+                            uploadDate: new Date().toLocaleDateString('id-ID'),
+                            uploadTime: new Date().toLocaleTimeString('id-ID'),
+                            imageData: imageData,
+                            driveUrl: `https://drive.google.com/file/d/${response.id}/view`,
+                            driveFileId: response.id,
+                            adminFolderUrl: adminDriveFolder,
+                            uploadStatus: 'success',
+                            uploadedBy: currentUser ? currentUser.name : 'Anonymous'
+                        };
+                        
+                        // Save to localStorage
+                        let uploadedImages = JSON.parse(localStorage.getItem('uploaded_images') || '[]');
+                        uploadedImages.push(imageRecord);
+                        localStorage.setItem('uploaded_images', JSON.stringify(uploadedImages));
+                        
+                        // Refresh gallery display
+                        displayUploadedImages();
+                        
+                        showNotification(`✅ ${file.name} berhasil diupload ke Google Drive!`, 'success');
+                        
+                        // Show success notification with link
+                        setTimeout(() => {
+                            showGoogleDriveSuccessNotification(response.id, adminDriveFolder);
+                        }, 1000);
+                    } else {
+                        // Error uploading
+                        showNotification(`❌ Gagal mengupload ${file.name}. Coba lagi.`, 'error');
+                        console.error('Upload error:', response);
+                    }
+                });
+            };
+        }
+        
+        // Fallback function for when Google Drive API is not available
+        function uploadToGoogleDriveForm(file, imageData, metadata, folderId) {
+            // Create a form that submits to Google Drive
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://drive.google.com/drive/folders/' + folderId;
+            form.target = '_blank';
+            form.enctype = 'multipart/form-data';
+            
+            // Show instructions to user
+            showGoogleDriveUploadInstructions(file, metadata, folderId);
+            
+            // Save locally as backup
+            const imageRecord = {
+                id: Date.now() + metadata.index,
+                title: metadata.title,
+                category: metadata.category,
+                description: metadata.description,
+                filename: file.name,
+                size: formatFileSize(file.size),
+                uploadDate: new Date().toLocaleDateString('id-ID'),
+                uploadTime: new Date().toLocaleTimeString('id-ID'),
+                imageData: imageData,
+                driveUrl: `https://drive.google.com/drive/folders/${folderId}`,
+                driveFileId: 'manual_upload_' + Date.now(),
+                adminFolderUrl: `https://drive.google.com/drive/folders/${folderId}`,
+                uploadStatus: 'manual',
+                uploadedBy: currentUser ? currentUser.name : 'Anonymous'
+            };
+            
+            // Save to localStorage
+            let uploadedImages = JSON.parse(localStorage.getItem('uploaded_images') || '[]');
+            uploadedImages.push(imageRecord);
+            localStorage.setItem('uploaded_images', JSON.stringify(uploadedImages));
+            
+            // Refresh gallery display
+            displayUploadedImages();
         }
 
         // Generate realistic Google Drive file ID
@@ -1155,15 +1261,104 @@
             return result;
         }
 
-        // Save upload info for admin tracking
-        function saveToAdminTracking(imageRecord) {
-            let adminUploads = JSON.parse(localStorage.getItem('admin_upload_tracking') || '[]');
-            adminUploads.push({
-                ...imageRecord,
-                notificationSent: true,
-                adminNotified: new Date().toISOString()
+        // Show Google Drive success notification
+        function showGoogleDriveSuccessNotification(fileId, folderUrl) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+            notification.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="text-2xl">✅</div>
+                    <div>
+                        <p class="font-semibold mb-1">Upload Berhasil!</p>
+                        <p class="text-sm text-green-100 mb-2">File berhasil disimpan di Google Drive</p>
+                        <div class="flex gap-2">
+                            <button onclick="window.open('https://drive.google.com/file/d/${fileId}/view', '_blank')" class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium hover:bg-green-50 transition-all">
+                                📄 Lihat File
+                            </button>
+                            <button onclick="window.open('${folderUrl}', '_blank')" class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium hover:bg-green-50 transition-all">
+                                📁 Buka Folder
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-green-200 hover:text-white text-xl">×</button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 15 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 15000);
+        }
+
+        // Show upload instructions when API is not available
+        function showGoogleDriveUploadInstructions(file, metadata, folderId) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-4">📤</div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Upload Manual ke Google Drive</h2>
+                        <p class="text-gray-600">Ikuti langkah berikut untuk mengupload file ke Google Drive</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-blue-800 mb-3">📋 Informasi File:</h3>
+                            <ul class="space-y-2 text-blue-700">
+                                <li><strong>Nama File:</strong> ${file.name}</li>
+                                <li><strong>Judul:</strong> ${metadata.title}</li>
+                                <li><strong>Kategori:</strong> ${metadata.category}</li>
+                                <li><strong>Ukuran:</strong> ${formatFileSize(file.size)}</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-green-800 mb-3">📝 Langkah Upload:</h3>
+                            <ol class="list-decimal list-inside space-y-2 text-green-700">
+                                <li>Klik tombol "Buka Google Drive" di bawah</li>
+                                <li>Login ke akun Google Anda jika belum</li>
+                                <li>Drag & drop file atau klik "New" → "File upload"</li>
+                                <li>Pilih file "${file.name}" dari komputer Anda</li>
+                                <li>Tunggu hingga upload selesai</li>
+                                <li>File akan tersimpan di folder galeri sekolah</li>
+                            </ol>
+                        </div>
+
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-yellow-800 mb-3">💡 Tips:</h3>
+                            <ul class="list-disc list-inside space-y-1 text-yellow-700">
+                                <li>Pastikan koneksi internet stabil</li>
+                                <li>Gunakan nama file yang deskriptif</li>
+                                <li>Tambahkan deskripsi di Google Drive jika perlu</li>
+                                <li>File akan langsung tersedia untuk semua pengguna</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-8">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-all">
+                            Tutup
+                        </button>
+                        <button onclick="window.open('https://drive.google.com/drive/folders/${folderId}', '_blank'); this.closest('.fixed').remove();" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all">
+                            🔗 Buka Google Drive
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
             });
-            localStorage.setItem('admin_upload_tracking', JSON.stringify(adminUploads));
         }
 
         // Show admin folder notification
@@ -1583,12 +1778,77 @@
             showNotification('🔐 Demo mode - Google sign-in simulation', 'info');
         }
 
+        // Google Drive API Configuration
+        const GOOGLE_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your API key
+        const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; // Replace with your client ID
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+        const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+        let gapi_loaded = false;
+        let gis_loaded = false;
+        let tokenClient;
+
+        // Initialize Google API
+        function initializeGoogleAPI() {
+            if (typeof gapi !== 'undefined') {
+                gapi.load('client', initializeGapiClient);
+            } else {
+                console.log('Google API not loaded, using fallback method');
+            }
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: GOOGLE_API_KEY,
+                    discoveryDocs: [DISCOVERY_DOC],
+                });
+                gapi_loaded = true;
+                console.log('Google Drive API initialized successfully');
+            } catch (error) {
+                console.log('Google API initialization failed:', error);
+                showNotification('⚠️ Google Drive API tidak tersedia. Menggunakan mode manual.', 'info');
+            }
+        }
+
+        // Check if user needs to authorize
+        function checkGoogleAuth() {
+            if (!gapi_loaded) {
+                return false;
+            }
+            
+            const token = gapi.client.getToken();
+            return token !== null;
+        }
+
+        // Request Google authorization
+        function requestGoogleAuth() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: SCOPES,
+                    callback: (response) => {
+                        if (response.error !== undefined) {
+                            console.error('Authorization error:', response.error);
+                            showNotification('❌ Gagal mendapatkan izin Google Drive', 'error');
+                        } else {
+                            showNotification('✅ Berhasil terhubung ke Google Drive!', 'success');
+                        }
+                    },
+                });
+                tokenClient.requestAccessToken();
+            } else {
+                showNotification('⚠️ Google Identity Services tidak tersedia', 'error');
+            }
+        }
+
         // Initialize UI
         updateUI();
         
         // Load uploaded files and images when page loads
         document.addEventListener('DOMContentLoaded', function() {
             displayUploadedImages();
+            initializeGoogleAPI();
             
             // Add demo button for testing
             setTimeout(addDemoButton, 1000);
@@ -1705,5 +1965,5 @@
 
 
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbaf848721ce19',t:'MTc1NzMwNTU2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bbbf56b1cf9ccb',t:'MTc1NzMwNjIxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
