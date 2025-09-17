@@ -422,11 +422,8 @@
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
-                    <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px; margin-right: 10px;">
+                    <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px;">
                         🔄 Refresh Data
-                    </button>
-                    <button onclick="exportToCSV()" class="auth-button" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); width: auto; padding: 12px 24px;">
-                        📥 Export CSV
                     </button>
                 </div>
             </div>
@@ -519,6 +516,11 @@
             const messageEl = document.getElementById(section + '-' + type);
             messageEl.textContent = message;
             messageEl.style.display = 'block';
+            
+            // Auto hide message after 10 seconds
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 10000);
         }
 
         function handleLogin(event) {
@@ -899,25 +901,55 @@
             document.getElementById('spreadsheet-content').style.display = 'none';
             
             try {
-                // Fetch data from Google Sheets
-                const transactions = await fetchFromGoogleSheets();
+                // Fetch data from Google Sheets (only shows data that exists in spreadsheet)
+                const spreadsheetTransactions = await fetchFromGoogleSheets();
                 
-                populateTransactionsTable(transactions);
+                // Filter to show only current user's transactions if needed
+                const userTransactions = spreadsheetTransactions.filter(transaction => 
+                    transaction.email === currentUser.email
+                );
+                
+                populateTransactionsTable(userTransactions);
                 document.getElementById('spreadsheet-loading').style.display = 'none';
                 document.getElementById('spreadsheet-content').style.display = 'block';
+                
+                // Update local storage to sync with spreadsheet (remove deleted entries)
+                syncLocalStorageWithSpreadsheet(spreadsheetTransactions);
                 
             } catch (error) {
                 console.error('Error loading spreadsheet data:', error);
                 
-                // Fallback to localStorage if Google Sheets fails
-                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-                populateTransactionsTable(localTransactions);
+                // Show empty table if can't connect to spreadsheet
+                populateTransactionsTable([]);
                 
                 document.getElementById('spreadsheet-loading').style.display = 'none';
                 document.getElementById('spreadsheet-content').style.display = 'block';
                 
                 // Show warning message
-                showMessage('error', 'Tidak dapat mengambil data dari server. Menampilkan data lokal.', 'dashboard');
+                showMessage('error', 'Tidak dapat terhubung ke server. Silakan coba lagi nanti.', 'dashboard');
+            }
+        }
+
+        // Function to sync localStorage with spreadsheet data
+        function syncLocalStorageWithSpreadsheet(spreadsheetTransactions) {
+            try {
+                // Get current local transactions
+                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                
+                // Get IDs of transactions that exist in spreadsheet
+                const spreadsheetIds = spreadsheetTransactions.map(t => String(t.id));
+                
+                // Filter local transactions to keep only those that exist in spreadsheet
+                const syncedTransactions = localTransactions.filter(localTransaction => 
+                    spreadsheetIds.includes(String(localTransaction.id))
+                );
+                
+                // Update localStorage with synced data
+                localStorage.setItem('transactions', JSON.stringify(syncedTransactions));
+                
+                console.log('✅ Local storage synced with spreadsheet data');
+            } catch (error) {
+                console.error('❌ Error syncing local storage:', error);
             }
         }
 
@@ -971,66 +1003,7 @@
             loadSpreadsheetData();
         }
 
-        async function exportToCSV() {
-            try {
-                // Get fresh data from Google Sheets
-                const transactions = await fetchFromGoogleSheets();
-                
-                if (transactions.length === 0) {
-                    alert('Tidak ada data untuk diekspor!');
-                    return;
-                }
-                
-                // Create CSV content
-                let csvContent = 'ID Transaksi,Tanggal,Email,Nama,No HP,Hadiah,Poin Digunakan,Sisa Poin,Status\n';
-                
-                transactions.forEach(transaction => {
-                    csvContent += `${transaction.id},"${transaction.tanggal}","${transaction.email}","${transaction.nama}","${transaction.noAkun}","${transaction.hadiah}",${transaction.pointsUsed},${transaction.sisaPoin},"${transaction.status}"\n`;
-                });
-                
-                // Create and download file
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `transaksi_spreadsheet_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showMessage('success', `Data spreadsheet berhasil diekspor! File CSV dengan ${transactions.length} transaksi telah diunduh.`, 'dashboard');
-                
-            } catch (error) {
-                console.error('Error exporting CSV:', error);
-                
-                // Fallback to localStorage
-                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-                
-                if (localTransactions.length === 0) {
-                    alert('Tidak ada data untuk diekspor!');
-                    return;
-                }
-                
-                let csvContent = 'ID Transaksi,Tanggal,Email,Nama,No HP,Hadiah,Poin Digunakan,Sisa Poin,Status\n';
-                
-                localTransactions.forEach(transaction => {
-                    csvContent += `${transaction.id},"${transaction.tanggal}","${transaction.email}","${transaction.nama}","${transaction.noAkun}","${transaction.hadiah}",${transaction.pointsUsed},${transaction.sisaPoin},"${transaction.status}"\n`;
-                });
-                
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `transaksi_lokal_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showMessage('error', `Menggunakan data lokal. File CSV dengan ${localTransactions.length} transaksi telah diunduh.`, 'dashboard');
-            }
-        }
+
 
         function logout() {
             currentUser = null;
@@ -1062,5 +1035,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98057b21063c81a8',t:'MTc1ODA3OTM2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9805880ec4dd5ce5',t:'MTc1ODA3OTg5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
