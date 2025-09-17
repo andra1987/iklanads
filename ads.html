@@ -719,7 +719,7 @@
                     closeDanaConfirmation();
                     
                     // Show success message
-                    alert(`🎉 PENUKARAN BERHASIL!\n\n✅ Poin ${pointCost} telah terpotong\n💰 Saldo DANA Rp ${danaAmount.toLocaleString()}\n👤 Nama: ${danaName}\n📱 No HP: ${danaPhone}\n\n📋 ID Transaksi: ${transactionId}\n⏰ Saldo akan dikirim dalam 1x24 jam\n📊 Data telah dikirim ke admin`);
+                    alert(`🎉 PENUKARAN BERHASIL!\n\n✅ Poin ${pointCost} telah terpotong\n💰 Saldo DANA Rp ${danaAmount.toLocaleString()}\n👤 Nama: ${danaName}\n📱 No HP: ${danaPhone}\n\n📋 ID Transaksi: ${transactionId}\n⏰ Saldo akan dikirim dalam 1x24 jam\n📊 Data telah dikirim ke admin\n\nℹ️ Untuk info lebih lanjut hubungi admin`);
                     
                     showMessage('success', `✅ Penukaran Berhasil! Saldo DANA Rp ${danaAmount.toLocaleString()} akan dikirim ke ${danaName} (${danaPhone}) dalam 1x24 jam. ID: ${transactionId}`, 'dashboard');
                 }, 1000);
@@ -730,7 +730,7 @@
 
         // Function to send data to Google Sheets
         async function sendToGoogleSheets(transactionData) {
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0/exec';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDwAlhJ69dBoT85riD3-RJVqakYeZAsaNrHpGR_eqUQhdZuKIAjm3ABrCslZ0E9y_R/exec';
             
             try {
                 console.log('Mengirim data ke Google Sheets:', transactionData);
@@ -804,6 +804,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804ba09f304db51',t:'MTc1ODA3MTQ1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804cb2293e240fb',t:'MTc1ODA3MjE1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
