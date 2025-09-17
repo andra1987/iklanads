@@ -313,6 +313,10 @@
                 <button class="auth-button" onclick="showExchangeMenu()" style="background: linear-gradient(135deg, #17a2b8, #138496);">
                     💳 Tukar Poin
                 </button>
+                
+                <button class="auth-button" onclick="showSpreadsheetData()" style="background: linear-gradient(135deg, #6f42c1, #5a32a3);">
+                    📊 Data Transaksi
+                </button>
             </div>
 
             <button class="auth-button" onclick="logout()" style="background: linear-gradient(135deg, #6c757d, #495057);">
@@ -378,6 +382,53 @@
             
             <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px; border-radius: 8px; font-size: 14px;">
                 ⚠️ Poin Anda saat ini: <span id="current-points-display">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spreadsheet Data Modal -->
+    <div id="spreadsheet-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; padding: 30px; max-width: 90%; width: 800px; max-height: 80vh; overflow-y: auto; position: relative;">
+            <button onclick="closeSpreadsheetData()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">×</button>
+            
+            <div style="font-size: 50px; margin-bottom: 20px; text-align: center;">📊</div>
+            <h2 style="color: #333; margin-bottom: 15px; text-align: center;">Data Transaksi Spreadsheet</h2>
+            <p style="color: #666; margin-bottom: 25px; text-align: center;">Riwayat semua transaksi penukaran poin</p>
+            
+            <div id="spreadsheet-loading" style="text-align: center; padding: 40px; display: none;">
+                <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+                <p style="color: #666;">Memuat data transaksi...</p>
+            </div>
+            
+            <div id="spreadsheet-content">
+                <div style="overflow-x: auto;">
+                    <table id="transactions-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">ID</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Tanggal</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Email</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Nama</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">No HP</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Hadiah</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Poin</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-tbody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px; margin-right: 10px;">
+                        🔄 Refresh Data
+                    </button>
+                    <button onclick="exportToCSV()" class="auth-button" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); width: auto; padding: 12px 24px;">
+                        📥 Export CSV
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -742,6 +793,51 @@
             return false;
         }
 
+        // Function to fetch data from Google Sheets
+        async function fetchFromGoogleSheets() {
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0/exec';
+            
+            try {
+                console.log('📥 Mengambil data dari Google Sheets...');
+                
+                // Add action parameter to fetch data
+                const fetchUrl = `${GOOGLE_SCRIPT_URL}?action=fetch`;
+                
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Data berhasil diambil dari Google Sheets:', data);
+                
+                // Transform data to match our format
+                const transactions = data.map(row => ({
+                    id: row.transactionId || row.id,
+                    tanggal: row.tanggal,
+                    email: row.email,
+                    nama: row.nama,
+                    noAkun: row.noAkun,
+                    hadiah: row.hadiah,
+                    pointsUsed: row.pointsUsed,
+                    sisaPoin: row.sisaPoin,
+                    status: row.status || 'Pending'
+                }));
+                
+                return transactions;
+                
+            } catch (error) {
+                console.error('❌ Error mengambil data dari Google Sheets:', error);
+                throw error;
+            }
+        }
+
         // Function to send data to Google Sheets with better debugging
         async function sendToGoogleSheets(transactionData) {
             // Google Apps Script URL dengan SCRIPT_ID yang benar
@@ -788,6 +884,154 @@
             }
         }
 
+        function showSpreadsheetData() {
+            document.getElementById('spreadsheet-modal').style.display = 'flex';
+            loadSpreadsheetData();
+        }
+
+        function closeSpreadsheetData() {
+            document.getElementById('spreadsheet-modal').style.display = 'none';
+        }
+
+        async function loadSpreadsheetData() {
+            // Show loading
+            document.getElementById('spreadsheet-loading').style.display = 'block';
+            document.getElementById('spreadsheet-content').style.display = 'none';
+            
+            try {
+                // Fetch data from Google Sheets
+                const transactions = await fetchFromGoogleSheets();
+                
+                populateTransactionsTable(transactions);
+                document.getElementById('spreadsheet-loading').style.display = 'none';
+                document.getElementById('spreadsheet-content').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading spreadsheet data:', error);
+                
+                // Fallback to localStorage if Google Sheets fails
+                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                populateTransactionsTable(localTransactions);
+                
+                document.getElementById('spreadsheet-loading').style.display = 'none';
+                document.getElementById('spreadsheet-content').style.display = 'block';
+                
+                // Show warning message
+                showMessage('error', 'Tidak dapat mengambil data dari server. Menampilkan data lokal.', 'dashboard');
+            }
+        }
+
+        function populateTransactionsTable(transactions) {
+            const tbody = document.getElementById('transactions-tbody');
+            tbody.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="border: 1px solid #dee2e6; padding: 20px; text-align: center; color: #666;">
+                            Belum ada data transaksi
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort transactions by date (newest first)
+            transactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #dee2e6';
+                
+                // Status color
+                let statusColor = '#28a745'; // green for success
+                if (transaction.status === 'Pending') statusColor = '#ffc107'; // yellow for pending
+                if (transaction.status === 'Failed') statusColor = '#dc3545'; // red for failed
+                
+                row.innerHTML = `
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">${transaction.id}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">${transaction.tanggal}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">${transaction.email}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">${transaction.nama}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">${transaction.noAkun}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px; font-weight: 600; color: #28a745;">${transaction.hadiah}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px; color: #dc3545;">-${transaction.pointsUsed}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px; font-size: 12px;">
+                        <span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px;">
+                            ${transaction.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function refreshSpreadsheetData() {
+            showMessage('success', 'Memperbarui data transaksi...', 'dashboard');
+            loadSpreadsheetData();
+        }
+
+        async function exportToCSV() {
+            try {
+                // Get fresh data from Google Sheets
+                const transactions = await fetchFromGoogleSheets();
+                
+                if (transactions.length === 0) {
+                    alert('Tidak ada data untuk diekspor!');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = 'ID Transaksi,Tanggal,Email,Nama,No HP,Hadiah,Poin Digunakan,Sisa Poin,Status\n';
+                
+                transactions.forEach(transaction => {
+                    csvContent += `${transaction.id},"${transaction.tanggal}","${transaction.email}","${transaction.nama}","${transaction.noAkun}","${transaction.hadiah}",${transaction.pointsUsed},${transaction.sisaPoin},"${transaction.status}"\n`;
+                });
+                
+                // Create and download file
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `transaksi_spreadsheet_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showMessage('success', `Data spreadsheet berhasil diekspor! File CSV dengan ${transactions.length} transaksi telah diunduh.`, 'dashboard');
+                
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                
+                // Fallback to localStorage
+                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                
+                if (localTransactions.length === 0) {
+                    alert('Tidak ada data untuk diekspor!');
+                    return;
+                }
+                
+                let csvContent = 'ID Transaksi,Tanggal,Email,Nama,No HP,Hadiah,Poin Digunakan,Sisa Poin,Status\n';
+                
+                localTransactions.forEach(transaction => {
+                    csvContent += `${transaction.id},"${transaction.tanggal}","${transaction.email}","${transaction.nama}","${transaction.noAkun}","${transaction.hadiah}",${transaction.pointsUsed},${transaction.sisaPoin},"${transaction.status}"\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `transaksi_lokal_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showMessage('error', `Menggunakan data lokal. File CSV dengan ${localTransactions.length} transaksi telah diunduh.`, 'dashboard');
+            }
+        }
+
         function logout() {
             currentUser = null;
             document.getElementById('dashboard').style.display = 'none';
@@ -818,5 +1062,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98056d5487545f52',t:'MTc1ODA3ODgwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98057b21063c81a8',t:'MTc1ODA3OTM2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
