@@ -1,1 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App - Auth</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #0088cc, #0066aa);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .telegram-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 30px;
+        }
+
+        .auth-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6c757d;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #0088cc;
+            border-bottom: 2px solid #0088cc;
+        }
+
+        .auth-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0088cc;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,136,204,0.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0088cc, #0066aa);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,136,204,0.3);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: #0088cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 10px;
+            }
+            
+            .auth-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="telegram-icon">✈️</div>
+            <h1>Telegram Mini App</h1>
+            <p>Selamat datang di aplikasi kami</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="tab-button active" onclick="switchTab('login')">Masuk</button>
+            <button class="tab-button" onclick="switchTab('register')">Daftar</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-section" class="form-section active">
+            <form class="auth-form" onsubmit="handleLogin(event)">
+                <div class="success-message" id="login-success"></div>
+                <div class="error-message" id="login-error"></div>
+                
+                <div class="form-group">
+                    <label for="login-email">Email atau Username</label>
+                    <input type="text" id="login-email" class="form-input" placeholder="Masukkan email atau username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Masukkan password" required>
+                </div>
+
+                <button type="submit" class="auth-button">Masuk</button>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="showForgotPassword()">Lupa password?</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-section" class="form-section">
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="success-message" id="register-success"></div>
+                <div class="error-message" id="register-error"></div>
+                
+                <div class="form-group">
+                    <label for="register-name">Nama Lengkap</label>
+                    <input type="text" id="register-name" class="form-input" placeholder="Masukkan nama lengkap" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" class="form-input" placeholder="Pilih username unik" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" class="form-input" placeholder="Masukkan email aktif" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" class="form-input" placeholder="Minimal 6 karakter" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-confirm">Konfirmasi Password</label>
+                    <input type="password" id="register-confirm" class="form-input" placeholder="Ulangi password" required>
+                </div>
+
+                <button type="submit" class="auth-button">Daftar Sekarang</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="auth-container" style="display: none;">
+        <div class="auth-header">
+            <div class="telegram-icon">🎯</div>
+            <h1 id="welcome-user">Dashboard</h1>
+            <p>Kelola iklan dan dapatkan reward</p>
+        </div>
+
+        <div class="auth-form">
+            <div class="success-message" id="dashboard-success"></div>
+            <div class="error-message" id="dashboard-error"></div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+                <h3 style="color: #333; margin-bottom: 10px;">Status Akun</h3>
+                <p style="color: #666; margin-bottom: 5px;">👤 <span id="user-name"></span></p>
+                <p style="color: #666; margin-bottom: 5px;">📧 <span id="user-email"></span></p>
+                <p style="color: #28a745; font-weight: 600;">💰 Reward: <span id="user-points">0</span> Poin</p>
+            </div>
+
+            <div style="display: grid; gap: 20px; margin-bottom: 30px;">
+                <div>
+                    <button class="auth-button" onclick="viewAds()" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                        📺 View Ads (+1000 Poin)
+                    </button>
+                    <div style="text-align: center; margin-top: 8px; font-size: 14px; color: #666;">
+                        Hari ini: <span id="view-ads-count">0</span>/100 iklan
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="auth-button" onclick="showPopupAds()" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
+                        🎪 Popup Ads (+50 Poin)
+                    </button>
+                    <div style="text-align: center; margin-top: 8px; font-size: 14px; color: #666;">
+                        Hari ini: <span id="popup-ads-count">0</span>/100 iklan
+                    </div>
+                </div>
+                
+                <button class="auth-button" onclick="showExchangeMenu()" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+                    💳 Tukar Poin
+                </button>
+            </div>
+
+            <button class="auth-button" onclick="logout()" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                🚪 Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Popup Ads Modal -->
+    <div id="popup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; padding: 30px; max-width: 350px; width: 90%; text-align: center; position: relative;">
+            <button onclick="closePopupAds()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">×</button>
+            
+            <div style="font-size: 60px; margin-bottom: 20px;">🎁</div>
+            <h2 style="color: #333; margin-bottom: 15px;">Selamat!</h2>
+            <p style="color: #666; margin-bottom: 25px;">Anda mendapat reward dari menonton iklan popup!</p>
+            
+            <div style="background: #28a745; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <strong>+50 Poin Reward!</strong>
+            </div>
+            
+            <button onclick="closePopupAds()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                Terima Reward
+            </button>
+        </div>
+    </div>
+
+    <!-- Exchange Points Modal -->
+    <div id="exchange-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; padding: 30px; max-width: 400px; width: 90%; text-align: center; position: relative; max-height: 80vh; overflow-y: auto;">
+            <button onclick="closeExchangeMenu()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">×</button>
+            
+            <div style="font-size: 50px; margin-bottom: 20px;">💳</div>
+            <h2 style="color: #333; margin-bottom: 15px;">Tukar Poin ke Saldo DANA</h2>
+            <p style="color: #666; margin-bottom: 25px;">Pilih nominal yang ingin ditukar:</p>
+            
+            <div style="display: grid; gap: 15px; margin-bottom: 20px;">
+                <div onclick="exchangePoints(1000, 1100)" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#17a2b8'" onmouseout="this.style.borderColor='#e9ecef'">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">💰 Saldo DANA Rp 1.000</div>
+                    <div style="color: #666; font-size: 14px;">Biaya: 1.100 Poin</div>
+                </div>
+                
+                <div onclick="exchangePoints(2000, 2100)" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#17a2b8'" onmouseout="this.style.borderColor='#e9ecef'">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">💰 Saldo DANA Rp 2.000</div>
+                    <div style="color: #666; font-size: 14px;">Biaya: 2.100 Poin</div>
+                </div>
+                
+                <div onclick="exchangePoints(3000, 3100)" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#17a2b8'" onmouseout="this.style.borderColor='#e9ecef'">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">💰 Saldo DANA Rp 3.000</div>
+                    <div style="color: #666; font-size: 14px;">Biaya: 3.100 Poin</div>
+                </div>
+                
+                <div onclick="exchangePoints(4000, 4100)" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#17a2b8'" onmouseout="this.style.borderColor='#e9ecef'">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">💰 Saldo DANA Rp 4.000</div>
+                    <div style="color: #666; font-size: 14px;">Biaya: 4.100 Poin</div>
+                </div>
+                
+                <div onclick="exchangePoints(5000, 5100)" style="background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#17a2b8'" onmouseout="this.style.borderColor='#e9ecef'">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 5px;">💰 Saldo DANA Rp 5.000</div>
+                    <div style="color: #666; font-size: 14px;">Biaya: 5.100 Poin</div>
+                </div>
+            </div>
+            
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px; border-radius: 8px; font-size: 14px;">
+                ⚠️ Poin Anda saat ini: <span id="current-points-display">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dana Account Confirmation Modal -->
+    <div id="dana-confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; padding: 30px; max-width: 400px; width: 90%; text-align: center; position: relative;">
+            <button onclick="closeDanaConfirmation()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">×</button>
+            
+            <div style="font-size: 50px; margin-bottom: 20px;">🏦</div>
+            <h2 style="color: #333; margin-bottom: 15px;">Konfirmasi Akun DANA</h2>
+            <p style="color: #666; margin-bottom: 25px;">Masukkan data akun DANA Anda untuk menerima saldo:</p>
+            
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
+                <div style="color: #1976d2; font-weight: 600; margin-bottom: 5px;">💰 Saldo DANA: Rp <span id="dana-amount-display">0</span></div>
+                <div style="color: #666; font-size: 14px;">Biaya: <span id="dana-points-cost">0</span> Poin</div>
+            </div>
+            
+            <form id="dana-account-form" onsubmit="processDanaExchange(event)">
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333; font-size: 14px;">Nama Akun DANA</label>
+                    <input type="text" id="dana-name" style="width: 100%; padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px; background: #f8f9fa;" placeholder="Masukkan nama sesuai akun DANA" required>
+                </div>
+                
+                <div style="margin-bottom: 25px; text-align: left;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333; font-size: 14px;">Nomor HP DANA</label>
+                    <input type="tel" id="dana-phone" style="width: 100%; padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 16px; background: #f8f9fa;" placeholder="08xxxxxxxxxx" pattern="[0-9]{10,13}" required>
+                </div>
+                
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: left;">
+                    ⚠️ <strong>Penting:</strong><br>
+                    • Pastikan nama dan nomor HP sesuai dengan akun DANA Anda<br>
+                    • Saldo akan dikirim dalam 1x24 jam<br>
+                    • Transaksi tidak dapat dibatalkan
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    📤 Kirim
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram Web App
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+        }
+
+        // Storage for registered users
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        let currentUser = null;
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update form sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tab + '-section').classList.add('active');
+
+            // Clear messages
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.success-message, .error-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+        }
+
+        function showMessage(type, message, section) {
+            clearMessages();
+            const messageEl = document.getElementById(section + '-' + type);
+            messageEl.textContent = message;
+            messageEl.style.display = 'block';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Check registered users
+            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                showMessage('success', `Login berhasil! Selamat datang, ${user.name}!`, 'login');
+                
+                // Redirect to dashboard after success
+                setTimeout(() => {
+                    showDashboard();
+                }, 1500);
+            } else {
+                showMessage('error', 'Email atau password salah. Pastikan Anda sudah terdaftar!', 'login');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+
+            // Validation
+            if (password !== confirmPassword) {
+                showMessage('error', 'Password dan konfirmasi password tidak cocok!', 'register');
+                return;
+            }
+
+            if (username.length < 3) {
+                showMessage('error', 'Username minimal 3 karakter!', 'register');
+                return;
+            }
+
+            // Check if email already exists
+            if (registeredUsers.find(u => u.email === email)) {
+                showMessage('error', 'Email sudah terdaftar! Gunakan email lain atau login.', 'register');
+                return;
+            }
+
+            // Save new user
+            const newUser = { name, username, email, password };
+            registeredUsers.push(newUser);
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            showMessage('success', `Pendaftaran berhasil! Selamat datang, ${name}!`, 'register');
+            
+            // Auto switch to login after successful registration
+            setTimeout(() => {
+                switchTab('login');
+                showMessage('success', 'Akun berhasil dibuat. Silakan login dengan akun baru Anda.', 'login');
+                // Clear form
+                document.getElementById('register-section').querySelector('form').reset();
+            }, 2000);
+        }
+
+        function showForgotPassword() {
+            alert('Fitur reset password akan segera tersedia!\n\nSilakan daftar akun baru untuk mencoba aplikasi.');
+        }
+
+        function showDashboard() {
+            // Hide auth container and show dashboard
+            document.querySelector('.auth-container').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Update user info
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('welcome-user').textContent = `Halo, ${currentUser.name}!`;
+            
+            // Load user points
+            const userPoints = localStorage.getItem(`points_${currentUser.email}`) || 0;
+            document.getElementById('user-points').textContent = userPoints;
+            
+            // Load daily ad counts
+            const today = new Date().toDateString();
+            const viewAdsCount = localStorage.getItem(`viewAds_${currentUser.email}_${today}`) || 0;
+            const popupAdsCount = localStorage.getItem(`popupAds_${currentUser.email}_${today}`) || 0;
+            
+            document.getElementById('view-ads-count').textContent = viewAdsCount;
+            document.getElementById('popup-ads-count').textContent = popupAdsCount;
+        }
+
+        function viewAds() {
+            const today = new Date().toDateString();
+            const viewAdsKey = `viewAds_${currentUser.email}_${today}`;
+            const currentViewAds = parseInt(localStorage.getItem(viewAdsKey) || 0);
+            
+            if (currentViewAds >= 100) {
+                showMessage('error', 'Batas harian tercapai! Anda sudah menonton 100 iklan video hari ini. Coba lagi besok!', 'dashboard');
+                return;
+            }
+            
+            showMessage('success', 'Menonton iklan video... Tunggu 30 detik untuk mendapat reward!', 'dashboard');
+            
+            // Simulate watching ads
+            setTimeout(() => {
+                const newCount = currentViewAds + 1;
+                localStorage.setItem(viewAdsKey, newCount);
+                document.getElementById('view-ads-count').textContent = newCount;
+                
+                addPoints(1000);
+                showMessage('success', `Selamat! Anda mendapat +1000 poin dari menonton iklan video! (${newCount}/100)`, 'dashboard');
+            }, 3000);
+        }
+
+        function showPopupAds() {
+            const today = new Date().toDateString();
+            const popupAdsKey = `popupAds_${currentUser.email}_${today}`;
+            const currentPopupAds = parseInt(localStorage.getItem(popupAdsKey) || 0);
+            
+            if (currentPopupAds >= 100) {
+                showMessage('error', 'Batas harian tercapai! Anda sudah menonton 100 iklan popup hari ini. Coba lagi besok!', 'dashboard');
+                return;
+            }
+            
+            document.getElementById('popup-modal').style.display = 'flex';
+        }
+
+        function closePopupAds() {
+            const today = new Date().toDateString();
+            const popupAdsKey = `popupAds_${currentUser.email}_${today}`;
+            const currentPopupAds = parseInt(localStorage.getItem(popupAdsKey) || 0);
+            const newCount = currentPopupAds + 1;
+            
+            localStorage.setItem(popupAdsKey, newCount);
+            document.getElementById('popup-ads-count').textContent = newCount;
+            
+            document.getElementById('popup-modal').style.display = 'none';
+            addPoints(50);
+            showMessage('success', `Reward +50 poin berhasil ditambahkan ke akun Anda! (${newCount}/100)`, 'dashboard');
+        }
+
+        function addPoints(points) {
+            const currentPoints = parseInt(localStorage.getItem(`points_${currentUser.email}`) || 0);
+            const newPoints = currentPoints + points;
+            localStorage.setItem(`points_${currentUser.email}`, newPoints);
+            document.getElementById('user-points').textContent = newPoints;
+        }
+
+        function showExchangeMenu() {
+            const currentPoints = parseInt(localStorage.getItem(`points_${currentUser.email}`) || 0);
+            document.getElementById('current-points-display').textContent = currentPoints;
+            document.getElementById('exchange-modal').style.display = 'flex';
+        }
+
+        function closeExchangeMenu() {
+            document.getElementById('exchange-modal').style.display = 'none';
+        }
+
+        function exchangePoints(danaAmount, pointCost) {
+            const currentPoints = parseInt(localStorage.getItem(`points_${currentUser.email}`) || 0);
+            
+            if (currentPoints < pointCost) {
+                alert(`Poin tidak cukup! Anda membutuhkan ${pointCost} poin, tetapi hanya memiliki ${currentPoints} poin.`);
+                return;
+            }
+
+            // Show Dana account confirmation form
+            showDanaConfirmation(danaAmount, pointCost);
+        }
+
+        function showDanaConfirmation(danaAmount, pointCost) {
+            closeExchangeMenu();
+            document.getElementById('dana-amount-display').textContent = danaAmount.toLocaleString();
+            document.getElementById('dana-points-cost').textContent = pointCost;
+            document.getElementById('dana-confirmation-modal').style.display = 'flex';
+        }
+
+        function closeDanaConfirmation() {
+            document.getElementById('dana-confirmation-modal').style.display = 'none';
+            document.getElementById('dana-account-form').reset();
+        }
+
+        function processDanaExchange(event) {
+            event.preventDefault();
+            
+            const danaName = document.getElementById('dana-name').value.trim();
+            const danaPhone = document.getElementById('dana-phone').value.trim();
+            const danaAmount = parseInt(document.getElementById('dana-amount-display').textContent.replace(/\./g, ''));
+            const pointCost = parseInt(document.getElementById('dana-points-cost').textContent);
+            const currentPoints = parseInt(localStorage.getItem(`points_${currentUser.email}`) || 0);
+            
+            // Validate required fields
+            if (!danaName || danaName.length < 2) {
+                alert('Nama akun DANA harus diisi minimal 2 karakter!');
+                return false;
+            }
+            
+            if (!danaPhone || danaPhone.length < 10 || danaPhone.length > 13) {
+                alert('Nomor HP tidak valid! Masukkan nomor HP yang benar (10-13 digit).');
+                return false;
+            }
+            
+            // Check if points are sufficient
+            if (currentPoints < pointCost) {
+                alert(`Poin tidak cukup! Anda membutuhkan ${pointCost} poin, tetapi hanya memiliki ${currentPoints} poin.`);
+                return false;
+            }
+
+            // Immediate processing without confirmation
+            const submitBtn = document.querySelector('#dana-account-form button[type="submit"]');
+            submitBtn.textContent = '⏳ Memproses...';
+            submitBtn.disabled = true;
+            
+            // Deduct points immediately
+            const newPoints = currentPoints - pointCost;
+            localStorage.setItem(`points_${currentUser.email}`, newPoints);
+            document.getElementById('user-points').textContent = newPoints;
+            
+            // Save transaction to localStorage
+            const transactionId = Date.now();
+            const transaction = {
+                id: transactionId,
+                tanggal: new Date().toLocaleString('id-ID'),
+                email: currentUser.email,
+                nama: danaName,
+                noAkun: danaPhone,
+                hadiah: `Rp ${danaAmount.toLocaleString()}`,
+                pointsUsed: pointCost,
+                sisaPoin: newPoints,
+                status: 'Berhasil Dikirim'
+            };
+            
+            // Store transaction history
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Send data to Google Sheets first
+            sendToGoogleSheets(transaction).then(() => {
+                console.log('Data berhasil dikirim ke Google Sheets');
+            }).catch(error => {
+                console.error('Error mengirim ke Google Sheets:', error);
+            });
+            
+            // Show success immediately
+            setTimeout(() => {
+                submitBtn.textContent = '✅ Berhasil Terkirim!';
+                submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    // Reset button and close modal
+                    submitBtn.textContent = '📤 Kirim';
+                    submitBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
+                    submitBtn.disabled = false;
+                    
+                    closeDanaConfirmation();
+                    
+                    // Show success message
+                    alert(`🎉 PENUKARAN BERHASIL!\n\n✅ Poin ${pointCost} telah terpotong\n💰 Saldo DANA Rp ${danaAmount.toLocaleString()}\n👤 Nama: ${danaName}\n📱 No HP: ${danaPhone}\n\n📋 ID Transaksi: ${transactionId}\n⏰ Saldo akan dikirim dalam 1x24 jam\n📊 Data telah dikirim ke admin`);
+                    
+                    showMessage('success', `✅ Penukaran Berhasil! Saldo DANA Rp ${danaAmount.toLocaleString()} akan dikirim ke ${danaName} (${danaPhone}) dalam 1x24 jam. ID: ${transactionId}`, 'dashboard');
+                }, 1000);
+            }, 800);
+            
+            return false;
+        }
+
+        // Function to send data to Google Sheets
+        async function sendToGoogleSheets(transactionData) {
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0/exec';
+            
+            try {
+                console.log('Mengirim data ke Google Sheets:', transactionData);
+                
+                // Prepare data for Google Sheets
+                const sheetData = {
+                    timestamp: transactionData.tanggal,
+                    transactionId: transactionData.id,
+                    userEmail: transactionData.email,
+                    danaName: transactionData.nama,
+                    danaPhone: transactionData.noAkun,
+                    danaAmount: transactionData.hadiah,
+                    pointsUsed: transactionData.pointsUsed,
+                    remainingPoints: transactionData.sisaPoin,
+                    status: transactionData.status,
+                    action: 'addTransaction'
+                };
+                
+                // Send via fetch with multiple methods for reliability
+                const methods = [
+                    // Method 1: POST with JSON
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(sheetData)
+                    }),
+                    
+                    // Method 2: GET with URL parameters (as backup)
+                    fetch(`${GOOGLE_SCRIPT_URL}?` + new URLSearchParams(sheetData), {
+                        method: 'GET',
+                        mode: 'no-cors'
+                    })
+                ];
+                
+                // Execute both methods simultaneously for better success rate
+                await Promise.allSettled(methods);
+                
+                console.log('✅ Data berhasil dikirim ke Google Sheets Admin');
+                return Promise.resolve();
+                
+            } catch (error) {
+                console.error('❌ Error mengirim ke Google Sheets:', error);
+                // Don't throw error to prevent blocking the transaction
+                return Promise.resolve();
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('dashboard').style.display = 'none';
+            document.querySelector('.auth-container').style.display = 'block';
+            
+            // Clear forms and switch to login tab
+            document.querySelectorAll('form').forEach(form => form.reset());
+            switchTab('login');
+            clearMessages();
+            showMessage('success', 'Logout berhasil. Terima kasih telah menggunakan aplikasi kami!', 'login');
+        }
+
+        // Add some interactive feedback
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804ba09f304db51',t:'MTc1ODA3MTQ1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
 
