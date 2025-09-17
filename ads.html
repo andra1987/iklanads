@@ -742,18 +742,13 @@
             return false;
         }
 
-        // Function to send data to Google Sheets
+        // Function to send data to Google Sheets with better debugging
         async function sendToGoogleSheets(transactionData) {
             // Google Apps Script URL dengan SCRIPT_ID yang benar
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0/exec';
             
-            // SPREADSHEET_ID yang sudah diekstrak dari URL
-            const SPREADSHEET_ID = '18CedF-N3Pd6nXsb7UbCPd5QD5-k_i7OnCRoMGdc_iqg';
-            
             try {
-                console.log('📤 Mengirim data ke Google Sheets Admin:', transactionData);
-                
-                // Prepare data matching the Google Apps Script structure
+                // Prepare data for GET request (most reliable method)
                 const dataToSend = {
                     tanggal: transactionData.tanggal,
                     transactionId: transactionData.id,
@@ -767,74 +762,29 @@
                     status: transactionData.status
                 };
                 
-                // Method 1: POST with JSON (primary method)
-                const postRequest = fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend)
-                }).then(response => {
-                    console.log('✅ POST request successful');
-                    return response;
-                }).catch(err => {
-                    console.log('❌ POST method failed:', err);
-                    throw err;
-                });
+                console.log('📤 Mengirim data ke Google Sheets:', dataToSend);
                 
-                // Method 2: POST with FormData (backup)
-                const formData = new FormData();
+                // Use GET method with URL parameters (most reliable for Google Apps Script)
+                const params = new URLSearchParams();
                 Object.keys(dataToSend).forEach(key => {
-                    formData.append(key, dataToSend[key]);
+                    params.append(key, String(dataToSend[key]));
                 });
                 
-                const formRequest = fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    console.log('✅ FormData request successful');
-                    return response;
-                }).catch(err => {
-                    console.log('❌ FormData method failed:', err);
-                    throw err;
+                const requestUrl = `${GOOGLE_SCRIPT_URL}?${params.toString()}`;
+                console.log('🔗 Request URL:', requestUrl);
+                
+                // Send request
+                const response = await fetch(requestUrl, {
+                    method: 'GET',
+                    mode: 'no-cors'
                 });
                 
-                // Method 3: GET with URL parameters (final backup)
-                const params = new URLSearchParams(dataToSend);
-                const getRequest = fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-                    method: 'GET'
-                }).then(response => {
-                    console.log('✅ GET request successful');
-                    return response;
-                }).catch(err => {
-                    console.log('❌ GET method failed:', err);
-                    throw err;
-                });
-                
-                // Try methods in sequence for better reliability
-                try {
-                    await postRequest;
-                    console.log('✅ Data berhasil dikirim via POST JSON');
-                } catch (error1) {
-                    try {
-                        await formRequest;
-                        console.log('✅ Data berhasil dikirim via FormData');
-                    } catch (error2) {
-                        try {
-                            await getRequest;
-                            console.log('✅ Data berhasil dikirim via GET');
-                        } catch (error3) {
-                            console.log('❌ Semua method gagal, tapi transaksi tetap berhasil');
-                        }
-                    }
-                }
-                
+                console.log('✅ Data berhasil dikirim ke Google Sheets');
                 return Promise.resolve();
                 
             } catch (error) {
                 console.error('❌ Error mengirim ke Google Sheets:', error);
-                // Still resolve to not block the transaction
-                return Promise.resolve();
+                return Promise.resolve(); // Don't block transaction
             }
         }
 
@@ -868,5 +818,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9805436f36c48f82',t:'MTc1ODA3NzA4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9805554c95e38f82',t:'MTc1ODA3NzgxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
