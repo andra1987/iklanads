@@ -401,24 +401,47 @@
             </div>
             
             <div id="spreadsheet-content">
-                <div style="overflow-x: auto;">
-                    <table id="transactions-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <!-- Scroll Navigation Buttons -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px;">
+                    <button onclick="scrollTableLeft()" style="background: linear-gradient(135deg, #6c757d, #495057); color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                        ⬅️ Scroll Kiri
+                    </button>
+                    <div style="color: #666; font-size: 14px; text-align: center;">
+                        <span id="scroll-indicator">Geser tabel untuk melihat semua kolom</span>
+                    </div>
+                    <button onclick="scrollTableRight()" style="background: linear-gradient(135deg, #6c757d, #495057); color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                        Scroll Kanan ➡️
+                    </button>
+                </div>
+
+                <div id="table-container" style="overflow-x: auto; border: 2px solid #e9ecef; border-radius: 10px; position: relative;">
+                    <table id="transactions-table" style="width: 100%; border-collapse: collapse; margin-bottom: 0; min-width: 800px;">
                         <thead>
                             <tr style="background: #f8f9fa;">
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">ID</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Tanggal</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Email</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Nama</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">No HP</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Hadiah</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Poin</th>
-                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333;">Status</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 80px;">ID</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 140px;">Tanggal</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 180px;">Email</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 120px;">Nama</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 120px;">No HP</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 100px;">Hadiah</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 80px;">Poin</th>
+                                <th style="border: 1px solid #dee2e6; padding: 12px; text-align: left; font-weight: 600; color: #333; min-width: 80px;">Status</th>
                             </tr>
                         </thead>
                         <tbody id="transactions-tbody">
                             <!-- Data will be populated here -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Scroll Position Indicator -->
+                <div style="margin-top: 10px; text-align: center;">
+                    <div id="scroll-progress" style="background: #e9ecef; height: 6px; border-radius: 3px; position: relative; overflow: hidden;">
+                        <div id="scroll-thumb" style="background: linear-gradient(135deg, #6f42c1, #5a32a3); height: 100%; width: 30%; border-radius: 3px; transition: all 0.3s ease;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Posisi scroll horizontal
+                    </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
@@ -927,6 +950,9 @@
                 document.getElementById('spreadsheet-loading').style.display = 'none';
                 document.getElementById('spreadsheet-content').style.display = 'block';
                 
+                // Initialize scroll listeners after table is populated
+                initializeScrollListeners();
+                
                 // Update local storage to sync with spreadsheet (remove deleted entries)
                 syncLocalStorageWithSpreadsheet(spreadsheetTransactions);
                 
@@ -947,6 +973,9 @@
                 
                 document.getElementById('spreadsheet-loading').style.display = 'none';
                 document.getElementById('spreadsheet-content').style.display = 'block';
+                
+                // Initialize scroll listeners for fallback data too
+                initializeScrollListeners();
                 
                 // Show warning message
                 if (userLocalTransactions.length > 0) {
@@ -1098,6 +1127,64 @@
             showMessage('success', 'Logout berhasil. Terima kasih telah menggunakan aplikasi kami!', 'login');
         }
 
+        // Scroll table functions
+        function scrollTableLeft() {
+            const container = document.getElementById('table-container');
+            const scrollAmount = 200;
+            container.scrollBy({
+                left: -scrollAmount,
+                behavior: 'smooth'
+            });
+            updateScrollIndicator();
+        }
+
+        function scrollTableRight() {
+            const container = document.getElementById('table-container');
+            const scrollAmount = 200;
+            container.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+            updateScrollIndicator();
+        }
+
+        function updateScrollIndicator() {
+            const container = document.getElementById('table-container');
+            const scrollThumb = document.getElementById('scroll-thumb');
+            const indicator = document.getElementById('scroll-indicator');
+            
+            if (container && scrollThumb) {
+                const scrollLeft = container.scrollLeft;
+                const scrollWidth = container.scrollWidth - container.clientWidth;
+                const scrollPercentage = scrollWidth > 0 ? (scrollLeft / scrollWidth) * 100 : 0;
+                
+                // Update thumb position
+                scrollThumb.style.left = scrollPercentage + '%';
+                
+                // Update indicator text
+                if (indicator) {
+                    if (scrollLeft === 0) {
+                        indicator.textContent = 'Awal tabel - scroll ke kanan untuk melihat lebih banyak';
+                    } else if (scrollLeft >= scrollWidth - 10) {
+                        indicator.textContent = 'Akhir tabel - scroll ke kiri untuk kembali';
+                    } else {
+                        indicator.textContent = `Posisi: ${Math.round(scrollPercentage)}% - gunakan tombol scroll`;
+                    }
+                }
+            }
+        }
+
+        // Add scroll event listener to table container
+        function initializeScrollListeners() {
+            const container = document.getElementById('table-container');
+            if (container) {
+                container.addEventListener('scroll', updateScrollIndicator);
+                
+                // Initialize indicator
+                setTimeout(updateScrollIndicator, 100);
+            }
+        }
+
         // Add some interactive feedback
         document.querySelectorAll('.form-input').forEach(input => {
             input.addEventListener('focus', function() {
@@ -1109,5 +1196,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98061a7bc2bbce85',t:'MTc1ODA4NTg5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980624785475f8de',t:'MTc1ODA4NjMwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
