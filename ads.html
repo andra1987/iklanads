@@ -448,6 +448,9 @@
                     <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px; margin-right: 10px;">
                         🔄 Refresh Data
                     </button>
+                    <button onclick="forceSync()" class="auth-button" style="background: linear-gradient(135deg, #dc3545, #c82333); width: auto; padding: 12px 24px; margin-right: 10px;">
+                        🔥 Force Sync
+                    </button>
                     <button onclick="exportToCSV()" class="auth-button" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); width: auto; padding: 12px 24px;">
                         📥 Export CSV
                     </button>
@@ -934,12 +937,17 @@
             try {
                 console.log('🔄 Memulai proses loading data spreadsheet...');
                 
-                // Fetch data from Google Sheets (only shows data that exists in spreadsheet)
+                // Fetch data from Google Sheets (ONLY shows data that exists in spreadsheet)
                 const spreadsheetTransactions = await fetchFromGoogleSheets();
                 
                 console.log('📋 Total transaksi dari spreadsheet:', spreadsheetTransactions.length);
                 
-                // Filter to show only current user's transactions if needed
+                // IMPORTANT: Completely replace local storage with spreadsheet data
+                // This ensures deleted data from admin doesn't appear locally
+                localStorage.setItem('transactions', JSON.stringify(spreadsheetTransactions));
+                console.log('🔄 Local storage telah diperbarui dengan data spreadsheet terbaru');
+                
+                // Filter to show only current user's transactions
                 const userTransactions = spreadsheetTransactions.filter(transaction => 
                     transaction.email === currentUser.email
                 );
@@ -953,16 +961,13 @@
                 // Initialize scroll listeners after table is populated
                 initializeScrollListeners();
                 
-                // Update local storage to sync with spreadsheet (remove deleted entries)
-                syncLocalStorageWithSpreadsheet(spreadsheetTransactions);
-                
-                // Show success message
-                showMessage('success', `Data berhasil dimuat! Menampilkan ${userTransactions.length} transaksi terbaru dari server.`, 'dashboard');
+                // Show success message with clear indication of sync
+                showMessage('success', `✅ Data tersinkronisasi! Menampilkan ${userTransactions.length} transaksi aktif dari server. Data yang dihapus admin tidak akan muncul lagi.`, 'dashboard');
                 
             } catch (error) {
                 console.error('❌ Error loading spreadsheet data:', error);
                 
-                // Fallback: Show local data if available
+                // Fallback: Show local data but with warning
                 console.log('🔄 Menggunakan data lokal sebagai fallback...');
                 const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
                 const userLocalTransactions = localTransactions.filter(transaction => 
@@ -979,34 +984,24 @@
                 
                 // Show warning message
                 if (userLocalTransactions.length > 0) {
-                    showMessage('error', `Tidak dapat terhubung ke server. Menampilkan ${userLocalTransactions.length} data lokal. Coba refresh untuk data terbaru.`, 'dashboard');
+                    showMessage('error', `⚠️ Tidak dapat terhubung ke server. Menampilkan ${userLocalTransactions.length} data lokal (mungkin tidak sinkron). Refresh untuk data terbaru dari admin.`, 'dashboard');
                 } else {
                     showMessage('error', 'Tidak dapat terhubung ke server dan tidak ada data lokal. Silakan coba lagi nanti.', 'dashboard');
                 }
             }
         }
 
-        // Function to sync localStorage with spreadsheet data
-        function syncLocalStorageWithSpreadsheet(spreadsheetTransactions) {
-            try {
-                // Get current local transactions
-                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-                
-                // Get IDs of transactions that exist in spreadsheet
-                const spreadsheetIds = spreadsheetTransactions.map(t => String(t.id));
-                
-                // Filter local transactions to keep only those that exist in spreadsheet
-                const syncedTransactions = localTransactions.filter(localTransaction => 
-                    spreadsheetIds.includes(String(localTransaction.id))
-                );
-                
-                // Update localStorage with synced data
-                localStorage.setItem('transactions', JSON.stringify(syncedTransactions));
-                
-                console.log('✅ Local storage synced with spreadsheet data');
-            } catch (error) {
-                console.error('❌ Error syncing local storage:', error);
-            }
+        // Function to force sync localStorage with spreadsheet data (complete replacement)
+        function forceSync() {
+            console.log('🔄 Memaksa sinkronisasi dengan server...');
+            showMessage('success', 'Memaksa sinkronisasi data dengan server...', 'dashboard');
+            
+            // Clear local storage first to ensure clean sync
+            localStorage.removeItem('transactions');
+            console.log('🗑️ Local storage dibersihkan');
+            
+            // Reload data from spreadsheet
+            loadSpreadsheetData();
         }
 
         function populateTransactionsTable(transactions) {
@@ -1196,5 +1191,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980624785475f8de',t:'MTc1ODA4NjMwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9806302b727689bf',t:'MTc1ODA4Njc4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
