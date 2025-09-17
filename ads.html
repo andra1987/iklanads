@@ -20,6 +20,8 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
         }
 
         .auth-container {
@@ -436,7 +438,14 @@
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            // Find the clicked button and make it active
+            const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => 
+                btn.textContent.includes(tab === 'login' ? 'Masuk' : 'Daftar')
+            );
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
 
             // Update form sections
             document.querySelectorAll('.form-section').forEach(section => {
@@ -532,7 +541,12 @@
         function showDashboard() {
             // Hide auth container and show dashboard
             document.querySelector('.auth-container').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
+            const dashboard = document.getElementById('dashboard');
+            dashboard.style.display = 'block';
+            
+            // Ensure body maintains background
+            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.body.style.minHeight = '100vh';
             
             // Update user info
             document.getElementById('user-name').textContent = currentUser.name;
@@ -730,76 +744,88 @@
 
         // Function to send data to Google Sheets
         async function sendToGoogleSheets(transactionData) {
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDwAlhJ69dBoT85riD3-RJVqakYeZAsaNrHpGR_eqUQhdZuKIAjm3ABrCslZ0E9y_R/exec';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0/exec';
+            const SPREADSHEET_ID = 'AKfycbwl_TVd0d-f3CQQGzdUsmSv34Nz_Lb23hPF5qrJHSXuAWl3315siLi-1a46XDQx9T0';
             
             try {
                 console.log('📤 Mengirim data ke Google Sheets Admin:', transactionData);
                 
-                // Prepare data for Google Sheets with proper formatting
-                const formData = new FormData();
-                formData.append('timestamp', transactionData.tanggal);
-                formData.append('transactionId', transactionData.id);
-                formData.append('userEmail', transactionData.email);
-                formData.append('userName', currentUser.name);
-                formData.append('danaName', transactionData.nama);
-                formData.append('danaPhone', transactionData.noAkun);
-                formData.append('danaAmount', transactionData.hadiah);
-                formData.append('pointsUsed', transactionData.pointsUsed);
-                formData.append('remainingPoints', transactionData.sisaPoin);
-                formData.append('status', transactionData.status);
-                formData.append('action', 'addTransaction');
+                // Prepare data matching the Google Apps Script structure
+                const dataToSend = {
+                    tanggal: transactionData.tanggal,
+                    transactionId: transactionData.id,
+                    email: transactionData.email,
+                    userName: currentUser.name,
+                    nama: transactionData.nama,
+                    noAkun: transactionData.noAkun,
+                    hadiah: transactionData.hadiah,
+                    pointsUsed: transactionData.pointsUsed,
+                    sisaPoin: transactionData.sisaPoin,
+                    status: transactionData.status
+                };
                 
-                // Method 1: POST with FormData
+                // Method 1: POST with JSON (primary method)
                 const postRequest = fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    body: formData
-                }).catch(err => console.log('POST method failed:', err));
-                
-                // Method 2: GET with URL parameters
-                const params = new URLSearchParams({
-                    timestamp: transactionData.tanggal,
-                    transactionId: transactionData.id,
-                    userEmail: transactionData.email,
-                    userName: currentUser.name,
-                    danaName: transactionData.nama,
-                    danaPhone: transactionData.noAkun,
-                    danaAmount: transactionData.hadiah,
-                    pointsUsed: transactionData.pointsUsed,
-                    remainingPoints: transactionData.sisaPoin,
-                    status: transactionData.status,
-                    action: 'addTransaction'
-                });
-                
-                const getRequest = fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-                    method: 'GET'
-                }).catch(err => console.log('GET method failed:', err));
-                
-                // Method 3: Alternative POST with JSON (no-cors)
-                const jsonRequest = fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        timestamp: transactionData.tanggal,
-                        transactionId: transactionData.id,
-                        userEmail: transactionData.email,
-                        userName: currentUser.name,
-                        danaName: transactionData.nama,
-                        danaPhone: transactionData.noAkun,
-                        danaAmount: transactionData.hadiah,
-                        pointsUsed: transactionData.pointsUsed,
-                        remainingPoints: transactionData.sisaPoin,
-                        status: transactionData.status,
-                        action: 'addTransaction'
-                    })
-                }).catch(err => console.log('JSON method failed:', err));
+                    body: JSON.stringify(dataToSend)
+                }).then(response => {
+                    console.log('✅ POST request successful');
+                    return response;
+                }).catch(err => {
+                    console.log('❌ POST method failed:', err);
+                    throw err;
+                });
                 
-                // Execute all methods for maximum reliability
-                await Promise.allSettled([postRequest, getRequest, jsonRequest]);
+                // Method 2: POST with FormData (backup)
+                const formData = new FormData();
+                Object.keys(dataToSend).forEach(key => {
+                    formData.append(key, dataToSend[key]);
+                });
                 
-                console.log('✅ Data berhasil dikirim ke Google Sheets Admin dengan multiple methods');
+                const formRequest = fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    console.log('✅ FormData request successful');
+                    return response;
+                }).catch(err => {
+                    console.log('❌ FormData method failed:', err);
+                    throw err;
+                });
+                
+                // Method 3: GET with URL parameters (final backup)
+                const params = new URLSearchParams(dataToSend);
+                const getRequest = fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+                    method: 'GET'
+                }).then(response => {
+                    console.log('✅ GET request successful');
+                    return response;
+                }).catch(err => {
+                    console.log('❌ GET method failed:', err);
+                    throw err;
+                });
+                
+                // Try methods in sequence for better reliability
+                try {
+                    await postRequest;
+                    console.log('✅ Data berhasil dikirim via POST JSON');
+                } catch (error1) {
+                    try {
+                        await formRequest;
+                        console.log('✅ Data berhasil dikirim via FormData');
+                    } catch (error2) {
+                        try {
+                            await getRequest;
+                            console.log('✅ Data berhasil dikirim via GET');
+                        } catch (error3) {
+                            console.log('❌ Semua method gagal, tapi transaksi tetap berhasil');
+                        }
+                    }
+                }
+                
                 return Promise.resolve();
                 
             } catch (error) {
@@ -813,6 +839,13 @@
             currentUser = null;
             document.getElementById('dashboard').style.display = 'none';
             document.querySelector('.auth-container').style.display = 'block';
+            
+            // Restore body background
+            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.body.style.minHeight = '100vh';
+            document.body.style.display = 'flex';
+            document.body.style.alignItems = 'center';
+            document.body.style.justifyContent = 'center';
             
             // Clear forms and switch to login tab
             document.querySelectorAll('form').forEach(form => form.reset());
@@ -832,5 +865,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804d056e71340fb',t:'MTc1ODA3MjM3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98052fc8e15d57a7',t:'MTc1ODA3NjI3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
