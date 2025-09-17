@@ -422,8 +422,11 @@
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
-                    <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px;">
+                    <button onclick="refreshSpreadsheetData()" class="auth-button" style="background: linear-gradient(135deg, #28a745, #20c997); width: auto; padding: 12px 24px; margin-right: 10px;">
                         🔄 Refresh Data
+                    </button>
+                    <button onclick="exportToCSV()" class="auth-button" style="background: linear-gradient(135deg, #fd7e14, #e83e8c); width: auto; padding: 12px 24px;">
+                        📥 Export CSV
                     </button>
                 </div>
             </div>
@@ -516,11 +519,6 @@
             const messageEl = document.getElementById(section + '-' + type);
             messageEl.textContent = message;
             messageEl.style.display = 'block';
-            
-            // Auto hide message after 10 seconds
-            setTimeout(() => {
-                messageEl.style.display = 'none';
-            }, 10000);
         }
 
         function handleLogin(event) {
@@ -802,15 +800,22 @@
             try {
                 console.log('📥 Mengambil data dari Google Sheets...');
                 
-                // Add action parameter to fetch data
-                const fetchUrl = `${GOOGLE_SCRIPT_URL}?action=fetch`;
+                // Add timestamp to prevent caching and ensure fresh data
+                const timestamp = new Date().getTime();
+                const fetchUrl = `${GOOGLE_SCRIPT_URL}?action=fetch&t=${timestamp}`;
                 
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
-                    }
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    cache: 'no-cache'
                 });
+                
+                console.log('📡 Response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -818,24 +823,27 @@
                 
                 const data = await response.json();
                 console.log('✅ Data berhasil diambil dari Google Sheets:', data);
+                console.log('📊 Jumlah data yang diterima:', data.length);
                 
                 // Transform data to match our format
                 const transactions = data.map(row => ({
-                    id: row.transactionId || row.id,
-                    tanggal: row.tanggal,
-                    email: row.email,
-                    nama: row.nama,
-                    noAkun: row.noAkun,
-                    hadiah: row.hadiah,
-                    pointsUsed: row.pointsUsed,
-                    sisaPoin: row.sisaPoin,
-                    status: row.status || 'Pending'
+                    id: row.transactionId || row.id || row.ID,
+                    tanggal: row.tanggal || row.Tanggal,
+                    email: row.email || row.Email,
+                    nama: row.nama || row.Nama,
+                    noAkun: row.noAkun || row['No HP'] || row.noHP,
+                    hadiah: row.hadiah || row.Hadiah,
+                    pointsUsed: row.pointsUsed || row['Points Used'] || row.poin,
+                    sisaPoin: row.sisaPoin || row['Sisa Poin'],
+                    status: row.status || row.Status || 'Pending'
                 }));
                 
+                console.log('🔄 Data setelah transformasi:', transactions);
                 return transactions;
                 
             } catch (error) {
                 console.error('❌ Error mengambil data dari Google Sheets:', error);
+                console.error('❌ Error details:', error.message);
                 throw error;
             }
         }
@@ -901,13 +909,19 @@
             document.getElementById('spreadsheet-content').style.display = 'none';
             
             try {
+                console.log('🔄 Memulai proses loading data spreadsheet...');
+                
                 // Fetch data from Google Sheets (only shows data that exists in spreadsheet)
                 const spreadsheetTransactions = await fetchFromGoogleSheets();
+                
+                console.log('📋 Total transaksi dari spreadsheet:', spreadsheetTransactions.length);
                 
                 // Filter to show only current user's transactions if needed
                 const userTransactions = spreadsheetTransactions.filter(transaction => 
                     transaction.email === currentUser.email
                 );
+                
+                console.log('👤 Transaksi user saat ini:', userTransactions.length);
                 
                 populateTransactionsTable(userTransactions);
                 document.getElementById('spreadsheet-loading').style.display = 'none';
@@ -916,17 +930,30 @@
                 // Update local storage to sync with spreadsheet (remove deleted entries)
                 syncLocalStorageWithSpreadsheet(spreadsheetTransactions);
                 
-            } catch (error) {
-                console.error('Error loading spreadsheet data:', error);
+                // Show success message
+                showMessage('success', `Data berhasil dimuat! Menampilkan ${userTransactions.length} transaksi terbaru dari server.`, 'dashboard');
                 
-                // Show empty table if can't connect to spreadsheet
-                populateTransactionsTable([]);
+            } catch (error) {
+                console.error('❌ Error loading spreadsheet data:', error);
+                
+                // Fallback: Show local data if available
+                console.log('🔄 Menggunakan data lokal sebagai fallback...');
+                const localTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                const userLocalTransactions = localTransactions.filter(transaction => 
+                    transaction.email === currentUser.email
+                );
+                
+                populateTransactionsTable(userLocalTransactions);
                 
                 document.getElementById('spreadsheet-loading').style.display = 'none';
                 document.getElementById('spreadsheet-content').style.display = 'block';
                 
                 // Show warning message
-                showMessage('error', 'Tidak dapat terhubung ke server. Silakan coba lagi nanti.', 'dashboard');
+                if (userLocalTransactions.length > 0) {
+                    showMessage('error', `Tidak dapat terhubung ke server. Menampilkan ${userLocalTransactions.length} data lokal. Coba refresh untuk data terbaru.`, 'dashboard');
+                } else {
+                    showMessage('error', 'Tidak dapat terhubung ke server dan tidak ada data lokal. Silakan coba lagi nanti.', 'dashboard');
+                }
             }
         }
 
@@ -999,8 +1026,55 @@
         }
 
         function refreshSpreadsheetData() {
-            showMessage('success', 'Memperbarui data transaksi...', 'dashboard');
+            showMessage('success', 'Memperbarui data transaksi dari server...', 'dashboard');
+            
+            // Clear any existing messages after a short delay
+            setTimeout(() => {
+                clearMessages();
+            }, 1000);
+            
             loadSpreadsheetData();
+        }
+
+        async function exportToCSV() {
+            try {
+                // Get fresh data from Google Sheets (only active transactions)
+                const spreadsheetTransactions = await fetchFromGoogleSheets();
+                
+                // Filter to current user's transactions only
+                const userTransactions = spreadsheetTransactions.filter(transaction => 
+                    transaction.email === currentUser.email
+                );
+                
+                if (userTransactions.length === 0) {
+                    alert('Tidak ada data transaksi Anda untuk diekspor!');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = 'ID Transaksi,Tanggal,Email,Nama,No HP,Hadiah,Poin Digunakan,Sisa Poin,Status\n';
+                
+                userTransactions.forEach(transaction => {
+                    csvContent += `${transaction.id},"${transaction.tanggal}","${transaction.email}","${transaction.nama}","${transaction.noAkun}","${transaction.hadiah}",${transaction.pointsUsed},${transaction.sisaPoin},"${transaction.status}"\n`;
+                });
+                
+                // Create and download file
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `transaksi_${currentUser.email}_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showMessage('success', `Data transaksi Anda berhasil diekspor! File CSV dengan ${userTransactions.length} transaksi telah diunduh.`, 'dashboard');
+                
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                showMessage('error', 'Tidak dapat mengekspor data. Silakan coba lagi nanti.', 'dashboard');
+            }
         }
 
 
@@ -1035,5 +1109,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9805880ec4dd5ce5',t:'MTc1ODA3OTg5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98061a7bc2bbce85',t:'MTc1ODA4NTg5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
