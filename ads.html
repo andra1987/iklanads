@@ -733,13 +733,34 @@
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDwAlhJ69dBoT85riD3-RJVqakYeZAsaNrHpGR_eqUQhdZuKIAjm3ABrCslZ0E9y_R/exec';
             
             try {
-                console.log('Mengirim data ke Google Sheets:', transactionData);
+                console.log('📤 Mengirim data ke Google Sheets Admin:', transactionData);
                 
-                // Prepare data for Google Sheets
-                const sheetData = {
+                // Prepare data for Google Sheets with proper formatting
+                const formData = new FormData();
+                formData.append('timestamp', transactionData.tanggal);
+                formData.append('transactionId', transactionData.id);
+                formData.append('userEmail', transactionData.email);
+                formData.append('userName', currentUser.name);
+                formData.append('danaName', transactionData.nama);
+                formData.append('danaPhone', transactionData.noAkun);
+                formData.append('danaAmount', transactionData.hadiah);
+                formData.append('pointsUsed', transactionData.pointsUsed);
+                formData.append('remainingPoints', transactionData.sisaPoin);
+                formData.append('status', transactionData.status);
+                formData.append('action', 'addTransaction');
+                
+                // Method 1: POST with FormData
+                const postRequest = fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                }).catch(err => console.log('POST method failed:', err));
+                
+                // Method 2: GET with URL parameters
+                const params = new URLSearchParams({
                     timestamp: transactionData.tanggal,
                     transactionId: transactionData.id,
                     userEmail: transactionData.email,
+                    userName: currentUser.name,
                     danaName: transactionData.nama,
                     danaPhone: transactionData.noAkun,
                     danaAmount: transactionData.hadiah,
@@ -747,36 +768,43 @@
                     remainingPoints: transactionData.sisaPoin,
                     status: transactionData.status,
                     action: 'addTransaction'
-                };
+                });
                 
-                // Send via fetch with multiple methods for reliability
-                const methods = [
-                    // Method 1: POST with JSON
-                    fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(sheetData)
-                    }),
-                    
-                    // Method 2: GET with URL parameters (as backup)
-                    fetch(`${GOOGLE_SCRIPT_URL}?` + new URLSearchParams(sheetData), {
-                        method: 'GET',
-                        mode: 'no-cors'
+                const getRequest = fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+                    method: 'GET'
+                }).catch(err => console.log('GET method failed:', err));
+                
+                // Method 3: Alternative POST with JSON (no-cors)
+                const jsonRequest = fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        timestamp: transactionData.tanggal,
+                        transactionId: transactionData.id,
+                        userEmail: transactionData.email,
+                        userName: currentUser.name,
+                        danaName: transactionData.nama,
+                        danaPhone: transactionData.noAkun,
+                        danaAmount: transactionData.hadiah,
+                        pointsUsed: transactionData.pointsUsed,
+                        remainingPoints: transactionData.sisaPoin,
+                        status: transactionData.status,
+                        action: 'addTransaction'
                     })
-                ];
+                }).catch(err => console.log('JSON method failed:', err));
                 
-                // Execute both methods simultaneously for better success rate
-                await Promise.allSettled(methods);
+                // Execute all methods for maximum reliability
+                await Promise.allSettled([postRequest, getRequest, jsonRequest]);
                 
-                console.log('✅ Data berhasil dikirim ke Google Sheets Admin');
+                console.log('✅ Data berhasil dikirim ke Google Sheets Admin dengan multiple methods');
                 return Promise.resolve();
                 
             } catch (error) {
                 console.error('❌ Error mengirim ke Google Sheets:', error);
-                // Don't throw error to prevent blocking the transaction
+                // Still resolve to not block the transaction
                 return Promise.resolve();
             }
         }
@@ -804,5 +832,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804cb2293e240fb',t:'MTc1ODA3MjE1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9804d056e71340fb',t:'MTc1ODA3MjM3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
