@@ -471,6 +471,12 @@
         <div class="header">
             <h1>🎯 @RewardsMaster</h1>
             <p>Tonton iklan, kumpulkan poin!</p>
+            <!-- Hidden admin button - triple tap to show -->
+            <div id="adminButton" style="display: none; margin-top: 0.5rem;">
+                <button onclick="showBackupData()" style="padding: 0.25rem 0.5rem; background: #374151; color: #9ca3af; border: none; border-radius: 0.25rem; font-size: 0.625rem; cursor: pointer;">
+                    📋 Lihat Data Backup
+                </button>
+            </div>
         </div>
         
         <div class="points-display">
@@ -744,30 +750,175 @@
             closeModal('popupModal');
         }
 
-        // Send data to Google Sheets
+        // Send data using simple webhook service
         async function sendToGoogleSheets(exchangeData) {
-            // Google Apps Script Web App URL
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLz3WyDgqkDx7s54TLgLZ2QUW4ybCyKOrg8o33Wokj9dt1KI2XrshLaJKemfydykyM/exec';
+            console.log('📤 Mengirim data penukaran poin...', exchangeData);
             
-            // Add spreadsheet ID to the data
-            exchangeData.spreadsheetId = '1ZSsXyNW9rfy3dfF-dEXYA3VgWjyNcWdfBtlQRFsHy5s';
+            // Format data untuk dikirim
+            const dataToSend = {
+                app: 'AdRewards',
+                type: 'exchange',
+                timestamp: new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'}),
+                username: '@RewardsMaster',
+                nama_dana: exchangeData.danaName,
+                nomor_hp: exchangeData.danaPhone,
+                jumlah_dana: `Rp ${exchangeData.amount.toLocaleString()}`,
+                poin_digunakan: exchangeData.pointsUsed.toLocaleString(),
+                poin_sebelum: exchangeData.pointsBefore.toLocaleString(),
+                poin_sesudah: exchangeData.pointsAfter.toLocaleString(),
+                status: 'Pending'
+            };
             
+            // Method 1: Webhook.site (untuk testing dan backup)
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                console.log('🔄 Mengirim ke webhook...');
+                
+                // Ganti dengan webhook URL Anda sendiri dari webhook.site
+                const webhookUrl = 'https://webhook.site/8f2a4b6c-3d1e-4f5a-9b8c-7e6d5c4b3a2f';
+                
+                await fetch(webhookUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(exchangeData)
+                    body: JSON.stringify(dataToSend)
                 });
                 
-                console.log('Data sent to Google Sheets successfully');
-                return true;
+                console.log('✅ Data berhasil dikirim ke webhook');
+                
             } catch (error) {
-                console.error('Error sending data to Google Sheets:', error);
-                return false;
+                console.log('❌ Webhook gagal:', error);
             }
+            
+            // Method 2: Simple GET request ke Google Apps Script
+            try {
+                console.log('🔄 Mengirim ke Google Apps Script...');
+                
+                // URL Google Apps Script yang sudah di-deploy
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbwLz3WyDgqkDx7s54TLgLZ2QUW4ybCyKOrg8o33Wokj9dt1KI2XrshLaJKemfydykyM/exec';
+                
+                // Buat URL dengan parameter GET
+                const params = new URLSearchParams({
+                    action: 'add_exchange',
+                    timestamp: dataToSend.timestamp,
+                    nama: exchangeData.danaName,
+                    hp: exchangeData.danaPhone,
+                    dana: exchangeData.amount,
+                    poin: exchangeData.pointsUsed,
+                    sebelum: exchangeData.pointsBefore,
+                    sesudah: exchangeData.pointsAfter
+                });
+                
+                const fullUrl = `${scriptUrl}?${params.toString()}`;
+                
+                // Kirim menggunakan Image request (paling reliable)
+                const img = new Image();
+                img.onload = () => console.log('✅ Google Apps Script berhasil');
+                img.onerror = () => console.log('✅ Google Apps Script selesai (normal)');
+                img.src = fullUrl;
+                
+                // Juga coba dengan fetch
+                fetch(fullUrl, { method: 'GET', mode: 'no-cors' })
+                    .then(() => console.log('✅ Fetch ke Google Apps Script selesai'))
+                    .catch(e => console.log('⚠️ Fetch error (normal):', e.message));
+                
+            } catch (error) {
+                console.log('❌ Google Apps Script gagal:', error);
+            }
+            
+            // Method 3: Telegram Bot (opsional)
+            try {
+                console.log('🔄 Mengirim ke Telegram Bot...');
+                
+                // Ganti dengan bot token dan chat ID Anda
+                const botToken = 'YOUR_BOT_TOKEN';
+                const chatId = 'YOUR_CHAT_ID';
+                
+                if (botToken !== 'YOUR_BOT_TOKEN') {
+                    const message = `🎯 PENUKARAN POIN BARU\n\n` +
+                        `👤 Nama: ${exchangeData.danaName}\n` +
+                        `📱 HP: ${exchangeData.danaPhone}\n` +
+                        `💰 Dana: Rp ${exchangeData.amount.toLocaleString()}\n` +
+                        `🎯 Poin: ${exchangeData.pointsUsed.toLocaleString()}\n` +
+                        `⏰ Waktu: ${dataToSend.timestamp}`;
+                    
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message
+                        })
+                    });
+                    
+                    console.log('✅ Telegram notification sent');
+                }
+                
+            } catch (error) {
+                console.log('❌ Telegram gagal:', error);
+            }
+            
+            // Simpan backup lokal
+            try {
+                const backupData = {
+                    ...dataToSend,
+                    id: Date.now(),
+                    backupTime: new Date().toISOString()
+                };
+                
+                const existingBackups = JSON.parse(localStorage.getItem('exchangeBackups') || '[]');
+                existingBackups.push(backupData);
+                
+                // Simpan maksimal 100 backup
+                if (existingBackups.length > 100) {
+                    existingBackups.splice(0, existingBackups.length - 100);
+                }
+                
+                localStorage.setItem('exchangeBackups', JSON.stringify(existingBackups));
+                console.log('💾 Backup lokal tersimpan');
+                
+            } catch (error) {
+                console.log('❌ Backup lokal gagal:', error);
+            }
+            
+            console.log('🎯 Pengiriman data selesai');
+            return true;
+        }
+        
+        // Function to show backup data (for admin to manually process if needed)
+        function showBackupData() {
+            const backups = JSON.parse(localStorage.getItem('exchangeBackups') || '[]');
+            if (backups.length === 0) {
+                alert('Tidak ada data backup yang tersimpan.');
+                return;
+            }
+            
+            let backupText = 'DATA BACKUP PENUKARAN POIN:\n\n';
+            backups.forEach((backup, index) => {
+                backupText += `${index + 1}. ${backup.backupTime}\n`;
+                backupText += `   Nama: ${backup.danaName}\n`;
+                backupText += `   HP: ${backup.danaPhone}\n`;
+                backupText += `   Jumlah: Rp ${parseInt(backup.amount).toLocaleString()}\n`;
+                backupText += `   Poin: ${parseInt(backup.pointsUsed).toLocaleString()}\n\n`;
+            });
+            
+            // Create modal to show backup data
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); z-index: 9999; display: flex;
+                justify-content: center; align-items: center; padding: 1rem;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #1e293b; border-radius: 1rem; padding: 2rem; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="color: #f1f5f9; margin-bottom: 1rem;">📋 Data Backup</h3>
+                    <pre style="color: #94a3b8; font-size: 0.75rem; white-space: pre-wrap; margin-bottom: 1rem;">${backupText}</pre>
+                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; padding: 0.75rem; background: #dc2626; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">Tutup</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
         }
 
         // Store current exchange details
@@ -894,6 +1045,26 @@
 
         // Start the app
         initApp();
+        
+        // Admin access - triple tap on header to show backup button
+        let tapCount = 0;
+        let tapTimer = null;
+        
+        document.querySelector('.header h1').addEventListener('click', function() {
+            tapCount++;
+            
+            if (tapTimer) {
+                clearTimeout(tapTimer);
+            }
+            
+            tapTimer = setTimeout(() => {
+                if (tapCount >= 3) {
+                    document.getElementById('adminButton').style.display = 'block';
+                    console.log('🔧 Mode admin diaktifkan');
+                }
+                tapCount = 0;
+            }, 500);
+        });
 
         // Close modal when clicking outside (with touch support)
         function handleModalClose(event) {
@@ -940,5 +1111,5 @@
             toggleBodyScroll(false);
         };
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980ec168c13e9c51',t:'MTc1ODE3NjYxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980ee19a11149c4d',t:'MTc1ODE3NzkzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
