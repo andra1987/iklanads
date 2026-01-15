@@ -1,84 +1,196 @@
-<aside id="sidebar" 
-       class="fixed inset-y-0 left-0 w-72 bg-blue-900 text-white transform -translate-x-full md:relative md:translate-x-0 sidebar-transition z-50 flex flex-col shadow-2xl md:shadow-none">
-    </aside>
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Administrasi Piket - SMKN 1 Pakis Aji</title>
 
-<script>
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    const pageTitle = document.getElementById('page-title');
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    // FUNGSI TOGGLE SIDEBAR (YANG DIPERBAIKI)
-    function toggleSidebar() {
-        // Cek apakah sedang di layar mobile (lebar < 768px)
-        if (window.innerWidth < 768) {
-            const isHidden = sidebar.classList.contains('-translate-x-full');
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Custom Transitions */
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover { transform: translateX(4px); }
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            color: white !important;
+        }
+
+        .page-transition { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Utility Scrollbar */
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+
+<body class="h-full bg-slate-100 overflow-hidden">
+    <div id="app" class="h-full flex">
+        
+        <aside id="sidebar" class="fixed lg:relative z-40 w-72 h-full bg-slate-900 text-white flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm leading-tight">SMKN 1 Pakis Aji</h1>
+                        <p class="text-slate-400 text-xs text-nowrap">Sistem Administrasi Piket</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+                <button onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    <span class="font-medium text-sm">Dashboard</span>
+                </button>
+
+                <button onclick="showPage('ijin')" id="nav-ijin" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span class="font-medium text-sm">Input Ijin Siswa</span>
+                </button>
+
+                <button onclick="showPage('laporan')" id="nav-laporan" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="font-medium text-sm">Rekap Ijin</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700 bg-slate-800/50">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center font-bold">P</div>
+                    <div>
+                        <p id="petugas-display" class="text-sm font-semibold">Petugas Piket</p>
+                        <p class="text-xs text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Online
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
             
-            if (isHidden) {
-                // Tampilkan Sidebar
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                overlay.classList.add('block');
-            } else {
-                // Sembunyikan Sidebar
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                overlay.classList.remove('block');
+            <header class="lg:hidden bg-white border-b px-6 py-4 flex items-center justify-between">
+                <h2 class="font-bold text-slate-800">Sistem Piket</h2>
+                <button onclick="toggleSidebar()" class="p-2 bg-slate-100 rounded-lg text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                </button>
+            </header>
+
+            <div id="pages-container" class="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-thin">
+                
+                <section id="page-dashboard" class="page-transition space-y-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Dashboard Utama</h2>
+                            <p class="text-slate-500">Ringkasan aktivitas piket hari ini</p>
+                        </div>
+                        <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                            <div class="text-right">
+                                <p id="real-date" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kamis, 15 Jan 2026</p>
+                                <p id="real-clock" class="text-2xl font-black text-blue-600">14:55</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-slate-500 text-sm font-medium">Total Ijin</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">12</h3>
+                        </div>
+                        </div>
+                </section>
+
+                <section id="page-ijin" class="page-transition hidden max-w-2xl mx-auto">
+                    <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                        <div class="p-8">
+                            <h3 class="text-xl font-bold text-slate-800 mb-6">Formulir Ijin Siswa</h3>
+                            <form id="form-ijin" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Siswa</label>
+                                    <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-blue-100 outline-none transition-all" placeholder="Masukkan nama lengkap">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Kelas</label>
+                                        <select class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none">
+                                            <option>Pilih Kelas</option>
+                                            <option>X TKJ 1</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Keperluan</label>
+                                        <select class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none">
+                                            <option>Keluar Sementara</option>
+                                            <option>Pulang Awal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                                    Simpan Data Ijin
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+    </div>
+
+    <script>
+        // 1. Navigation Logic
+        function showPage(pageId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(section => section.classList.add('hidden'));
+            // Show target section
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            
+            // Update Active Menu
+            document.querySelectorAll('.sidebar-item').forEach(btn => {
+                btn.classList.remove('active', 'bg-slate-800');
+                btn.classList.add('text-slate-400');
+            });
+            document.getElementById(`nav-${pageId}`).classList.add('active');
+            
+            // Close sidebar on mobile after click
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        // 2. Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // 3. Realtime Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+            
+            if(document.getElementById('real-clock')) {
+                document.getElementById('real-clock').textContent = timeStr;
+                document.getElementById('real-date').textContent = dateStr;
             }
         }
-    }
-
-    // Navigasi & Tutup Sidebar Otomatis
-    function showPage(pageId) {
-        // Sembunyikan semua halaman
-        document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-        
-        // Tampilkan halaman yang dipilih
-        const targetPage = document.getElementById('page-' + pageId);
-        if (targetPage) {
-            targetPage.classList.remove('hidden');
-        }
-        
-        // Update Judul Header
-        pageTitle.innerText = pageId.replace('-', ' ').toUpperCase();
-
-        // TUTUP SIDEBAR OTOMATIS setelah klik menu (khusus mobile)
-        if (window.innerWidth < 768) {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        }
-
-        // Render ulang data jika buka laporan
-        if(pageId === 'laporan') renderTable();
-        if(pageId === 'dashboard') updateStats();
-    }
-
-    // Pastikan fungsi pengambilan gambar tetap bekerja
-    function takeSnapshot() {
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const photoPreview = document.getElementById('photo-preview');
-        
-        const context = canvas.getContext('2d');
-        canvas.width = 400; 
-        canvas.height = 300;
-        
-        // Efek Mirror
-        context.translate(400, 0); 
-        context.scale(-1, 1);
-        
-        context.drawImage(video, 0, 0, 400, 300);
-        capturedImage = canvas.toDataURL('image/jpeg');
-        photoPreview.src = capturedImage;
-        photoPreview.classList.remove('hidden');
-    }
-
-    // Inisialisasi awal saat halaman dimuat
-    window.onload = () => {
-        updateStats();
-        // Set tanggal hari ini secara otomatis
-        const dateInput = document.getElementById('tanggal');
-        if(dateInput) dateInput.valueAsDate = new Date();
-    };
-
-    // Sisanya (Kamera, Jam Digital, Simpan Data) tetap menggunakan kode sebelumnya
-</script>
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
