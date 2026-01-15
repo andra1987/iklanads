@@ -3,104 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Izin Siswa</title>
+    <title>E-Piket Pro | Modern Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
-        /* Pengaturan Tampilan Dasar */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background-color: #f4f7f6; }
+        :root {
+            --primary: #4f46e5;
+            --secondary: #64748b;
+            --success: #10b981;
+            --dark: #0f172a;
+            --sidebar-width: 280px;
+        }
 
-        /* Sidebar Styling */
-        #sidebar { width: 250px; background: #2c3e50; color: white; transition: 0.3s; overflow: hidden; }
-        #sidebar.hide { width: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { background-color: #f8fafc; color: var(--dark); overflow: hidden; }
+
+        /* --- Layout --- */
+        .wrapper { display: flex; height: 100vh; width: 100vw; }
+
+        /* --- Sidebar Modern --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.hide { margin-left: calc(-1 * var(--sidebar-width)); }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .menu-list { flex: 1; padding: 10px; }
+
+        .menu-item {
+            padding: 14px 20px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+
+        .menu-item i { font-size: 1.2rem; }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .menu-item.active { background: var(--primary); color: white; }
+
+        /* --- Main Content --- */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .topbar {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .toggle-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        /* --- Content Cards --- */
+        .container { padding: 25px; max-width: 1100px; margin: 0 auto; width: 100%; }
         
-        #sidebar h2 { text-align: center; padding: 20px 0; font-size: 1.2rem; border-bottom: 1px solid #34495e; }
-        
-        .menu-item { padding: 15px 25px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
-        .menu-item:hover { background: #34495e; }
+        .page { display: none; animation: slideUp 0.4s ease-out; }
+        .page.active { display: block; }
 
-        /* Area Konten Utama */
-        #main-content { flex-grow: 1; padding: 20px; transition: 0.3s; }
-        .header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-        
-        button#toggle-btn { padding: 10px 15px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 5px; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* Menyembunyikan bagian yang tidak aktif */
-        .page { display: none; }
-        .active { display: block; }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
 
-        /* Kartu Sederhana untuk Form/Laporan */
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, select, button[type="submit"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
-        button[type="submit"] { background: #27ae60; color: white; border: none; cursor: pointer; }
+        h3 { margin-bottom: 20px; font-weight: 700; color: var(--dark); }
+
+        /* --- Form Elements --- */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: var(--secondary); }
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* --- Table Responsive --- */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #f1f5f9; color: var(--secondary); font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                height: 100%;
+                left: 0;
+            }
+            #sidebar.hide { left: calc(-1 * var(--sidebar-width)); }
+            .container { padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <h2>E-Piket Siswa</h2>
-        <div class="menu-item" onclick="showPage('dashboard')">🏠 Dashboard</div>
-        <div class="menu-item" onclick="showPage('form-ijin')">📝 Ijin Siswa</div>
-        <div class="menu-item" onclick="showPage('laporan')">📊 Laporan Ijin</div>
-    </div>
-
-    <div id="main-content">
-        <div class="header">
-            <button id="toggle-btn" onclick="toggleSidebar()">☰</button>
-            <h1 id="page-title">Dashboard</h1>
-        </div>
-
-        <div id="dashboard" class="page active">
-            <div class="card">
-                <h3>Selamat Datang, Petugas Piket!</h3>
-                <p>Gunakan menu di samping untuk mencatat perizinan siswa hari ini.</p>
+    <div class="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shield-check"></i>
+                <span>E-PIKET</span>
             </div>
-        </div>
-
-        <div id="form-ijin" class="page">
-            <div class="card">
-                <h3>Input Izin Siswa Baru</h3>
-                <input type="text" placeholder="Nama Siswa">
-                <input type="text" placeholder="Kelas">
-                <select>
-                    <option value="">Alasan Izin</option>
-                    <option value="Sakit">Sakit</option>
-                    <option value="Keperluan Keluarga">Keperluan Keluarga</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-                <button type="submit">Simpan Izin</button>
+            <div class="menu-list">
+                <div class="menu-item active" onclick="showPage('dash', this)">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </div>
+                <div class="menu-item" onclick="showPage('form', this)">
+                    <i class="bi bi-file-earmark-plus-fill"></i> Ijin Siswa
+                </div>
+                <div class="menu-item" onclick="showPage('report', this)">
+                    <i class="bi bi-collection-fill"></i> Laporan
+                </div>
             </div>
-        </div>
+        </nav>
 
-        <div id="laporan" class="page">
-            <div class="card">
-                <h3>Data Laporan Izin</h3>
-                <p>Daftar siswa yang sedang keluar akan muncul di sini.</p>
-            </div>
+        <div id="main">
+            <header class="topbar">
+                <button class="toggle-btn" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="user-profile" style="font-weight: 600; font-size: 0.9rem;">
+                    Petugas Piket <i class="bi bi-person-circle"></i>
+                </div>
+            </header>
+
+            <main class="container">
+                <section id="dash" class="page active">
+                    <div class="card">
+                        <h3>Statistik Hari Ini</h3>
+                        <p style="color: var(--secondary)">Pantau aktivitas keluar masuk siswa secara real-time.</p>
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <div style="flex:1; background: #eef2ff; padding: 20px; border-radius: 15px;">
+                                <div style="color: var(--primary); font-size: 0.8rem; font-weight: 700;">TOTAL IZIN</div>
+                                <div id="count-izin" style="font-size: 2rem; font-weight: 800;">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="form" class="page">
+                    <div class="card">
+                        <h3>Formulir Izin Keluar</h3>
+                        <div class="input-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" id="inp-nama" placeholder="Masukkan nama siswa...">
+                        </div>
+                        <div class="input-group">
+                            <label>Kelas</label>
+                            <input type="text" id="inp-kelas" placeholder="Contoh: XII TKJ 1">
+                        </div>
+                        <div class="input-group">
+                            <label>Alasan Meninggalkan Sekolah</label>
+                            <select id="inp-alasan">
+                                <option value="Keperluan Keluarga">Keperluan Keluarga</option>
+                                <option value="Sakit / Puskesmas">Sakit / Puskesmas</option>
+                                <option value="Lomba / Dinas">Lomba / Dinas Luar</option>
+                                <option value="Fotocopy / Beli ATK">Fotocopy / Beli ATK</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="submitData()">Simpan Data</button>
+                    </div>
+                </section>
+
+                <section id="report" class="page">
+                    <div class="card">
+                        <h3>Riwayat Izin</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Waktu</th>
+                                        <th>Siswa</th>
+                                        <th>Kelas</th>
+                                        <th>Alasan</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </div>
     </div>
 
     <script>
-        // Fungsi Sembunyi/Muncul Sidebar
+        let dataIzin = [];
+
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hide');
+            document.getElementById('sidebar').classList.toggle('hide');
         }
 
-        // Fungsi Ganti Halaman
-        function showPage(pageId) {
-            // Sembunyikan semua halaman
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(p => p.classList.remove('active'));
-
-            // Tampilkan halaman yang dipilih
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
 
-            // Update judul header
-            const titles = {
-                'dashboard': 'Dashboard',
-                'form-ijin': 'Ijin Siswa',
-                'laporan': 'Laporan Ijin Siswa'
-            };
-            document.getElementById('page-title').innerText = titles[pageId];
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            element.classList.add('active');
+
+            // Tutup sidebar otomatis di HP setelah pilih menu
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function submitData() {
+            const nama = document.getElementById('inp-nama').value;
+            const kelas = document.getElementById('inp-kelas').value;
+            const alasan = document.getElementById('inp-alasan').value;
+            const waktu = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+
+            if(!nama || !kelas) return alert("Harap isi semua data!");
+
+            dataIzin.push({ waktu, nama, kelas, alasan });
+            
+            // Reset Form
+            document.getElementById('inp-nama').value = "";
+            document.getElementById('inp-kelas').value = "";
+            
+            renderTable();
+            updateDashboard();
+            alert("Data Berhasil Dicatat!");
+            showPage('report', document.querySelectorAll('.menu-item')[2]);
+        }
+
+        function renderTable() {
+            const container = document.getElementById('table-body');
+            container.innerHTML = dataIzin.map(item => `
+                <tr>
+                    <td style="font-weight:600">${item.waktu}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.kelas}</td>
+                    <td>${item.alasan}</td>
+                    <td><span class="badge">Keluar</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateDashboard() {
+            document.getElementById('count-izin').innerText = dataIzin.length;
         }
     </script>
 </body>
