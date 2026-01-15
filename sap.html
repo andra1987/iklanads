@@ -472,6 +472,17 @@
               return;
             }
             
+            // Show loading state
+            const previewImg = document.getElementById('preview_img');
+            const fotoPreview = document.getElementById('foto_preview');
+            if (fotoPreview) {
+              fotoPreview.classList.remove('hidden');
+            }
+            if (previewImg) {
+              previewImg.src = '';
+              previewImg.alt = 'Memproses foto...';
+            }
+            
             const reader = new FileReader();
             reader.onload = function(event) {
               // Compress image before storing
@@ -489,15 +500,11 @@
                   ctx.drawImage(img, 0, 0, width, height);
                   
                   // Convert to base64 with high quality (0.92)
-                  const compressed = canvas.toDataURL('image/jpeg', 0.92);
+                  currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.92);
                   
-                  // Store the compressed image
-                  currentPhotoBase64 = compressed;
-                  
-                  const previewImg = document.getElementById('preview_img');
-                  const fotoPreview = document.getElementById('foto_preview');
                   if (previewImg && fotoPreview) {
                     previewImg.src = currentPhotoBase64;
+                    previewImg.alt = 'Preview foto siswa';
                     fotoPreview.classList.remove('hidden');
                   }
                   
@@ -522,6 +529,8 @@
               clearPhoto();
             };
             reader.readAsDataURL(file);
+          } else {
+            clearPhoto();
           }
         });
       }
@@ -1365,5 +1374,5 @@
       btnText.textContent = 'Simpan';
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9be1e84c769cea83',t:'MTc2ODQ0Mzc2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9be2064db4f24dae',t:'MTc2ODQ0NDk5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
