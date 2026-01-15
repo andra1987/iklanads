@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Administrasi Piket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .sidebar-item {
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-item:hover {
+      transform: translateX(4px);
+    }
+    
+    .sidebar-item.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    .card {
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, var(--stat-from) 0%, var(--stat-to) 100%);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    .table-row {
+      transition: background 0.2s ease;
+    }
+    
+    .table-row:hover {
+      background: #f8fafc;
+    }
+    
+    .status-badge {
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .page-transition {
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-slate-100">
+  <div id="app" class="h-full flex overflow-hidden"><!-- Sidebar -->
+   <aside id="sidebar" class="w-72 bg-slate-900 text-white flex flex-col h-full transition-all duration-300 fixed lg:relative z-40 -translate-x-full lg:translate-x-0"><!-- Logo Section -->
+    <div class="p-6 border-b border-slate-700">
+     <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg border-2 border-amber-300">
+       <svg class="w-7 h-7 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+       </svg>
+      </div>
+      <div>
+       <h1 id="school-name" class="font-bold text-lg leading-tight">SMK Negeri 1 Pakis Aji</h1>
+       <p class="text-slate-400 text-sm">Sistem Administrasi Piket</p>
+      </div>
+     </div>
+    </div><!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-2"><button onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      </svg><span class="font-medium">Dashboard</span> </button> <button onclick="showPage('ijin')" id="nav-ijin" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-300 hover:text-white hover:bg-slate-800">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg><span class="font-medium">Input Ijin Siswa</span> </button> <button onclick="showPage('laporan')" id="nav-laporan" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-300 hover:text-white hover:bg-slate-800">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg><span class="font-medium">Rekap Ijin Siswa</span> </button> <button onclick="showPage('catatan')" id="nav-catatan" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-300 hover:text-white hover:bg-slate-800">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg><span class="font-medium">Catatan Piket</span> </button>
+    </nav><!-- User Info -->
+    <div class="p-4 border-t border-slate-700">
+     <div class="bg-slate-800 rounded-xl overflow-hidden"><button onclick="togglePetugasEdit()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition-all">
+       <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+       </div>
+       <div class="flex-1 text-left">
+        <p id="petugas-name" class="font-medium text-sm">Petugas Piket</p>
+        <p class="text-slate-400 text-xs">Online</p>
+       </div>
+       <svg id="petugas-chevron" class="w-4 h-4 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+       </svg></button>
+      <div id="petugas-edit-panel" class="hidden px-4 pb-4 border-t border-slate-700">
+       <form id="form-petugas" class="mt-3 space-y-3">
+        <div><label for="input-petugas" class="block text-xs text-slate-400 mb-1">Nama Petugas Piket</label> <input type="text" id="input-petugas" placeholder="Masukkan nama petugas" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500 transition-all">
+        </div><button type="submit" class="w-full py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-all"> <span id="btn-petugas-text">Simpan</span> </button>
+       </form>
+      </div>
+     </div>
+    </div>
+   </aside><!-- Overlay for mobile -->
+   <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div><!-- Main Content -->
+   <main class="flex-1 h-full overflow-auto scrollbar-thin w-full"><!-- Dashboard Page -->
+    <div id="page-dashboard" class="page-transition p-4 md:p-8"><!-- Mobile Header with Menu Button -->
+     <div class="flex items-center gap-4 mb-6 lg:hidden"><button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+       </svg></button>
+      <div>
+       <h2 class="text-2xl font-bold text-slate-800">Dashboard</h2>
+      </div>
+     </div><!-- Header -->
+     <div class="mb-8 hidden lg:block">
+      <h2 class="text-3xl font-bold text-slate-800">Dashboard</h2>
+      <p class="text-slate-500 mt-1">Selamat datang di Sistem Administrasi Piket</p>
+     </div><!-- Date Info -->
+     <div class="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center">
+         <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+         </svg>
+        </div>
+        <div>
+         <p class="text-slate-500 text-sm">Tanggal Hari Ini</p>
+         <p id="current-date" class="text-xl font-bold text-slate-800">-</p>
+        </div>
+       </div>
+       <div id="current-time" class="text-4xl font-bold text-blue-600">
+        --:--
+       </div>
+      </div>
+     </div><!-- Stats Cards -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="card bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+       <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+         </svg>
+        </div><span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Hari Ini</span>
+       </div>
+       <p id="stat-total" class="text-3xl font-bold text-slate-800">0</p>
+       <p class="text-slate-500 text-sm mt-1">Total Ijin</p>
+      </div>
+      <div class="card bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+       <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+         <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+         </svg>
+        </div><span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Keluar</span>
+       </div>
+       <p id="stat-keluar" class="text-3xl font-bold text-slate-800">0</p>
+       <p class="text-slate-500 text-sm mt-1">Sedang Keluar</p>
+      </div>
+      <div class="card bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+       <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div><span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">Kembali</span>
+       </div>
+       <p id="stat-kembali" class="text-3xl font-bold text-slate-800">0</p>
+       <p class="text-slate-500 text-sm mt-1">Sudah Kembali</p>
+      </div>
+      <div class="card bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+       <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div><span class="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-full">Pulang</span>
+       </div>
+       <p id="stat-pulang" class="text-3xl font-bold text-slate-800">0</p>
+       <p class="text-slate-500 text-sm mt-1">Pulang Awal</p>
+      </div>
+     </div><!-- Recent Activity -->
+     <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
+      <div class="p-6 border-b border-slate-200">
+       <h3 class="text-lg font-bold text-slate-800">Aktivitas Terbaru Hari Ini</h3>
+      </div>
+      <div id="recent-activity" class="p-6">
+       <div class="text-center py-8 text-slate-400">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <p>Belum ada aktivitas hari ini</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Ijin Page -->
+    <div id="page-ijin" class="page-transition p-4 md:p-8 hidden"><!-- Mobile Header with Menu Button -->
+     <div class="flex items-center gap-4 mb-6 lg:hidden"><button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+       </svg></button>
+      <div>
+       <h2 class="text-2xl font-bold text-slate-800">Input Ijin Siswa</h2>
+      </div>
+     </div>
+     <div class="mb-8 hidden lg:block">
+      <h2 class="text-3xl font-bold text-slate-800">Input Ijin Siswa</h2>
+      <p class="text-slate-500 mt-1">Catat ijin keluar masuk siswa</p>
+     </div>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><!-- Form -->
+      <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+       <h3 class="text-lg font-bold text-slate-800 mb-6">Form Ijin Baru</h3>
+       <form id="form-ijin" class="space-y-5">
+        <div><label for="nis" class="block text-sm font-medium text-slate-700 mb-2">NIS (Nomor Induk Siswa)</label> <input type="text" id="nis" required placeholder="Masukkan NIS" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="nama_siswa" class="block text-sm font-medium text-slate-700 mb-2">Nama Siswa</label> <input type="text" id="nama_siswa" required placeholder="Masukkan nama siswa" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="kelas" class="block text-sm font-medium text-slate-700 mb-2">Kelas</label> <select id="kelas" required class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Pilih Kelas</option> <option value="X MP 1">X MP 1</option> <option value="X MP 2">X MP 2</option> <option value="X MP 3">X MP 3</option> <option value="X TKJ 1">X TKJ 1</option> <option value="X TKJ 2">X TKJ 2</option> <option value="X TKJ 3">X TKJ 3</option> <option value="X APHP 1">X APHP 1</option> <option value="X APHP 2">X APHP 2</option> <option value="X AT 1">X AT 1</option> <option value="X AT 2">X AT 2</option> </select>
+        </div>
+        <div><label for="jenis_ijin" class="block text-sm font-medium text-slate-700 mb-2">Jenis Ijin</label> <select id="jenis_ijin" required class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Pilih Jenis Ijin</option> <option value="Keluar Sementara">Keluar Sementara</option> <option value="Pulang Awal">Pulang Awal</option> <option value="Sakit">Sakit</option> <option value="Keperluan Keluarga">Keperluan Keluarga</option> <option value="Lainnya">Lainnya</option> </select>
+        </div>
+        <div><label for="tanggal_ijin" class="block text-sm font-medium text-slate-700 mb-2">Tanggal Ijin</label> <input type="date" id="tanggal_ijin" required class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="petugas_piket" class="block text-sm font-medium text-slate-700 mb-2">Petugas Piket</label> <input type="text" id="petugas_piket" required placeholder="Nama petugas piket" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="alasan" class="block text-sm font-medium text-slate-700 mb-2">Alasan/Keterangan</label> <textarea id="alasan" rows="3" required placeholder="Tuliskan alasan ijin" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all resize-none"></textarea>
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Ambil Foto Siswa</label>
+         <div class="flex flex-col gap-3"><input type="file" id="foto_input" accept="image/*" capture="user" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white">
+          <div id="foto_preview" class="hidden"><img id="preview_img" class="w-full h-48 object-cover rounded-xl border border-slate-300"> <button type="button" onclick="clearPhoto()" class="mt-2 text-sm text-red-600 hover:text-red-700">Hapus Foto</button>
+          </div>
+         </div>
+        </div><button type="submit" id="btn-submit" class="btn-primary w-full py-3 px-6 text-white font-semibold rounded-xl"> <span id="btn-text">Simpan Ijin</span> </button>
+       </form>
+      </div><!-- List Siswa Keluar -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
+       <div class="p-6 border-b border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800">Siswa Sedang Keluar</h3>
+        <p class="text-slate-500 text-sm mt-1">Klik untuk mencatat kembali</p>
+       </div>
+       <div id="list-keluar" class="p-6 max-h-96 overflow-auto scrollbar-thin">
+        <div class="text-center py-8 text-slate-400">
+         <p>Tidak ada siswa yang sedang keluar</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Catatan Page -->
+    <div id="page-catatan" class="page-transition p-4 md:p-8 hidden"><!-- Mobile Header with Menu Button -->
+     <div class="flex items-center gap-4 mb-6 lg:hidden"><button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+       </svg></button>
+      <div>
+       <h2 class="text-2xl font-bold text-slate-800">Catatan Piket</h2>
+      </div>
+     </div>
+     <div class="mb-8 hidden lg:block">
+      <h2 class="text-3xl font-bold text-slate-800">Catatan Piket</h2>
+      <p class="text-slate-500 mt-1">Catat kejadian penting dan informasi selama piket</p>
+     </div>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"><!-- Form Input Catatan -->
+      <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+       <h3 class="text-lg font-bold text-slate-800 mb-6">Input Catatan Baru</h3>
+       <form id="form-catatan" class="space-y-5">
+        <div><label for="tanggal_catatan" class="block text-sm font-medium text-slate-700 mb-2">Tanggal</label> <input type="date" id="tanggal_catatan" required class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="kategori_catatan" class="block text-sm font-medium text-slate-700 mb-2">Kategori</label> <select id="kategori_catatan" required class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Pilih Kategori</option> <option value="Kejadian Penting">Kejadian Penting</option> <option value="Informasi Umum">Informasi Umum</option> <option value="Pelanggaran">Pelanggaran</option> <option value="Prestasi">Prestasi</option> <option value="Tamu">Tamu</option> <option value="Lainnya">Lainnya</option> </select>
+        </div>
+        <div><label for="judul_catatan" class="block text-sm font-medium text-slate-700 mb-2">Judul Catatan</label> <input type="text" id="judul_catatan" required placeholder="Masukkan judul catatan" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div>
+        <div><label for="isi_catatan" class="block text-sm font-medium text-slate-700 mb-2">Isi Catatan</label> <textarea id="isi_catatan" rows="5" required placeholder="Tuliskan detail catatan" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all resize-none"></textarea>
+        </div>
+        <div><label for="petugas_catatan" class="block text-sm font-medium text-slate-700 mb-2">Petugas yang Mencatat</label> <input type="text" id="petugas_catatan" required placeholder="Nama petugas" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div><button type="submit" id="btn-submit-catatan" class="btn-primary w-full py-3 px-6 text-white font-semibold rounded-xl"> <span id="btn-catatan-text">Simpan Catatan</span> </button>
+       </form>
+      </div><!-- Catatan Hari Ini -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
+       <div class="p-6 border-b border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800">Catatan Hari Ini</h3>
+        <p class="text-slate-500 text-sm mt-1">Catatan yang dibuat hari ini</p>
+       </div>
+       <div id="list-catatan-today" class="p-6 max-h-96 overflow-auto scrollbar-thin">
+        <div class="text-center py-8 text-slate-400">
+         <p>Belum ada catatan hari ini</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Rekap Semua Catatan -->
+     <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
+      <div class="p-6 border-b border-slate-200">
+       <h3 class="text-lg font-bold text-slate-800">Rekap Semua Catatan</h3>
+       <p class="text-slate-500 text-sm mt-1">Riwayat lengkap catatan piket</p>
+      </div><!-- Filter Catatan -->
+      <div class="p-6 border-b border-slate-200">
+       <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-48"><label for="filter-kategori-catatan" class="block text-sm font-medium text-slate-700 mb-2">Filter Kategori</label> <select id="filter-kategori-catatan" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Semua Kategori</option> <option value="Kejadian Penting">Kejadian Penting</option> <option value="Informasi Umum">Informasi Umum</option> <option value="Pelanggaran">Pelanggaran</option> <option value="Prestasi">Prestasi</option> <option value="Tamu">Tamu</option> <option value="Lainnya">Lainnya</option> </select>
+        </div>
+        <div class="flex-1 min-w-48"><label for="filter-tanggal-catatan" class="block text-sm font-medium text-slate-700 mb-2">Filter Tanggal</label> <input type="date" id="filter-tanggal-catatan" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+        </div><button onclick="resetFilterCatatan()" class="px-6 py-3 bg-slate-100 text-slate-700 font-medium rounded-xl hover:bg-slate-200 transition-all"> Reset Filter </button>
+       </div>
+      </div>
+      <div id="list-catatan-all" class="p-6 max-h-96 overflow-auto scrollbar-thin">
+       <div class="text-center py-8 text-slate-400">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p>Belum ada catatan</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Laporan Page -->
+    <div id="page-laporan" class="page-transition p-4 md:p-8 hidden"><!-- Mobile Header with Menu Button -->
+     <div class="flex items-center gap-4 mb-6 lg:hidden"><button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+       </svg></button>
+      <div>
+       <h2 class="text-2xl font-bold text-slate-800">Rekap Ijin</h2>
+      </div>
+     </div>
+     <div class="mb-8 lg:flex justify-between items-center hidden">
+      <div>
+       <h2 class="text-3xl font-bold text-slate-800">Rekap Ijin Siswa</h2>
+       <p class="text-slate-500 mt-1">Riwayat dan rekap ijin siswa</p>
+      </div><button onclick="downloadExcel()" class="btn-primary flex items-center gap-2 py-3 px-6 text-white font-semibold rounded-xl">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+       </svg> Download Excel </button>
+     </div><!-- Mobile Download Button -->
+     <div class="mb-6 lg:hidden"><button onclick="downloadExcel()" class="btn-primary w-full flex items-center justify-center gap-2 py-3 px-6 text-white font-semibold rounded-xl">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+       </svg> Download Excel </button>
+     </div><!-- Filter -->
+     <div class="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-slate-200">
+      <div class="flex flex-wrap gap-4 items-end">
+       <div class="flex-1 min-w-48"><label for="filter-tanggal" class="block text-sm font-medium text-slate-700 mb-2">Filter Tanggal</label> <input type="date" id="filter-tanggal" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all">
+       </div>
+       <div class="flex-1 min-w-48"><label for="filter-kelas" class="block text-sm font-medium text-slate-700 mb-2">Filter Kelas</label> <select id="filter-kelas" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Semua Kelas</option> <option value="X MP 1">X MP 1</option> <option value="X MP 2">X MP 2</option> <option value="X MP 3">X MP 3</option> <option value="X TKJ 1">X TKJ 1</option> <option value="X TKJ 2">X TKJ 2</option> <option value="X TKJ 3">X TKJ 3</option> <option value="X APHP 1">X APHP 1</option> <option value="X APHP 2">X APHP 2</option> <option value="X AT 1">X AT 1</option> <option value="X AT 2">X AT 2</option> </select>
+       </div>
+       <div class="flex-1 min-w-48"><label for="filter-status" class="block text-sm font-medium text-slate-700 mb-2">Filter Status</label> <select id="filter-status" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-800 transition-all bg-white"> <option value="">Semua Status</option> <option value="Keluar">Sedang Keluar</option> <option value="Kembali">Sudah Kembali</option> <option value="Pulang">Pulang Awal</option> </select>
+       </div><button onclick="resetFilter()" class="px-6 py-3 bg-slate-100 text-slate-700 font-medium rounded-xl hover:bg-slate-200 transition-all"> Reset Filter </button>
+      </div>
+     </div><!-- Table -->
+     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="overflow-x-auto">
+       <table class="w-full">
+        <thead class="bg-slate-50 border-b border-slate-200">
+         <tr>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">No</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Foto</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">NIS</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Siswa</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Kelas</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Jenis Ijin</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Tanggal</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Petugas</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Alasan</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Waktu Keluar</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Waktu Kembali</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Aksi</th>
+         </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-slate-200">
+         <tr>
+          <td colspan="13" class="px-6 py-12 text-center text-slate-400">Belum ada data ijin</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Photo Modal -->
+  <div id="photo-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden" onclick="closePhotoModal()">
+   <div class="max-w-4xl w-full mx-4">
+    <div class="bg-white rounded-2xl p-4">
+     <div class="flex justify-between items-center mb-4">
+      <h3 id="photo-modal-title" class="text-lg font-bold text-slate-800">Foto Siswa</h3><button onclick="closePhotoModal()" class="text-slate-400 hover:text-slate-600">
+       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+       </svg></button>
+     </div><img id="photo-modal-img" src="" alt="Foto Siswa" class="w-full rounded-xl">
+    </div>
+   </div>
+  </div><!-- Confirm Modal -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+   <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+    <div class="text-center">
+     <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+     </div>
+     <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2">Konfirmasi</h3>
+     <p id="modal-message" class="text-slate-500 mb-6">Apakah Anda yakin?</p>
+     <div class="flex gap-3"><button onclick="closeModal()" class="flex-1 py-3 px-6 bg-slate-100 text-slate-700 font-medium rounded-xl hover:bg-slate-200 transition-all"> Batal </button> <button id="modal-confirm-btn" class="flex-1 py-3 px-6 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"> Ya, Lanjutkan </button>
+     </div>
+    </div>
+   </div>
+  </div><!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-4 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+   <div class="flex items-center gap-3">
+    <svg id="toast-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg><span id="toast-message">Berhasil!</span>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      nama_sekolah: 'SMK Negeri 1 Pakis Aji',
+      nama_petugas: 'Petugas Piket',
+      background_color: '#f1f5f9',
+      sidebar_color: '#0f172a',
+      primary_color: '#3b82f6',
+      text_color: '#1e293b',
+      accent_color: '#10b981'
+    };
+    
+    // Application state
+    let allData = [];
+    let allCatatan = [];
+    let currentRecordCount = 0;
+    let pendingAction = null;
+    let currentPhotoBase64 = '';
+    
+    // Photo preview handler
+    function setupFotoInput() {
+      const fotoInput = document.getElementById('foto_input');
+      if (fotoInput) {
+        // Remove old listener if exists
+        const newInput = fotoInput.cloneNode(true);
+        fotoInput.parentNode.replaceChild(newInput, fotoInput);
+        
+        newInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+              showToast('File harus berupa gambar', 'error');
+              newInput.value = '';
+              clearPhoto();
+              return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              // Compress image before storing
+              const img = new Image();
+              img.onload = function() {
+                try {
+                  const canvas = document.createElement('canvas');
+                  let width = img.width;
+                  let height = img.height;
+                  
+                  // Use original dimensions without resizing
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0, width, height);
+                  
+                  // Convert to base64 with high quality (0.92)
+                  const compressed = canvas.toDataURL('image/jpeg', 0.92);
+                  
+                  // Store the compressed image
+                  currentPhotoBase64 = compressed;
+                  
+                  const previewImg = document.getElementById('preview_img');
+                  const fotoPreview = document.getElementById('foto_preview');
+                  if (previewImg && fotoPreview) {
+                    previewImg.src = currentPhotoBase64;
+                    fotoPreview.classList.remove('hidden');
+                  }
+                  
+                  showToast('Foto berhasil diproses', 'success');
+                } catch (error) {
+                  console.error('Error processing photo:', error);
+                  showToast('Gagal memproses foto', 'error');
+                  newInput.value = '';
+                  clearPhoto();
+                }
+              };
+              img.onerror = function() {
+                showToast('Gagal memuat foto', 'error');
+                newInput.value = '';
+                clearPhoto();
+              };
+              img.src = event.target.result;
+            };
+            reader.onerror = function() {
+              showToast('Gagal membaca file foto', 'error');
+              newInput.value = '';
+              clearPhoto();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      setupFotoInput();
+      
+      // Set default date and petugas
+      const tanggalInput = document.getElementById('tanggal_ijin');
+      if (tanggalInput) {
+        tanggalInput.value = getTodayString();
+      }
+      
+      const petugasInput = document.getElementById('petugas_piket');
+      if (petugasInput && window.elementSdk) {
+        petugasInput.value = window.elementSdk.config?.nama_petugas || defaultConfig.nama_petugas;
+      }
+      
+      // Set default values for catatan form
+      const tanggalCatatanInput = document.getElementById('tanggal_catatan');
+      if (tanggalCatatanInput) {
+        tanggalCatatanInput.value = getTodayString();
+      }
+      
+      const petugasCatatanInput = document.getElementById('petugas_catatan');
+      if (petugasCatatanInput && window.elementSdk) {
+        petugasCatatanInput.value = window.elementSdk.config?.nama_petugas || defaultConfig.nama_petugas;
+      }
+    });
+    
+    function clearPhoto() {
+      currentPhotoBase64 = '';
+      document.getElementById('foto_input').value = '';
+      document.getElementById('foto_preview').classList.add('hidden');
+    }
+    
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          // Update school name
+          const schoolName = document.getElementById('school-name');
+          if (schoolName) schoolName.textContent = config.nama_sekolah || defaultConfig.nama_sekolah;
+          
+          // Update petugas name
+          const petugasName = document.getElementById('petugas-name');
+          if (petugasName) petugasName.textContent = config.nama_petugas || defaultConfig.nama_petugas;
+          
+          // Update colors
+          document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+          
+          const sidebar = document.getElementById('sidebar');
+          if (sidebar) sidebar.style.backgroundColor = config.sidebar_color || defaultConfig.sidebar_color;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => window.elementSdk.setConfig({ background_color: value })
+            },
+            {
+              get: () => config.sidebar_color || defaultConfig.sidebar_color,
+              set: (value) => window.elementSdk.setConfig({ sidebar_color: value })
+            },
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => window.elementSdk.setConfig({ primary_color: value })
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => window.elementSdk.setConfig({ text_color: value })
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => window.elementSdk.setConfig({ accent_color: value })
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['nama_sekolah', config.nama_sekolah || defaultConfig.nama_sekolah],
+          ['nama_petugas', config.nama_petugas || defaultConfig.nama_petugas]
+        ])
+      });
+    }
+    
+    // Data handler for Data SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        // Separate ijin data and catatan data
+        allData = data.filter(item => item.type === 'ijin' || !item.type);
+        allCatatan = data.filter(item => item.type === 'catatan');
+        currentRecordCount = data.length;
+        
+        updateDashboard();
+        updateListKeluar();
+        updateTableLaporan();
+        updateCatatanToday();
+        updateCatatanAll();
+      }
+    };
+    
+    // Initialize Data SDK
+    async function initDataSdk() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          showToast('Gagal menghubungkan ke database', 'error');
+        }
+      }
+    }
+    
+    initDataSdk();
+    
+    // Toggle sidebar function
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        overlay.classList.add('hidden');
+      }
+    }
+    
+    // Navigation
+    function showPage(page) {
+      // Hide all pages
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+      
+      // Show selected page
+      const selectedPage = document.getElementById(`page-${page}`);
+      if (selectedPage) {
+        selectedPage.classList.remove('hidden');
+      }
+      
+      // Update nav items
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+        item.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+      });
+      
+      const activeNav = document.getElementById(`nav-${page}`);
+      if (activeNav) {
+        activeNav.classList.add('active');
+        activeNav.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+      }
+      
+      // Close sidebar on mobile when navigating
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (window.innerWidth < 1024) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        overlay.classList.add('hidden');
+      }
+    }
+    
+    // Update time
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', options);
+      document.getElementById('current-time').textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // Get today's date string
+    function getTodayString() {
+      return new Date().toISOString().split('T')[0];
+    }
+    
+    // Update dashboard stats
+    function updateDashboard() {
+      const today = getTodayString();
+      const todayData = allData.filter(item => item.tanggal === today);
+      
+      const total = todayData.length;
+      const keluar = todayData.filter(item => item.status === 'Keluar').length;
+      const kembali = todayData.filter(item => item.status === 'Kembali').length;
+      const pulang = todayData.filter(item => item.status === 'Pulang').length;
+      
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-keluar').textContent = keluar;
+      document.getElementById('stat-kembali').textContent = kembali;
+      document.getElementById('stat-pulang').textContent = pulang;
+      
+      // Update recent activity
+      const recentContainer = document.getElementById('recent-activity');
+      const recentData = todayData.slice(-5).reverse();
+      
+      if (recentData.length === 0) {
+        recentContainer.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p>Belum ada aktivitas hari ini</p>
+          </div>
+        `;
+      } else {
+        recentContainer.innerHTML = recentData.map(item => `
+          <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl mb-3 last:mb-0">
+            <div class="w-10 h-10 rounded-full ${getStatusBgClass(item.status)} flex items-center justify-center">
+              ${getStatusIcon(item.status)}
+            </div>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800">${item.nama_siswa}</p>
+              <p class="text-sm text-slate-500">${item.kelas} • ${item.jenis_ijin}</p>
+            </div>
+            <div class="text-right">
+              <span class="status-badge px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}">${item.status}</span>
+              <p class="text-xs text-slate-400 mt-1">${item.waktu_keluar}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+    
+    // Update list siswa keluar
+    function updateListKeluar() {
+      const today = getTodayString();
+      const keluarData = allData.filter(item => item.tanggal === today && item.status === 'Keluar');
+      const listContainer = document.getElementById('list-keluar');
+      
+      if (keluarData.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <p>Tidak ada siswa yang sedang keluar</p>
+          </div>
+        `;
+      } else {
+        listContainer.innerHTML = keluarData.map(item => `
+          <div class="flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-xl mb-3 last:mb-0 cursor-pointer hover:bg-amber-100 transition-all" onclick="confirmKembali('${item.__backendId}', '${item.nama_siswa}')">
+            <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800">${item.nama_siswa}</p>
+              <p class="text-sm text-slate-500">${item.kelas} • Keluar: ${item.waktu_keluar}</p>
+            </div>
+            <div class="text-amber-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+    
+    // Update table laporan
+    function updateTableLaporan() {
+      const filterTanggal = document.getElementById('filter-tanggal').value;
+      const filterKelas = document.getElementById('filter-kelas').value;
+      const filterStatus = document.getElementById('filter-status').value;
+      
+      let filteredData = [...allData];
+      
+      if (filterTanggal) {
+        filteredData = filteredData.filter(item => item.tanggal === filterTanggal);
+      }
+      if (filterKelas) {
+        filteredData = filteredData.filter(item => item.kelas === filterKelas);
+      }
+      if (filterStatus) {
+        filteredData = filteredData.filter(item => item.status === filterStatus);
+      }
+      
+      filteredData.sort((a, b) => new Date(b.tanggal + ' ' + b.waktu_keluar) - new Date(a.tanggal + ' ' + a.waktu_keluar));
+      
+      const tableBody = document.getElementById('table-body');
+      
+      if (filteredData.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="13" class="px-6 py-12 text-center text-slate-400">
+              Tidak ada data yang sesuai filter
+            </td>
+          </tr>
+        `;
+      } else {
+        tableBody.innerHTML = filteredData.map((item, index) => `
+          <tr class="table-row">
+            <td class="px-6 py-4 text-sm text-slate-600">${index + 1}</td>
+            <td class="px-6 py-4">
+              ${item.foto_base64 ? `<img src="${item.foto_base64}" alt="Foto ${item.nama_siswa}" class="w-12 h-12 rounded-lg object-cover cursor-pointer" onclick="showPhotoModal('${item.foto_base64}', '${item.nama_siswa}')">` : '<div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center"><svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>'}
+            </td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.nis}</td>
+            <td class="px-6 py-4 text-sm text-slate-800 font-medium">${item.nama_siswa}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.kelas}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.jenis_ijin}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${formatDate(item.tanggal)}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.petugas}</td>
+            <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="${item.alasan}">${item.alasan}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.waktu_keluar}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${item.waktu_kembali || '-'}</td>
+            <td class="px-6 py-4">
+              <span class="status-badge px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}">${item.status}</span>
+            </td>
+            <td class="px-6 py-4">
+              <button onclick="confirmDelete('${item.__backendId}', '${item.nama_siswa}')" class="text-red-500 hover:text-red-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+    
+    // Helper functions
+    function getStatusClass(status) {
+      switch(status) {
+        case 'Keluar': return 'bg-amber-100 text-amber-700';
+        case 'Kembali': return 'bg-emerald-100 text-emerald-700';
+        case 'Pulang': return 'bg-purple-100 text-purple-700';
+        default: return 'bg-slate-100 text-slate-700';
+      }
+    }
+    
+    function getStatusBgClass(status) {
+      switch(status) {
+        case 'Keluar': return 'bg-amber-100';
+        case 'Kembali': return 'bg-emerald-100';
+        case 'Pulang': return 'bg-purple-100';
+        default: return 'bg-slate-100';
+      }
+    }
+    
+    function getStatusIcon(status) {
+      switch(status) {
+        case 'Keluar': return '<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>';
+        case 'Kembali': return '<svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        case 'Pulang': return '<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>';
+        default: return '';
+      }
+    }
+    
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    
+    // Update catatan today
+    function updateCatatanToday() {
+      const today = getTodayString();
+      const todayCatatan = allCatatan.filter(item => item.tanggal === today);
+      const container = document.getElementById('list-catatan-today');
+      
+      if (todayCatatan.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <p>Belum ada catatan hari ini</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = todayCatatan.slice().reverse().map(item => `
+          <div class="p-4 bg-slate-50 rounded-xl mb-3 last:mb-0">
+            <div class="flex items-start justify-between mb-2">
+              <span class="px-3 py-1 rounded-full text-xs font-medium ${getKategoriClass(item.kategori)}">${item.kategori}</span>
+              <span class="text-xs text-slate-400">${item.waktu_buat}</span>
+            </div>
+            <h4 class="font-semibold text-slate-800 mb-1">${item.judul}</h4>
+            <p class="text-sm text-slate-600 mb-2">${item.isi}</p>
+            <p class="text-xs text-slate-500">Oleh: ${item.petugas}</p>
+          </div>
+        `).join('');
+      }
+    }
+    
+    // Update catatan all
+    function updateCatatanAll() {
+      const filterKategori = document.getElementById('filter-kategori-catatan').value;
+      const filterTanggal = document.getElementById('filter-tanggal-catatan').value;
+      
+      let filtered = [...allCatatan];
+      
+      if (filterKategori) {
+        filtered = filtered.filter(item => item.kategori === filterKategori);
+      }
+      if (filterTanggal) {
+        filtered = filtered.filter(item => item.tanggal === filterTanggal);
+      }
+      
+      filtered.sort((a, b) => new Date(b.tanggal + ' ' + b.waktu_buat) - new Date(a.tanggal + ' ' + a.waktu_buat));
+      
+      const container = document.getElementById('list-catatan-all');
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Tidak ada catatan yang sesuai filter</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = filtered.map(item => `
+          <div class="p-5 bg-slate-50 rounded-xl mb-4 last:mb-0 hover:bg-slate-100 transition-all">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-xs font-medium ${getKategoriClass(item.kategori)}">${item.kategori}</span>
+                <span class="text-xs text-slate-500">${formatDate(item.tanggal)}</span>
+              </div>
+              <div class="flex gap-2">
+                <span class="text-xs text-slate-400">${item.waktu_buat}</span>
+                <button onclick="confirmDeleteCatatan('${item.__backendId}', '${item.judul}')" class="text-red-500 hover:text-red-700 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h4 class="font-semibold text-slate-800 text-lg mb-2">${item.judul}</h4>
+            <p class="text-slate-600 mb-3 leading-relaxed">${item.isi}</p>
+            <div class="flex items-center gap-2 text-sm text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span>${item.petugas}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+    
+    // Get kategori class
+    function getKategoriClass(kategori) {
+      switch(kategori) {
+        case 'Kejadian Penting': return 'bg-red-100 text-red-700';
+        case 'Informasi Umum': return 'bg-blue-100 text-blue-700';
+        case 'Pelanggaran': return 'bg-orange-100 text-orange-700';
+        case 'Prestasi': return 'bg-green-100 text-green-700';
+        case 'Tamu': return 'bg-purple-100 text-purple-700';
+        case 'Lainnya': return 'bg-slate-100 text-slate-700';
+        default: return 'bg-slate-100 text-slate-700';
+      }
+    }
+    
+    // Confirm delete catatan
+    function confirmDeleteCatatan(backendId, judul) {
+      pendingAction = { type: 'delete-catatan', backendId };
+      showModal('Konfirmasi Hapus', `Apakah Anda yakin ingin menghapus catatan "${judul}"?`);
+    }
+    
+    // Form submission
+    document.getElementById('form-ijin').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (currentRecordCount >= 999) {
+        showToast('Batas maksimum 999 data tercapai. Hapus beberapa data terlebih dahulu.', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('btn-submit');
+      const btnText = document.getElementById('btn-text');
+      btn.disabled = true;
+      btnText.textContent = 'Menyimpan...';
+      
+      const jenisIjin = document.getElementById('jenis_ijin').value;
+      const status = jenisIjin === 'Pulang Awal' ? 'Pulang' : 'Keluar';
+      
+      const newRecord = {
+        id: Date.now().toString(),
+        type: 'ijin',
+        nis: document.getElementById('nis').value,
+        nama_siswa: document.getElementById('nama_siswa').value,
+        kelas: document.getElementById('kelas').value,
+        jenis_ijin: jenisIjin,
+        tanggal: document.getElementById('tanggal_ijin').value,
+        petugas: document.getElementById('petugas_piket').value,
+        alasan: document.getElementById('alasan').value,
+        foto_base64: currentPhotoBase64,
+        waktu_keluar: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        waktu_kembali: status === 'Pulang' ? new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '',
+        status: status
+      };
+      
+      const result = await window.dataSdk.create(newRecord);
+      
+      btn.disabled = false;
+      btnText.textContent = 'Simpan Ijin';
+      
+      if (result.isOk) {
+        showToast('Ijin berhasil disimpan!', 'success');
+        document.getElementById('form-ijin').reset();
+        clearPhoto();
+        // Reset default values
+        document.getElementById('tanggal_ijin').value = getTodayString();
+        document.getElementById('petugas_piket').value = window.elementSdk?.config?.nama_petugas || defaultConfig.nama_petugas;
+        // Reinitialize photo input after reset
+        setupFotoInput();
+      } else {
+        showToast('Gagal menyimpan ijin. Silakan coba lagi.', 'error');
+      }
+    });
+    
+    // Form catatan submission
+    document.getElementById('form-catatan').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (currentRecordCount >= 999) {
+        showToast('Batas maksimum 999 data tercapai. Hapus beberapa data terlebih dahulu.', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('btn-submit-catatan');
+      const btnText = document.getElementById('btn-catatan-text');
+      btn.disabled = true;
+      btnText.textContent = 'Menyimpan...';
+      
+      const newCatatan = {
+        id: Date.now().toString(),
+        type: 'catatan',
+        tanggal: document.getElementById('tanggal_catatan').value,
+        kategori: document.getElementById('kategori_catatan').value,
+        judul: document.getElementById('judul_catatan').value,
+        isi: document.getElementById('isi_catatan').value,
+        petugas: document.getElementById('petugas_catatan').value,
+        waktu_buat: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      const result = await window.dataSdk.create(newCatatan);
+      
+      btn.disabled = false;
+      btnText.textContent = 'Simpan Catatan';
+      
+      if (result.isOk) {
+        showToast('Catatan berhasil disimpan!', 'success');
+        document.getElementById('form-catatan').reset();
+        // Reset default values
+        document.getElementById('tanggal_catatan').value = getTodayString();
+        document.getElementById('petugas_catatan').value = window.elementSdk?.config?.nama_petugas || defaultConfig.nama_petugas;
+      } else {
+        showToast('Gagal menyimpan catatan. Silakan coba lagi.', 'error');
+      }
+    });
+    
+    // Confirm kembali
+    function confirmKembali(backendId, namaSiswa) {
+      pendingAction = { type: 'kembali', backendId };
+      showModal('Konfirmasi Kembali', `Apakah ${namaSiswa} sudah kembali ke sekolah?`);
+    }
+    
+    // Confirm delete
+    function confirmDelete(backendId, namaSiswa) {
+      pendingAction = { type: 'delete', backendId };
+      showModal('Konfirmasi Hapus', `Apakah Anda yakin ingin menghapus data ijin ${namaSiswa}?`);
+    }
+    
+    // Modal functions
+    function showModal(title, message) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-message').textContent = message;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+    
+    function closeModal() {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      pendingAction = null;
+    }
+    
+    // Modal confirm action
+    document.getElementById('modal-confirm-btn').addEventListener('click', async function() {
+      if (!pendingAction) return;
+      
+      this.disabled = true;
+      this.textContent = 'Memproses...';
+      
+      if (pendingAction.type === 'kembali') {
+        const record = allData.find(item => item.__backendId === pendingAction.backendId);
+        if (record) {
+          record.status = 'Kembali';
+          record.waktu_kembali = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+          const result = await window.dataSdk.update(record);
+          if (result.isOk) {
+            showToast('Status berhasil diperbarui!', 'success');
+          } else {
+            showToast('Gagal memperbarui status.', 'error');
+          }
+        }
+      } else if (pendingAction.type === 'delete') {
+        const record = allData.find(item => item.__backendId === pendingAction.backendId);
+        if (record) {
+          const result = await window.dataSdk.delete(record);
+          if (result.isOk) {
+            showToast('Data berhasil dihapus!', 'success');
+          } else {
+            showToast('Gagal menghapus data.', 'error');
+          }
+        }
+      } else if (pendingAction.type === 'delete-catatan') {
+        const record = allCatatan.find(item => item.__backendId === pendingAction.backendId);
+        if (record) {
+          const result = await window.dataSdk.delete(record);
+          if (result.isOk) {
+            showToast('Catatan berhasil dihapus!', 'success');
+          } else {
+            showToast('Gagal menghapus catatan.', 'error');
+          }
+        }
+      }
+      
+      this.disabled = false;
+      this.textContent = 'Ya, Lanjutkan';
+      closeModal();
+    });
+    
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      toastMessage.textContent = message;
+      
+      if (type === 'success') {
+        toast.classList.remove('bg-red-600');
+        toast.classList.add('bg-slate-800');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      } else {
+        toast.classList.remove('bg-slate-800');
+        toast.classList.add('bg-red-600');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+      }
+      
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+    
+    // Filter events
+    document.getElementById('filter-tanggal').addEventListener('change', updateTableLaporan);
+    document.getElementById('filter-kelas').addEventListener('change', updateTableLaporan);
+    document.getElementById('filter-status').addEventListener('change', updateTableLaporan);
+    document.getElementById('filter-kategori-catatan').addEventListener('change', updateCatatanAll);
+    document.getElementById('filter-tanggal-catatan').addEventListener('change', updateCatatanAll);
+    
+    function resetFilter() {
+      document.getElementById('filter-tanggal').value = '';
+      document.getElementById('filter-kelas').value = '';
+      document.getElementById('filter-status').value = '';
+      updateTableLaporan();
+    }
+    
+    function resetFilterCatatan() {
+      document.getElementById('filter-kategori-catatan').value = '';
+      document.getElementById('filter-tanggal-catatan').value = '';
+      updateCatatanAll();
+    }
+    
+    // Set today's date as default filter
+    document.getElementById('filter-tanggal').value = getTodayString();
+    
+    // Photo modal functions
+    function showPhotoModal(photoBase64, namaSiswa) {
+      document.getElementById('photo-modal-title').textContent = `Foto ${namaSiswa}`;
+      document.getElementById('photo-modal-img').src = photoBase64;
+      document.getElementById('photo-modal').classList.remove('hidden');
+    }
+    
+    function closePhotoModal() {
+      document.getElementById('photo-modal').classList.add('hidden');
+    }
+    
+    // Download Excel function
+    function downloadExcel() {
+      if (allData.length === 0) {
+        showToast('Tidak ada data untuk didownload', 'error');
+        return;
+      }
+      
+      // Get filtered data based on current filter settings
+      const filterTanggal = document.getElementById('filter-tanggal').value;
+      const filterKelas = document.getElementById('filter-kelas').value;
+      const filterStatus = document.getElementById('filter-status').value;
+      
+      let filteredData = [...allData];
+      
+      if (filterTanggal) {
+        filteredData = filteredData.filter(item => item.tanggal === filterTanggal);
+      }
+      if (filterKelas) {
+        filteredData = filteredData.filter(item => item.kelas === filterKelas);
+      }
+      if (filterStatus) {
+        filteredData = filteredData.filter(item => item.status === filterStatus);
+      }
+      
+      if (filteredData.length === 0) {
+        showToast('Tidak ada data yang sesuai filter untuk didownload', 'error');
+        return;
+      }
+      
+      // Sort by date and time descending (newest first)
+      filteredData.sort((a, b) => {
+        const dateTimeA = new Date(a.tanggal + ' ' + a.waktu_keluar);
+        const dateTimeB = new Date(b.tanggal + ' ' + b.waktu_keluar);
+        return dateTimeB - dateTimeA;
+      });
+      
+      // Create CSV content with UTF-8 BOM for Excel compatibility
+      let csvContent = '\ufeff';
+      
+      // Add school name as title
+      const schoolName = window.elementSdk?.config?.nama_sekolah || defaultConfig.nama_sekolah;
+      csvContent += `"${schoolName}"\n`;
+      csvContent += `"Rekap Ijin Siswa"\n`;
+      csvContent += `"Tanggal Download: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}"\n\n`;
+      
+      // Headers
+      const headers = ['No', 'NIS', 'Nama Siswa', 'Kelas', 'Jenis Ijin', 'Tanggal', 'Petugas Piket', 'Alasan', 'Waktu Keluar', 'Waktu Kembali', 'Status'];
+      csvContent += headers.join(',') + '\n';
+      
+      // Data rows
+      filteredData.forEach((item, index) => {
+        const row = [
+          index + 1,
+          `"${item.nis || ''}"`,
+          `"${item.nama_siswa || ''}"`,
+          `"${item.kelas || ''}"`,
+          `"${item.jenis_ijin || ''}"`,
+          `"${formatDate(item.tanggal) || ''}"`,
+          `"${item.petugas || ''}"`,
+          `"${(item.alasan || '').replace(/"/g, '""')}"`, // Escape quotes properly
+          `"${item.waktu_keluar || ''}"`,
+          `"${item.waktu_kembali || '-'}"`,
+          `"${item.status || ''}"`
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+      
+      // Add summary at the bottom
+      csvContent += '\n';
+      csvContent += `"Total Data:",${filteredData.length}\n`;
+      csvContent += `"Sedang Keluar:",${filteredData.filter(item => item.status === 'Keluar').length}\n`;
+      csvContent += `"Sudah Kembali:",${filteredData.filter(item => item.status === 'Kembali').length}\n`;
+      csvContent += `"Pulang Awal:",${filteredData.filter(item => item.status === 'Pulang').length}\n`;
+      
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      // Create filename with date and filter info
+      let fileName = `Rekap_Ijin_${schoolName.replace(/\s+/g, '_')}`;
+      if (filterTanggal) {
+        fileName += `_${filterTanggal}`;
+      }
+      if (filterKelas) {
+        fileName += `_${filterKelas.replace(/\s+/g, '_')}`;
+      }
+      fileName += `_${new Date().toISOString().split('T')[0]}.csv`;
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast(`File Excel berhasil didownload (${filteredData.length} data)!`, 'success');
+    }
+    
+    // Toggle petugas edit panel
+    function togglePetugasEdit() {
+      const panel = document.getElementById('petugas-edit-panel');
+      const chevron = document.getElementById('petugas-chevron');
+      const input = document.getElementById('input-petugas');
+      
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+        // Set current value
+        input.value = window.elementSdk?.config?.nama_petugas || defaultConfig.nama_petugas;
+        setTimeout(() => input.focus(), 100);
+      } else {
+        panel.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+      }
+    }
+    
+    // Form petugas submission
+    document.getElementById('form-petugas').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const inputPetugas = document.getElementById('input-petugas');
+      const newName = inputPetugas.value.trim();
+      
+      if (!newName) {
+        showToast('Nama petugas tidak boleh kosong', 'error');
+        return;
+      }
+      
+      const btn = document.querySelector('#form-petugas button');
+      const btnText = document.getElementById('btn-petugas-text');
+      btn.disabled = true;
+      btnText.textContent = 'Menyimpan...';
+      
+      if (window.elementSdk) {
+        await window.elementSdk.setConfig({ nama_petugas: newName });
+        
+        // Update form input on ijin page and catatan page
+        const petugasInput = document.getElementById('petugas_piket');
+        if (petugasInput) {
+          petugasInput.value = newName;
+        }
+        
+        const petugasCatatanInput = document.getElementById('petugas_catatan');
+        if (petugasCatatanInput) {
+          petugasCatatanInput.value = newName;
+        }
+        
+        showToast('Nama petugas berhasil diperbarui!', 'success');
+        
+        // Close panel
+        setTimeout(() => {
+          togglePetugasEdit();
+        }, 500);
+      }
+      
+      btn.disabled = false;
+      btnText.textContent = 'Simpan';
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9be1e84c769cea83',t:'MTc2ODQ0Mzc2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
