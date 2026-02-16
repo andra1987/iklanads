@@ -9,6 +9,9 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- Monetag SDK -->
+  <script src='//libtl.com/sdk.js' data-zone='9865183' data-sdk='show_9865183'></script>
+  
   <style>
     /* Global Styles */
     * { font-family: 'Poppins', sans-serif; }
@@ -105,11 +108,46 @@
     /* Layout */
     main { padding-bottom: 80px; }
     #main-app { display: flex; flex-direction: column; height: 100%; }
+    
+    /* Ad Loading Overlay */
+    .ad-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: white;
+    }
+    .ad-overlay.hidden {
+      display: none;
+    }
+    .ad-spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
 <div id="app" class="w-full h-full overflow-auto relative">
   
+  <!-- Ad Loading Overlay -->
+  <div id="ad-overlay" class="ad-overlay hidden">
+    <div class="ad-spinner"></div>
+    <p class="text-lg font-semibold mb-2">Memuat Iklan...</p>
+    <p class="text-sm opacity-75">Tonton iklan untuk mendapatkan reward</p>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50"></div>
 
@@ -249,7 +287,7 @@
               <div id="claim-reward-container" class="hidden">
                 <button type="button" id="claim-reward-btn" onclick="claimReward()" class="btn-success w-full py-3 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2">
                   <span>🎁</span>
-                  <span>Klaim Reward</span>
+                  <span>Klaim Reward (Tonton Iklan)</span>
                 </button>
               </div>
             </div>
@@ -511,6 +549,10 @@
 // Ganti URL ini dengan URL Web App Google Apps Script Anda
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5Lk9eebAhfg8FoPo60d4H0kkPww3VZEIJ-J2JeLS5Npc_Iww/exec'; // PASTIKAN MENGGANTI URL INI!
 
+// ==================== MONETAG AD CONFIGURATION ====================
+// Memastikan fungsi Monetag tersedia
+const monetagReady = typeof show_9865183 === 'function';
+
 // ==================== DATA STORAGE ====================
 const STORAGE_KEY = 'math_quiz_app_data';
 
@@ -557,7 +599,6 @@ function saveData() {
 async function syncToGoogle(action, data) {
   if (!GAS_URL || GAS_URL.includes('YOUR_SCRIPT_ID')) {
     console.warn('Google Apps Script URL belum dikonfigurasi!');
-    showToast('⚠️ Google Sheets sync belum dikonfigurasi', 'error');
     return false;
   }
 
@@ -573,14 +614,13 @@ async function syncToGoogle(action, data) {
 
     const response = await fetch(GAS_URL, {
       method: 'POST',
-      mode: 'no-cors', // Mode no-cors untuk Google Apps Script
+      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload)
     });
 
-    // Karena mode no-cors, kita tidak bisa membaca response
     console.log(`Sync ${action} completed (no-cors mode)`);
     
     document.getElementById('sync-status').textContent = 'Synced ✓';
@@ -591,7 +631,6 @@ async function syncToGoogle(action, data) {
     console.error('Sync error:', error);
     document.getElementById('sync-status').textContent = 'Failed ✗';
     document.getElementById('sync-status').className = 'px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium';
-    showToast('Gagal sync ke Google Sheets', 'error');
     return false;
   }
 }
@@ -612,19 +651,15 @@ async function syncAllData() {
   showToast('Memulai sinkronisasi data...', 'info');
 
   try {
-    // Sync Users
     await syncToGoogle('syncUsers', allUsers);
-    await sleep(500); // Jeda antar request
+    await sleep(500);
 
-    // Sync Exchanges
     await syncToGoogle('syncExchanges', allExchanges);
     await sleep(500);
 
-    // Sync Broadcasts
     await syncToGoogle('syncBroadcasts', allBroadcasts);
     await sleep(500);
 
-    // Sync Settings
     await syncToGoogle('syncSettings', [appSettings]);
 
     lastSyncTime = new Date();
@@ -640,6 +675,50 @@ async function syncAllData() {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ==================== MONETAG AD FUNCTIONS ====================
+
+// Fungsi untuk menampilkan iklan Monetag
+async function showMonetagAd() {
+  return new Promise((resolve, reject) => {
+    // Cek apakah fungsi Monetag tersedia
+    if (typeof show_9865183 !== 'function') {
+      console.error('Monetag SDK tidak tersedia');
+      reject(new Error('Monetag SDK tidak tersedia'));
+      return;
+    }
+
+    // Tampilkan overlay loading
+    const overlay = document.getElementById('ad-overlay');
+    overlay.classList.remove('hidden');
+
+    // Set timeout untuk menghindari iklan yang tidak muncul
+    const timeout = setTimeout(() => {
+      overlay.classList.add('hidden');
+      reject(new Error('Timeout menunggu iklan'));
+    }, 10000);
+
+    try {
+      // Panggil fungsi Monetag
+      show_9865183().then(() => {
+        clearTimeout(timeout);
+        overlay.classList.add('hidden');
+        console.log('Iklan Monetag selesai');
+        resolve();
+      }).catch((error) => {
+        clearTimeout(timeout);
+        overlay.classList.add('hidden');
+        console.error('Error Monetag:', error);
+        reject(error);
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      overlay.classList.add('hidden');
+      console.error('Error menjalankan Monetag:', error);
+      reject(error);
+    }
+  });
 }
 
 // ==================== STATE VARIABLES ====================
@@ -808,7 +887,6 @@ async function submitBroadcast(e) {
   appData.broadcasts = allBroadcasts;
   saveData();
   
-  // Sync ke Google Sheets
   await syncToGoogle('createBroadcast', broadcast);
   
   document.getElementById('broadcast-form').reset();
@@ -868,6 +946,7 @@ function checkAnswer(answer) {
   }
 }
 
+// Fungsi claim reward dengan iklan Monetag
 async function claimReward() {
   if (!isAnswerCorrect || !currentUser) return;
   
@@ -876,8 +955,12 @@ async function claimReward() {
   btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
   
   try {
-    await sleep(500);
+    // Tampilkan iklan Monetag terlebih dahulu
+    showToast('Menampilkan iklan...', 'info');
     
+    await showMonetagAd();
+    
+    // Jika iklan selesai, berikan reward
     const rewardAmount = appSettings?.rewardPoints || 50;
     currentUser.points = (currentUser.points || 0) + rewardAmount;
     
@@ -887,19 +970,25 @@ async function claimReward() {
       appData.users = allUsers;
       saveData();
       
-      // Sync update user ke Google Sheets
       await syncToGoogle('updateUser', currentUser);
     }
     
-    showToast(`+${rewardAmount} Poin!`, 'success');
+    showToast(`+${rewardAmount} Poin! Terima kasih telah menonton iklan`, 'success');
     updatePointsDisplay();
     generateQuiz();
-  } catch (e) {
-    console.error('Error claiming reward:', e);
-    showToast('Terjadi kesalahan', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>🎁</span><span>Klaim Reward</span>';
+    
+  } catch (error) {
+    console.error('Error dalam proses iklan:', error);
+    
+    // Jika iklan gagal, beri opsi untuk coba lagi
+    if (confirm('Iklan gagal dimuat. Ingin mencoba lagi?')) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
+    } else {
+      showToast('Reward tidak dapat diberikan karena iklan tidak ditonton', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
+    }
   }
 }
 
@@ -971,7 +1060,6 @@ async function submitExchange(e) {
   appData.exchanges = allExchanges;
   saveData();
   
-  // Sync ke Google Sheets
   await syncToGoogle('createExchange', exchange);
   await syncToGoogle('updateUser', currentUser);
   
@@ -1060,7 +1148,6 @@ async function handleLogin(e) {
   appData.users = allUsers;
   saveData();
   
-  // Sync login ke Google Sheets
   await syncToGoogle('updateUser', user);
   
   currentUser = user;
@@ -1120,7 +1207,6 @@ async function handleRegister(e) {
   appData.users = allUsers;
   saveData();
   
-  // Sync user baru ke Google Sheets
   await syncToGoogle('createUser', newUser);
   
   showToast(
@@ -1183,7 +1269,6 @@ async function toggleMaintenance() {
   appData.settings = appSettings;
   saveData();
   
-  // Sync settings ke Google Sheets
   await syncToGoogle('updateSettings', appSettings);
   
   showToast(isEnabled ? 'Mode maintenance aktif' : 'Mode maintenance nonaktif', 'success');
@@ -1198,7 +1283,6 @@ async function updateRewardPoints() {
   appData.settings = appSettings;
   saveData();
   
-  // Sync settings ke Google Sheets
   await syncToGoogle('updateSettings', appSettings);
   
   showToast('Poin reward berhasil diubah!', 'success');
@@ -1273,7 +1357,6 @@ async function saveEditUser(e) {
   appData.users = allUsers;
   saveData();
   
-  // Sync update user ke Google Sheets
   await syncToGoogle('updateUser', user);
   
   closeEditUserModal();
@@ -1296,7 +1379,6 @@ async function deleteUser(userId) {
     appData.users = allUsers;
     saveData();
     
-    // Sync delete user ke Google Sheets
     await syncToGoogle('deleteUser', user);
     
     showToast('User berhasil dihapus!', 'success');
@@ -1382,7 +1464,6 @@ async function saveExchangeStatus(e) {
         updatePointsDisplay();
       }
       
-      // Sync update user ke Google Sheets
       await syncToGoogle('updateUser', user);
     }
   }
@@ -1397,7 +1478,6 @@ async function saveExchangeStatus(e) {
   appData.exchanges = allExchanges;
   saveData();
   
-  // Sync update exchange ke Google Sheets
   await syncToGoogle('updateExchange', exchange);
   
   closeExchangeStatusModal();
@@ -1413,7 +1493,14 @@ function init() {
   // Cek konfigurasi Google Apps Script
   if (!GAS_URL || GAS_URL.includes('YOUR_SCRIPT_ID')) {
     console.warn('⚠️ Google Apps Script URL belum dikonfigurasi!');
-    showToast('⚠️ Konfigurasi Google Sheets belum lengkap', 'error');
+  }
+  
+  // Cek Monetag SDK
+  if (typeof show_9865183 === 'function') {
+    console.log('✅ Monetag SDK siap digunakan');
+  } else {
+    console.warn('⚠️ Monetag SDK belum dimuat dengan benar');
+    showToast('⚠️ Iklan tidak tersedia', 'error');
   }
   
   document.getElementById('reg-country').value = 'Indonesia';
