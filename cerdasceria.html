@@ -717,26 +717,64 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.add('hidden');
 }
 
-// ==================== FUNGSI UNTUK MENGAMBIL DATA DARI CACHE ====================
-function loadDataFromCache() {
+// ==================== FUNGSI MENGAMBIL DATA DARI SERVER ====================
+async function fetchAllDataFromServer() {
   try {
-    const cached = localStorage.getItem('math_quiz_cache');
-    if (cached) {
-      const data = JSON.parse(cached);
-      allUsers = data.users || [];
-      allExchanges = data.exchanges || [];
-      allBroadcasts = data.broadcasts || [];
-      appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
-      console.log('Data loaded from cache:', allUsers.length, 'users');
-      return true;
+    showLoading('Mengambil data dari server...');
+    
+    // Kirim POST request dengan action getAllData
+    const response = await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'getAllData',
+        timestamp: new Date().toISOString(),
+        deviceId: deviceId
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Gagal terhubung ke server');
     }
-  } catch (e) {
-    console.error('Error loading cache:', e);
+
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      // Update data dari server
+      allUsers = result.users || [];
+      allExchanges = result.exchanges || [];
+      allBroadcasts = result.broadcasts || [];
+      appSettings = result.settings || { maintenanceMode: false, rewardPoints: 50 };
+      
+      console.log('✅ Data berhasil diambil dari server:');
+      console.log('- Users:', allUsers.length);
+      console.log('- Exchanges:', allExchanges.length);
+      console.log('- Broadcasts:', allBroadcasts.length);
+      console.log('- Admins:', allUsers.filter(u => u.role === 'admin').length);
+      
+      // Update cache lokal
+      updateLocalCache();
+      
+      hideLoading();
+      return true;
+    } else {
+      throw new Error(result.message || 'Gagal mengambil data');
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    showToast('Gagal mengambil data dari server', 'error');
+    
+    // Fallback ke cache lokal
+    loadDataFromCache();
+    hideLoading();
+    return false;
   }
-  return false;
 }
 
-// ==================== FUNGSI UNTUK MENGIRIM DATA KE SERVER ====================
+// ==================== FUNGSI MENGIRIM DATA KE SERVER ====================
 async function syncToGoogle(action, data) {
   if (!GAS_URL) {
     showToast('Konfigurasi server tidak valid!', 'error');
@@ -753,29 +791,44 @@ async function syncToGoogle(action, data) {
     const payload = {
       action: action,
       data: data,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      deviceId: deviceId
     };
 
-    // Gunakan no-cors mode untuk Google Apps Script
-    await fetch(GAS_URL, {
+    const response = await fetch(GAS_URL, {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload)
     });
 
-    console.log(`Sync ${action} completed`);
-    
-    // Update cache lokal
-    updateLocalCache();
-    
-    if (showLoad) {
-      hideLoading();
+    if (!response.ok) {
+      throw new Error('Gagal sync ke server');
     }
+
+    const result = await response.json();
     
-    return true;
+    if (result.status === 'success') {
+      console.log(`✅ Sync ${action} berhasil`);
+      
+      // Jika action adalah createUser, updateUser, dll, ambil data terbaru
+      if (['createUser', 'updateUser', 'deleteUser', 'createExchange', 'updateExchange', 'deleteExchange', 'createBroadcast', 'updateSettings'].includes(action)) {
+        await fetchAllDataFromServer();
+      } else {
+        // Update cache lokal
+        updateLocalCache();
+      }
+      
+      if (showLoad) {
+        hideLoading();
+      }
+      
+      return true;
+    } else {
+      throw new Error(result.message || 'Gagal sync ke server');
+    }
   } catch (error) {
     console.error('Sync error:', error);
     if (showLoad) {
@@ -786,7 +839,25 @@ async function syncToGoogle(action, data) {
   }
 }
 
-// Update cache lokal
+// ==================== FUNGSI CACHE LOKAL ====================
+function loadDataFromCache() {
+  try {
+    const cached = localStorage.getItem('math_quiz_cache');
+    if (cached) {
+      const data = JSON.parse(cached);
+      allUsers = data.users || [];
+      allExchanges = data.exchanges || [];
+      allBroadcasts = data.broadcasts || [];
+      appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
+      console.log('📦 Data loaded from cache:', allUsers.length, 'users');
+      return true;
+    }
+  } catch (e) {
+    console.error('Error loading cache:', e);
+  }
+  return false;
+}
+
 function updateLocalCache() {
   const cache = {
     users: allUsers,
@@ -798,39 +869,22 @@ function updateLocalCache() {
   localStorage.setItem('math_quiz_cache', JSON.stringify(cache));
 }
 
-// Refresh data (hanya dari cache, karena tidak bisa GET dari server)
+// ==================== REFRESH DATA ====================
 async function refreshAllData() {
-  showLoading('Memuat data dari cache...');
-  loadDataFromCache();
-  hideLoading();
-  
-  showToast('Data berhasil di-refresh dari cache', 'success');
-  
-  // Update UI
-  if (currentUser) {
-    // Cek apakah user masih ada di database
-    const userExists = allUsers.some(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-    if (!userExists) {
-      showToast('Sesi Anda telah berakhir, silakan login ulang', 'error');
-      handleLogout();
-      return;
-    }
-    
-    // Update data user
-    const updatedUser = allUsers.find(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-    if (updatedUser) {
-      currentUser = updatedUser;
-      updatePointsDisplay();
-    }
-  }
-  
+  await fetchAllDataFromServer();
+  showToast('Data berhasil di-refresh dari server', 'success');
   updateUI();
 }
 
 // Update UI setelah data berubah
 function updateUI() {
   if (currentUser) {
-    updatePointsDisplay();
+    // Update data user jika perlu
+    const updatedUser = allUsers.find(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
+    if (updatedUser) {
+      currentUser = updatedUser;
+      updatePointsDisplay();
+    }
     displayBroadcast();
   }
   
@@ -1316,8 +1370,8 @@ async function handleLogin(e) {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   
-  // Muat data dari cache
-  loadDataFromCache();
+  // Ambil data terbaru dari server
+  await fetchAllDataFromServer();
   
   const user = allUsers.find(u => 
     u.username.toLowerCase() === username.toLowerCase() && 
@@ -1356,7 +1410,7 @@ async function handleLogin(e) {
   afterLogin();
 }
 
-// ========== PERBAIKAN: REGISTER DENGAN CEK ADMIN DARI CACHE ==========
+// ========== REGISTER DENGAN CEK ADMIN DARI SERVER ==========
 async function handleRegister(e) {
   e.preventDefault();
   
@@ -1377,8 +1431,9 @@ async function handleRegister(e) {
     return;
   }
   
-  // Muat data dari cache
-  loadDataFromCache();
+  // Ambil data terbaru dari server
+  showLoading('Mengecek data dari server...');
+  await fetchAllDataFromServer();
   
   // Cek apakah username sudah ada
   const exists = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
@@ -1389,13 +1444,13 @@ async function handleRegister(e) {
     return;
   }
   
-  // CEK APAKAH SUDAH ADA ADMIN
+  // CEK APAKAH SUDAH ADA ADMIN DI DATABASE SERVER
   const hasAdmin = allUsers.some(u => u.role === 'admin');
   
   console.log('=== REGISTRATION DEBUG ===');
-  console.log('Data dari cache - Total users:', allUsers.length);
-  console.log('Data dari cache - Admins:', allUsers.filter(u => u.role === 'admin').map(u => u.username));
-  console.log('Has admin di cache:', hasAdmin);
+  console.log('Data dari server - Total users:', allUsers.length);
+  console.log('Data dari server - Admins:', allUsers.filter(u => u.role === 'admin').map(u => u.username));
+  console.log('Has admin di server:', hasAdmin);
   
   // Jika belum ada admin, user ini jadi admin. Selain itu jadi user biasa
   const role = !hasAdmin ? 'admin' : 'user';
@@ -1431,6 +1486,7 @@ async function handleRegister(e) {
   
   btn.disabled = false;
   btnText.textContent = 'Daftar';
+  hideLoading();
 }
 
 function handleLogout() {
@@ -1819,10 +1875,10 @@ document.getElementById('confirm-delete-btn').addEventListener('click', function
 async function init() {
   console.log('Initializing app...');
   
-  showLoading('Memuat data...');
+  showLoading('Memuat data dari server...');
   
-  // Muat data dari cache
-  loadDataFromCache();
+  // Ambil data dari server
+  await fetchAllDataFromServer();
   
   if (GAS_URL) {
     console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
@@ -1871,8 +1927,8 @@ async function init() {
   }
   
   const adminCount = allUsers.filter(u => u.role === 'admin').length;
-  console.log('Total users dari cache:', allUsers.length);
-  console.log('Total admins dari cache:', adminCount);
+  console.log('Total users dari server:', allUsers.length);
+  console.log('Total admins dari server:', adminCount);
 }
 
 // Start the application
