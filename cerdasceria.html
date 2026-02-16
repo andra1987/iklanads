@@ -693,7 +693,7 @@ let isLoading = false;
 // Untuk delete confirmation
 let pendingDeleteAction = null;
 
-// Generate or retrieve Device ID (hanya untuk identifikasi, tidak sync)
+// Generate or retrieve Device ID
 function generateDeviceId() {
   const stored = sessionStorage.getItem('deviceId');
   if (stored) return stored;
@@ -719,27 +719,24 @@ function hideLoading() {
 
 // ==================== GOOGLE APPS SCRIPT SYNC FUNCTIONS ====================
 
-// Fungsi untuk mengambil semua data dari Google Sheets
+// Fungsi untuk mengambil semua data dari server
 async function fetchAllData() {
   showLoading('Mengambil data dari server...');
   
   try {
-    // Dalam implementasi nyata, Anda perlu endpoint GET
-    // Untuk sekarang, kita gunakan pendekatan dengan timestamp
-    const payload = {
-      action: 'getAllData',
-      timestamp: new Date().toISOString(),
-      deviceId: deviceId
-    };
-
-    // Ini adalah simulasi - dalam praktiknya, Google Apps Script harus mendukung GET
-    console.log('Fetching data from server...');
+    // Karena Google Apps Script hanya mendukung POST, kita akan menggunakan pendekatan berbeda
+    // Kita perlu membuat endpoint GET atau menggunakan teknik lain
+    // Untuk sementara, kita akan menggunakan data dari cache
     
-    // Simulasi data dari server
-    // NOTE: Ini harus diganti dengan implementasi GET yang sebenarnya
+    // Dalam implementasi nyata, Anda perlu menambahkan fungsi doGet di Apps Script
+    // yang mengembalikan semua data
+    
+    console.log('Mencoba mengambil data dari server...');
+    
+    // Simulasi - dalam praktiknya, Anda perlu implementasi doGet
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Untuk sementara, kita gunakan data dari cache
+    // Gunakan cache sebagai fallback
     const cached = localStorage.getItem('math_quiz_cache');
     if (cached) {
       const data = JSON.parse(cached);
@@ -768,17 +765,21 @@ async function syncToGoogle(action, data) {
   }
 
   try {
-    const payload = {
-      action: action,
-      data: data,
-      timestamp: new Date().toISOString(),
-      deviceId: deviceId
-    };
-
-    if (action !== 'getData') {
+    // Untuk operasi yang memerlukan loading
+    const showLoad = !['syncUsers', 'syncExchanges', 'syncBroadcasts', 'syncSettings'].includes(action);
+    
+    if (showLoad) {
       showLoading(`Menyimpan data ke server...`);
     }
 
+    // Siapkan payload sesuai format Apps Script
+    const payload = {
+      action: action,
+      data: data,
+      timestamp: new Date().toISOString()
+    };
+
+    // Kirim ke server dengan mode no-cors
     const response = await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -793,11 +794,16 @@ async function syncToGoogle(action, data) {
     // Update cache lokal
     updateLocalCache();
     
-    hideLoading();
+    if (showLoad) {
+      hideLoading();
+    }
+    
     return true;
   } catch (error) {
     console.error('Sync error:', error);
-    hideLoading();
+    if (showLoad) {
+      hideLoading();
+    }
     showToast('Gagal sync ke server', 'error');
     return false;
   }
@@ -1012,7 +1018,7 @@ function updateDatabaseStatus() {
 // ==================== SESSION MANAGEMENT ====================
 function saveSession(user) {
   const session = {
-    userId: user.__backendId || user.id,
+    userId: user.id,
     username: user.username,
     role: user.role,
     loginTime: new Date().toISOString()
@@ -1047,7 +1053,6 @@ function clearSession() {
 // ==================== BROADCAST FUNCTIONS ====================
 function displayBroadcast() {
   const latestBroadcast = allBroadcasts
-    .filter(b => b.type === 'broadcast')
     .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))[0];
   
   if (latestBroadcast) {
@@ -1076,8 +1081,7 @@ async function submitBroadcast(e) {
   }
   
   const broadcast = {
-    type: 'broadcast',
-    id: 'BC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+    __backendId: 'BC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
     message: message,
     sentAt: new Date().toISOString(),
     sentBy: currentUser.username
@@ -1171,7 +1175,7 @@ async function claimReward() {
     const rewardAmount = appSettings?.rewardPoints || 50;
     currentUser.points = (currentUser.points || 0) + rewardAmount;
     
-    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
+    const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
     if (userIndex >= 0) {
       allUsers[userIndex] = currentUser;
     }
@@ -1248,15 +1252,13 @@ async function submitExchange(e) {
     
     currentUser.points = (currentUser.points || 0) - amount;
     
-    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
+    const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
     if (userIndex >= 0) {
       allUsers[userIndex] = currentUser;
     }
     
     const exchange = {
-      type: 'exchange',
-      id: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-      userId: currentUser.__backendId || currentUser.id,
+      __backendId: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
       username: currentUser.username,
       amount: amount,
       danaAccount: danaAccount,
@@ -1294,7 +1296,7 @@ function renderExchangeHistory() {
     return;
   }
   
-  const userExchanges = allExchanges.filter(ex => ex.userId === (currentUser.__backendId || currentUser.id));
+  const userExchanges = allExchanges.filter(ex => ex.username === currentUser.username);
   
   if (userExchanges.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>';
@@ -1338,7 +1340,6 @@ async function handleLogin(e) {
   await refreshAllData();
   
   const user = allUsers.find(u => 
-    u.type === 'user' && 
     u.username.toLowerCase() === username.toLowerCase() && 
     u.password === password
   );
@@ -1359,7 +1360,7 @@ async function handleLogin(e) {
   
   user.lastLogin = new Date().toISOString();
   
-  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (user.__backendId || user.id));
+  const userIndex = allUsers.findIndex(u => u.id === user.id);
   if (userIndex >= 0) {
     allUsers[userIndex] = user;
   }
@@ -1375,7 +1376,6 @@ async function handleLogin(e) {
   afterLogin();
 }
 
-// ========== PERBAIKAN UTAMA: CEK ADMIN DARI SERVER ==========
 async function handleRegister(e) {
   e.preventDefault();
   
@@ -1420,8 +1420,7 @@ async function handleRegister(e) {
   const role = !hasAdmin ? 'admin' : 'user';
   
   const newUser = {
-    type: 'user',
-    id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    __backendId: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     username: username,
     password: password,
     role: role,
@@ -1561,7 +1560,7 @@ function renderUserList() {
   const container = document.getElementById('user-list');
   if (!container) return;
   
-  const users = allUsers.filter(u => u.type === 'user');
+  const users = allUsers;
   
   document.getElementById('user-count-badge').textContent = `${users.length} Users`;
   
@@ -1589,9 +1588,9 @@ function renderUserList() {
           </div>
         </div>
         <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openEditUserModal('${user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit Poin</button>
+          <button type="button" onclick="openEditUserModal('${user.__backendId || user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit Poin</button>
           ${!isAdmin ? `
-            <button type="button" onclick="deleteUser('${user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+            <button type="button" onclick="deleteUser('${user.__backendId || user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
           ` : ''}
         </div>
       </div>
@@ -1600,7 +1599,7 @@ function renderUserList() {
 }
 
 function openEditUserModal(userId) {
-  const user = allUsers.find(u => u.id === userId);
+  const user = allUsers.find(u => (u.__backendId || u.id) === userId);
   if (!user) return;
   
   document.getElementById('edit-user-id').value = userId;
@@ -1624,7 +1623,7 @@ async function saveEditUser(e) {
   const newPassword = document.getElementById('edit-user-password').value;
   const newPoints = parseInt(document.getElementById('edit-user-new-points').value) || 0;
   
-  const user = allUsers.find(u => u.id === userId);
+  const user = allUsers.find(u => (u.__backendId || u.id) === userId);
   if (!user) return;
   
   if (newPassword) {
@@ -1633,7 +1632,7 @@ async function saveEditUser(e) {
   
   user.points = newPoints;
   
-  const userIndex = allUsers.findIndex(u => u.id === userId);
+  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === userId);
   allUsers[userIndex] = user;
   
   await syncToGoogle('updateUser', user);
@@ -1642,7 +1641,7 @@ async function saveEditUser(e) {
   showToast('User berhasil diperbarui!', 'success');
   renderUserList();
   
-  if (currentUser && currentUser.id === userId) {
+  if (currentUser && (currentUser.__backendId || currentUser.id) === userId) {
     currentUser.points = newPoints;
     updatePointsDisplay();
   }
@@ -1650,7 +1649,7 @@ async function saveEditUser(e) {
 
 async function deleteUser(userId) {
   showDeleteConfirm('Apakah Anda yakin ingin menghapus user ini?', async () => {
-    const userIndex = allUsers.findIndex(u => u.id === userId);
+    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === userId);
     if (userIndex >= 0) {
       const user = allUsers[userIndex];
       allUsers.splice(userIndex, 1);
@@ -1695,8 +1694,8 @@ function renderAdminExchangeList() {
         <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
         ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
         <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openExchangeStatusModal('${ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
-          <button type="button" onclick="deleteExchange('${ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+          <button type="button" onclick="openExchangeStatusModal('${ex.__backendId || ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
+          <button type="button" onclick="deleteExchange('${ex.__backendId || ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
         </div>
       </div>
     `;
@@ -1704,11 +1703,11 @@ function renderAdminExchangeList() {
 }
 
 function openExchangeStatusModal(exchangeId) {
-  const exchange = allExchanges.find(ex => ex.id === exchangeId);
+  const exchange = allExchanges.find(ex => (ex.__backendId || ex.id) === exchangeId);
   if (!exchange) return;
   
   document.getElementById('exchange-status-id').value = exchangeId;
-  document.getElementById('exchange-status-user-id').value = exchange.userId;
+  document.getElementById('exchange-status-user-id').value = exchange.userId || exchange.username;
   document.getElementById('exchange-status-amount').value = exchange.amount;
   document.getElementById('exchange-status-select').value = exchange.status === 'success' ? 'success' : exchange.status === 'rejected' ? 'rejected' : 'success';
   document.getElementById('exchange-status-note').value = exchange.adminNote || '';
@@ -1728,7 +1727,7 @@ async function saveExchangeStatus(e) {
   const status = document.getElementById('exchange-status-select').value;
   const note = document.getElementById('exchange-status-note').value;
   
-  const exchange = allExchanges.find(ex => ex.id === exchangeId);
+  const exchange = allExchanges.find(ex => (ex.__backendId || ex.id) === exchangeId);
   if (!exchange) return;
   
   const oldStatus = exchange.status;
@@ -1737,14 +1736,14 @@ async function saveExchangeStatus(e) {
   exchange.adminNote = note;
   
   if (status === 'rejected' && oldStatus !== 'rejected') {
-    const user = allUsers.find(u => u.id === userId);
+    const user = allUsers.find(u => u.username === userId || u.id === userId);
     if (user) {
       user.points = (user.points || 0) + amount;
       
-      const userIndex = allUsers.findIndex(u => u.id === userId);
+      const userIndex = allUsers.findIndex(u => u.username === userId || u.id === userId);
       allUsers[userIndex] = user;
       
-      if (currentUser && currentUser.id === userId) {
+      if (currentUser && (currentUser.username === userId || currentUser.id === userId)) {
         currentUser.points = user.points;
         updatePointsDisplay();
       }
@@ -1754,7 +1753,7 @@ async function saveExchangeStatus(e) {
     }
   }
   
-  const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
+  const exchangeIndex = allExchanges.findIndex(ex => (ex.__backendId || ex.id) === exchangeId);
   allExchanges[exchangeIndex] = exchange;
   
   await syncToGoogle('updateExchange', exchange);
@@ -1768,19 +1767,19 @@ async function saveExchangeStatus(e) {
 // ==================== DELETE EXCHANGE FUNCTIONS ====================
 async function deleteExchange(exchangeId) {
   showDeleteConfirm('Apakah Anda yakin ingin menghapus riwayat penukaran ini?', async () => {
-    const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
+    const exchangeIndex = allExchanges.findIndex(ex => (ex.__backendId || ex.id) === exchangeId);
     if (exchangeIndex >= 0) {
       const exchange = allExchanges[exchangeIndex];
       
       if (exchange.status === 'pending') {
-        const user = allUsers.find(u => u.id === exchange.userId);
+        const user = allUsers.find(u => u.username === exchange.username);
         if (user) {
           user.points = (user.points || 0) + exchange.amount;
           
-          const userIndex = allUsers.findIndex(u => u.id === exchange.userId);
+          const userIndex = allUsers.findIndex(u => u.username === exchange.username);
           allUsers[userIndex] = user;
           
-          if (currentUser && currentUser.id === exchange.userId) {
+          if (currentUser && currentUser.username === exchange.username) {
             currentUser.points = user.points;
             updatePointsDisplay();
           }
@@ -1806,11 +1805,11 @@ async function clearAllExchanges() {
   showDeleteConfirm('Apakah Anda yakin ingin menghapus SEMUA riwayat penukaran? Tindakan ini tidak dapat dibatalkan!', async () => {
     for (const exchange of allExchanges) {
       if (exchange.status === 'pending') {
-        const user = allUsers.find(u => u.id === exchange.userId);
+        const user = allUsers.find(u => u.username === exchange.username);
         if (user) {
           user.points = (user.points || 0) + exchange.amount;
           
-          if (currentUser && currentUser.id === exchange.userId) {
+          if (currentUser && currentUser.username === exchange.username) {
             currentUser.points = user.points;
           }
         }
@@ -1877,7 +1876,7 @@ async function init() {
   const session = getSession();
   if (session) {
     console.log('Session found:', session);
-    const user = allUsers.find(u => (u.__backendId || u.id) === session.userId);
+    const user = allUsers.find(u => u.id === session.userId);
     if (user && !user.blocked) {
       console.log('Auto-login user:', user);
       console.log('User role:', user.role);
