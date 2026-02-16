@@ -172,6 +172,17 @@
       border-radius: 12px;
       margin-left: 6px;
     }
+    
+    /* User Count Badge */
+    .user-count-badge {
+      background: #667eea;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -432,6 +443,10 @@
                   <span class="font-semibold text-gray-800 text-sm" id="total-users">0</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span class="text-gray-600 text-sm">👑 Admin</span>
+                  <span class="font-semibold text-gray-800 text-sm" id="total-admins">0</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span class="text-gray-600 text-sm">⏱️ Status</span>
                   <span class="font-semibold text-gray-800 text-sm" id="db-status">Aktif</span>
                 </div>
@@ -487,9 +502,12 @@
               </div>
             </div>
             
-            <!-- User Management (DENGAN DEVICE ID) -->
+            <!-- User Management (SEMUA AKUN TERDAFTAR) -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h3 class="text-base font-bold text-gray-800 mb-3">👥 Manajemen User</h3>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-base font-bold text-gray-800">👥 Semua Akun Terdaftar</h3>
+                <span id="user-count-badge" class="user-count-badge">0 Users</span>
+              </div>
               <div id="user-list" class="space-y-2">
                 <p class="text-gray-500 text-center py-3 text-xs">Memuat data...</p>
               </div>
@@ -544,6 +562,10 @@
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
           <input type="text" id="edit-user-username" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Role</label>
+          <input type="text" id="edit-user-role" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Device ID</label>
@@ -915,7 +937,11 @@ function startHistoryRefresh() {
 }
 
 function updateDatabaseStatus() {
-  document.getElementById('total-users').textContent = allUsers.length;
+  const totalUsers = allUsers.length;
+  const totalAdmins = allUsers.filter(u => u.role === 'admin').length;
+  
+  document.getElementById('total-users').textContent = totalUsers;
+  document.getElementById('total-admins').textContent = totalAdmins;
   document.getElementById('db-status').textContent = 'Aktif';
   
   if (lastSyncTime) {
@@ -1297,6 +1323,7 @@ async function handleLogin(e) {
   afterLogin();
 }
 
+// ========== PERBAIKAN UTAMA: CEK USER PERTAMA ==========
 async function handleRegister(e) {
   e.preventDefault();
   
@@ -1325,15 +1352,21 @@ async function handleRegister(e) {
     return;
   }
   
-  // ========== PERBAIKAN: CEK USER PERTAMA ==========
-  const isFirstUser = allUsers.length === 0;
+  // ========== PERBAIKAN: CEK APAKAH SUDAH ADA ADMIN ==========
+  const hasAdmin = allUsers.some(u => u.role === 'admin');
+  
+  console.log('Cek admin exists:', hasAdmin);
+  console.log('Total users:', allUsers.length);
+  
+  // Jika belum ada admin, user ini jadi admin. Selain itu jadi user biasa
+  const role = !hasAdmin ? 'admin' : 'user';
   
   const newUser = {
     type: 'user',
     id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     username: username,
     password: password,
-    role: isFirstUser ? 'admin' : 'user', // User pertama jadi admin
+    role: role, // User pertama jadi admin, sisanya user biasa
     country: country,
     deviceId: deviceId,
     points: 0,
@@ -1342,9 +1375,8 @@ async function handleRegister(e) {
     lastLogin: new Date().toISOString()
   };
   
-  console.log('New user:', newUser);
-  console.log('Is first user?', isFirstUser);
-  console.log('Total users before:', allUsers.length);
+  console.log('New user created:', newUser);
+  console.log('Role assigned:', role);
   
   allUsers.push(newUser);
   appData.users = allUsers;
@@ -1353,7 +1385,7 @@ async function handleRegister(e) {
   await syncToGoogle('createUser', newUser);
   
   showToast(
-    isFirstUser ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 
+    role === 'admin' ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 
     'success'
   );
   
@@ -1383,7 +1415,6 @@ function handleLogout() {
   showToast('Berhasil logout', 'success');
 }
 
-// ========== PERBAIKAN: AFTER LOGIN DENGAN CEK ROLE ==========
 function afterLogin() {
   if (!currentUser) return;
   
@@ -1414,13 +1445,12 @@ function afterLogin() {
   updatePointsDisplay();
   displayBroadcast();
   
-  // ========== PERBAIKAN: TAMPILKAN SETTING HANYA UNTUK ADMIN ==========
+  // Tampilkan setting hanya untuk admin
   const settingsNavBtn = document.getElementById('settings-nav-btn');
   if (currentUser.role === 'admin') {
     settingsNavBtn.classList.remove('hidden');
     console.log('Settings button ditampilkan untuk admin');
     
-    // Load settings admin
     document.getElementById('maintenance-toggle').checked = appSettings?.maintenanceMode || false;
     document.getElementById('reward-points-input').value = appSettings?.rewardPoints || 50;
   } else {
@@ -1474,12 +1504,15 @@ async function updateRewardPoints() {
   showToast('Poin reward berhasil diubah!', 'success');
 }
 
-// ==================== USER MANAGEMENT DENGAN DEVICE ID ====================
+// ==================== USER MANAGEMENT - SEMUA AKUN TERDAFTAR ====================
 function renderUserList() {
   const container = document.getElementById('user-list');
   if (!container) return;
   
   const users = allUsers.filter(u => u.type === 'user');
+  
+  // Update badge jumlah user
+  document.getElementById('user-count-badge').textContent = `${users.length} Users`;
   
   if (users.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Tidak ada user terdaftar</p>';
@@ -1489,15 +1522,16 @@ function renderUserList() {
   container.innerHTML = users.map(user => {
     const isAdmin = user.role === 'admin';
     return `
-      <div class="p-3 bg-gray-50 rounded-lg">
+      <div class="p-3 bg-gray-50 rounded-lg border ${isAdmin ? 'border-yellow-300' : 'border-gray-200'}">
         <div class="flex items-center justify-between mb-2">
           <div>
-            <p class="font-semibold text-gray-800 text-sm">
-              ${user.username} 
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-gray-800 text-sm">${user.username}</p>
               ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-            </p>
+            </div>
             <p class="text-xs text-gray-500">${user.country || '-'}</p>
             <p class="text-xs font-mono text-purple-600 mt-1">📱 ${user.deviceId || '-'}</p>
+            <p class="text-xs text-gray-400 mt-1">Bergabung: ${new Date(user.createdAt).toLocaleString('id-ID')}</p>
           </div>
           <div class="text-right">
             <p class="text-sm font-bold text-green-600">${user.points || 0} Poin</p>
@@ -1520,6 +1554,7 @@ function openEditUserModal(userId) {
   
   document.getElementById('edit-user-id').value = userId;
   document.getElementById('edit-user-username').value = user.username;
+  document.getElementById('edit-user-role').value = user.role === 'admin' ? 'Admin' : 'User';
   document.getElementById('edit-user-device').value = user.deviceId || '-';
   document.getElementById('edit-user-password').value = '';
   document.getElementById('edit-user-current-points').textContent = user.points || 0;
@@ -1817,8 +1852,9 @@ function init() {
     console.log('No valid session');
   }
   
+  const adminCount = allUsers.filter(u => u.role === 'admin').length;
   console.log('Total users:', allUsers.length);
-  console.log('Admin users:', allUsers.filter(u => u.role === 'admin').length);
+  console.log('Total admins:', adminCount);
 }
 
 init();
