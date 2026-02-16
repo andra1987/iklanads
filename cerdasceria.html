@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Monetag SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='10547702' data-sdk='show_10547702'></script>
+  <script src='//libtl.com/sdk.js' data-zone='9865183' data-sdk='show_9865183'></script>
   
   <style>
     /* Global Styles */
@@ -546,12 +546,12 @@
 
 <script>
 // ==================== GOOGLE APPS SCRIPT CONFIGURATION ====================
-// Ganti URL ini dengan URL Web App Google Apps Script Anda
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5Lk9eebAhfg8FoPo60d4H0kkPww3VZEIJ-J2JeLS5Npc_Iww/exec'; // PASTIKAN MENGGANTI URL INI!
+// URL Google Apps Script yang sudah di-deploy
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5Lk9eebAhfg8FoPo60d4H0kkPww3VZEIJ-J2JeLS5Npc_Iww/exec';
 
 // ==================== MONETAG AD CONFIGURATION ====================
 // Memastikan fungsi Monetag tersedia
-const monetagReady = typeof show_10547702 === 'function';
+const monetagReady = typeof show_9865183 === 'function';
 
 // ==================== DATA STORAGE ====================
 const STORAGE_KEY = 'math_quiz_app_data';
@@ -597,8 +597,8 @@ function saveData() {
 
 // Fungsi untuk mengirim data ke Google Sheets
 async function syncToGoogle(action, data) {
-  if (!GAS_URL || GAS_URL.includes('YOUR_SCRIPT_ID')) {
-    console.warn('Google Apps Script URL belum dikonfigurasi!');
+  if (!GAS_URL) {
+    console.warn('Google Apps Script URL tidak valid!');
     return false;
   }
 
@@ -683,7 +683,7 @@ function sleep(ms) {
 async function showMonetagAd() {
   return new Promise((resolve, reject) => {
     // Cek apakah fungsi Monetag tersedia
-    if (typeof show_10547702 !== 'function') {
+    if (typeof show_9865183 !== 'function') {
       console.error('Monetag SDK tidak tersedia');
       reject(new Error('Monetag SDK tidak tersedia'));
       return;
@@ -701,7 +701,7 @@ async function showMonetagAd() {
 
     try {
       // Panggil fungsi Monetag
-      show_10547702().then(() => {
+      show_9865183().then(() => {
         clearTimeout(timeout);
         overlay.classList.add('hidden');
         console.log('Iklan Monetag selesai');
@@ -1491,12 +1491,14 @@ function init() {
   console.log('Initializing app...');
   
   // Cek konfigurasi Google Apps Script
-  if (!GAS_URL || GAS_URL.includes('YOUR_SCRIPT_ID')) {
+  if (GAS_URL) {
+    console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
+  } else {
     console.warn('⚠️ Google Apps Script URL belum dikonfigurasi!');
   }
   
   // Cek Monetag SDK
-  if (typeof show_10547702 === 'function') {
+  if (typeof show_9865183 === 'function') {
     console.log('✅ Monetag SDK siap digunakan');
   } else {
     console.warn('⚠️ Monetag SDK belum dimuat dengan benar');
