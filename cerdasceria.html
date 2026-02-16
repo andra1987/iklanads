@@ -44,6 +44,14 @@
     .btn-success { 
       background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
     }
+    .btn-danger {
+      background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+      transition: all 0.3s;
+    }
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245,101,101,0.3);
+    }
     
     /* Input Field */
     .input-field { 
@@ -136,6 +144,23 @@
       animation: spin 1s linear infinite;
       margin-bottom: 20px;
     }
+    
+    /* Quiz Refresh Button */
+    .refresh-btn {
+      transition: transform 0.3s;
+    }
+    .refresh-btn:hover {
+      transform: rotate(180deg);
+    }
+    
+    /* Device ID Badge */
+    .device-badge {
+      font-family: monospace;
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -145,7 +170,7 @@
   <div id="ad-overlay" class="ad-overlay hidden">
     <div class="ad-spinner"></div>
     <p class="text-lg font-semibold mb-2">Memuat Iklan...</p>
-    <p class="text-sm opacity-75">Tonton iklan untuk mengirim permintaan penukaran</p>
+    <p class="text-sm opacity-75">Tonton iklan untuk mendapatkan reward</p>
   </div>
 
   <!-- Toast Notification Container -->
@@ -273,9 +298,19 @@
         <div id="quiz-section" class="section">
           <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
-              <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
-                <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
+                <!-- Auto-refresh Indicator -->
+                <span id="quiz-refresh-indicator" class="text-xs text-purple-600 opacity-0">🔄 Auto-refresh</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
+                  <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
+                </div>
+                <!-- Manual Refresh Button -->
+                <button type="button" onclick="manualRefreshQuiz()" class="refresh-btn w-8 h-8 bg-gray-100 hover:bg-purple-100 rounded-lg flex items-center justify-center transition" title="Refresh Quiz">
+                  <span class="text-lg">🔄</span>
+                </button>
               </div>
             </div>
             <div id="quiz-container">
@@ -359,7 +394,7 @@
               </div>
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span class="text-gray-600 text-sm">📱 Device ID</span>
-                <span id="profile-device" class="font-semibold text-gray-800 text-xs">-</span>
+                <span id="profile-device" class="font-semibold text-gray-800 text-xs device-badge">-</span>
               </div>
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span class="text-gray-600 text-sm">💰 Total Poin</span>
@@ -441,7 +476,7 @@
               </div>
             </div>
             
-            <!-- User Management -->
+            <!-- User Management (DENGAN DEVICE ID) -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
               <h3 class="text-base font-bold text-gray-800 mb-3">👥 Manajemen User</h3>
               <div id="user-list" class="space-y-2">
@@ -449,9 +484,12 @@
               </div>
             </div>
             
-            <!-- Exchange Requests (Admin View) -->
+            <!-- Exchange Requests (Admin View) DENGAN TOMBOL HAPUS -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h3 class="text-base font-bold text-gray-800 mb-3">💳 Riwayat Penukaran</h3>
+              <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center justify-between">
+                <span>💳 Riwayat Penukaran</span>
+                <button type="button" onclick="clearAllExchanges()" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus Semua</button>
+              </h3>
               <div id="admin-exchange-list" class="space-y-2">
                 <p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan</p>
               </div>
@@ -495,6 +533,10 @@
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
           <input type="text" id="edit-user-username" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Device ID</label>
+          <input type="text" id="edit-user-device" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password Baru</label>
@@ -542,6 +584,18 @@
       </form>
     </div>
   </div>
+
+  <!-- Confirm Delete Modal -->
+  <div id="confirm-delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
+      <h3 class="text-lg font-bold text-gray-800 mb-3">Konfirmasi Hapus</h3>
+      <p id="delete-confirm-message" class="text-sm text-gray-600 mb-4">Apakah Anda yakin ingin menghapus data ini?</p>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
+        <button type="button" id="confirm-delete-btn" class="flex-1 btn-danger py-2 rounded-lg text-white font-semibold text-xs">Hapus</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -550,7 +604,6 @@
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5Lk9eebAhfg8FoPo60d4H0kkPww3VZEIJ-J2JeLS5Npc_Iww/exec';
 
 // ==================== MONETAG AD CONFIGURATION ====================
-// Memastikan fungsi Monetag tersedia
 const monetagReady = typeof show_9865183 === 'function';
 
 // ==================== DATA STORAGE ====================
@@ -570,7 +623,32 @@ let appData = {
 let syncInProgress = false;
 let lastSyncTime = null;
 
-// Load data dari localStorage
+// ==================== STATE VARIABLES ====================
+let currentUser = null;
+let allUsers = appData.users || [];
+let allExchanges = appData.exchanges || [];
+let allBroadcasts = appData.broadcasts || [];
+let appSettings = appData.settings || { type: 'settings', maintenanceMode: false, rewardPoints: 50 };
+let currentQuiz = null;
+let isAnswerCorrect = false;
+let historyRefreshInterval = null;
+let quizRefreshInterval = null;
+
+// Untuk delete confirmation
+let pendingDeleteAction = null;
+
+// Generate or retrieve Device ID
+function generateDeviceId() {
+  const stored = localStorage.getItem('deviceId');
+  if (stored) return stored;
+  const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+  localStorage.setItem('deviceId', id);
+  return id;
+}
+
+const deviceId = generateDeviceId();
+
+// ==================== LOAD/SAVE DATA ====================
 function loadData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -578,7 +656,6 @@ function loadData() {
       appData = JSON.parse(saved);
       console.log('Data loaded from localStorage:', appData);
       
-      // Update array references
       allUsers = appData.users || [];
       allExchanges = appData.exchanges || [];
       allBroadcasts = appData.broadcasts || [];
@@ -589,7 +666,6 @@ function loadData() {
   }
 }
 
-// Save data ke localStorage
 function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
@@ -600,8 +676,6 @@ function saveData() {
 }
 
 // ==================== GOOGLE APPS SCRIPT SYNC FUNCTIONS ====================
-
-// Fungsi untuk mengirim data ke Google Sheets
 async function syncToGoogle(action, data) {
   if (!GAS_URL) {
     console.warn('Google Apps Script URL tidak valid!');
@@ -621,7 +695,7 @@ async function syncToGoogle(action, data) {
       timestamp: new Date().toISOString()
     };
 
-    const response = await fetch(GAS_URL, {
+    await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: {
@@ -649,7 +723,6 @@ async function syncToGoogle(action, data) {
   }
 }
 
-// Sinkronisasi semua data
 async function syncAllData() {
   if (!currentUser || currentUser.role !== 'admin') {
     showToast('Hanya admin yang bisa sync data', 'error');
@@ -667,13 +740,10 @@ async function syncAllData() {
   try {
     await syncToGoogle('syncUsers', allUsers);
     await sleep(500);
-
     await syncToGoogle('syncExchanges', allExchanges);
     await sleep(500);
-
     await syncToGoogle('syncBroadcasts', allBroadcasts);
     await sleep(500);
-
     await syncToGoogle('syncSettings', [appSettings]);
 
     lastSyncTime = new Date();
@@ -692,23 +762,17 @@ function sleep(ms) {
 }
 
 // ==================== MONETAG AD FUNCTIONS ====================
-
-// Fungsi untuk menampilkan iklan Monetag
 async function showMonetagAd(type = 'reward') {
   return new Promise((resolve, reject) => {
-    // Cek apakah fungsi Monetag tersedia
     if (typeof show_9865183 !== 'function') {
       console.error('Monetag SDK tidak tersedia');
-      // Jika tidak ada iklan, tetap lanjutkan (simulasi)
       setTimeout(resolve, 1000);
       return;
     }
 
-    // Tampilkan overlay loading
     const overlay = document.getElementById('ad-overlay');
     overlay.classList.remove('hidden');
     
-    // Update teks berdasarkan tipe iklan
     const adText = overlay.querySelector('p.text-sm');
     if (adText) {
       if (type === 'exchange') {
@@ -718,15 +782,12 @@ async function showMonetagAd(type = 'reward') {
       }
     }
 
-    // Set timeout untuk menghindari iklan yang tidak muncul
     const timeout = setTimeout(() => {
       overlay.classList.add('hidden');
-      // Timeout dianggap sukses (simulasi)
       resolve();
     }, 5000);
 
     try {
-      // Panggil fungsi Monetag
       show_9865183().then(() => {
         clearTimeout(timeout);
         overlay.classList.add('hidden');
@@ -736,7 +797,6 @@ async function showMonetagAd(type = 'reward') {
         clearTimeout(timeout);
         overlay.classList.add('hidden');
         console.error('Error Monetag:', error);
-        // Error dianggap sukses (simulasi)
         resolve();
       });
     } catch (error) {
@@ -747,27 +807,6 @@ async function showMonetagAd(type = 'reward') {
     }
   });
 }
-
-// ==================== STATE VARIABLES ====================
-let currentUser = null;
-let allUsers = appData.users || [];
-let allExchanges = appData.exchanges || [];
-let allBroadcasts = appData.broadcasts || [];
-let appSettings = appData.settings || { type: 'settings', maintenanceMode: false, rewardPoints: 50 };
-let currentQuiz = null;
-let isAnswerCorrect = false;
-let historyRefreshInterval = null;
-
-// Generate or retrieve Device ID
-function generateDeviceId() {
-  const stored = localStorage.getItem('deviceId');
-  if (stored) return stored;
-  const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-  localStorage.setItem('deviceId', id);
-  return id;
-}
-
-const deviceId = generateDeviceId();
 
 // ==================== HELPER FUNCTIONS ====================
 function showToast(message, type = 'info') {
@@ -797,10 +836,13 @@ function showSection(section) {
   });
 
   stopHistoryRefresh();
+  stopQuizRefresh();
   
   if (section === 'history') {
     renderExchangeHistory();
     startHistoryRefresh();
+  } else if (section === 'quiz') {
+    startQuizRefresh();
   } else if (section === 'settings') {
     renderUserList();
     renderAdminExchangeList();
@@ -808,6 +850,37 @@ function showSection(section) {
   }
 }
 
+// ==================== QUIZ REFRESH FUNCTIONS ====================
+function stopQuizRefresh() {
+  if (quizRefreshInterval) {
+    clearInterval(quizRefreshInterval);
+    quizRefreshInterval = null;
+  }
+  const indicator = document.getElementById('quiz-refresh-indicator');
+  if (indicator) indicator.classList.add('opacity-0');
+}
+
+function startQuizRefresh() {
+  const indicator = document.getElementById('quiz-refresh-indicator');
+  if (indicator) indicator.classList.remove('opacity-0');
+  
+  if (quizRefreshInterval) clearInterval(quizRefreshInterval);
+  
+  // Refresh quiz setiap 30 detik
+  quizRefreshInterval = setInterval(() => {
+    if (document.getElementById('quiz-section').classList.contains('hidden') === false) {
+      console.log('Auto-refresh quiz');
+      generateQuiz();
+    }
+  }, 30000);
+}
+
+function manualRefreshQuiz() {
+  showToast('Mereset quiz...', 'info');
+  generateQuiz();
+}
+
+// ==================== HISTORY REFRESH FUNCTIONS ====================
 function stopHistoryRefresh() {
   if (historyRefreshInterval) {
     clearInterval(historyRefreshInterval);
@@ -857,7 +930,6 @@ function getSession() {
     const now = new Date();
     const diffHours = (now - loginTime) / (1000 * 60 * 60);
     
-    // Session berlaku 24 jam
     if (diffHours >= 24) {
       localStorage.removeItem('userSession');
       return null;
@@ -974,7 +1046,6 @@ function checkAnswer(answer) {
   }
 }
 
-// Fungsi claim reward dengan iklan Monetag
 async function claimReward() {
   if (!isAnswerCorrect || !currentUser) return;
   
@@ -983,12 +1054,9 @@ async function claimReward() {
   btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
   
   try {
-    // Tampilkan iklan Monetag
     showToast('Menampilkan iklan...', 'info');
-    
     await showMonetagAd('reward');
     
-    // Berikan reward
     const rewardAmount = appSettings?.rewardPoints || 50;
     currentUser.points = (currentUser.points || 0) + rewardAmount;
     
@@ -1033,7 +1101,6 @@ function hideExchangeForm() {
   document.getElementById('exchange-form').reset();
 }
 
-// ==================== PERBAIKAN UTAMA: Iklan muncul saat kirim permintaan penukaran ====================
 async function submitExchange(e) {
   e.preventDefault();
   
@@ -1056,18 +1123,14 @@ async function submitExchange(e) {
     return;
   }
   
-  // Disable tombol submit
   const submitBtn = document.getElementById('exchange-submit-btn');
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
   
   try {
-    // TAMPILKAN IKLAN MONETAG SEBELUM MEMPROSES PENUKARAN
     showToast('Menampilkan iklan...', 'info');
     await showMonetagAd('exchange');
     
-    // Jika iklan selesai, proses penukaran
-    // Kurangi poin user
     currentUser.points = (currentUser.points || 0) - amount;
     
     const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
@@ -1075,7 +1138,6 @@ async function submitExchange(e) {
       allUsers[userIndex] = currentUser;
     }
     
-    // Buat exchange record
     const exchange = {
       type: 'exchange',
       id: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
@@ -1100,14 +1162,13 @@ async function submitExchange(e) {
     
     hideExchangeForm();
     updatePointsDisplay();
-    showToast('✅ Permintaan penukaran berhasil dikirim! Terima kasih telah menonton iklan', 'success');
+    showToast('✅ Permintaan penukaran berhasil dikirim!', 'success');
     renderExchangeHistory();
     
   } catch (error) {
     console.error('Error dalam proses penukaran:', error);
     showToast('Terjadi kesalahan, silakan coba lagi', 'error');
   } finally {
-    // Enable tombol submit kembali
     submitBtn.disabled = false;
     submitBtn.innerHTML = 'Kirim Permintaan';
   }
@@ -1162,10 +1223,6 @@ async function handleLogin(e) {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   
-  console.log('Login attempt:', username);
-  console.log('All users:', allUsers);
-  
-  // Cari user dengan username dan password yang cocok
   const user = allUsers.find(u => 
     u.type === 'user' && 
     u.username.toLowerCase() === username.toLowerCase() && 
@@ -1186,11 +1243,8 @@ async function handleLogin(e) {
     return;
   }
   
-  console.log('Login successful:', user);
-  
   user.lastLogin = new Date().toISOString();
   
-  // Update user di array
   const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (user.__backendId || user.id));
   if (userIndex >= 0) {
     allUsers[userIndex] = user;
@@ -1230,9 +1284,6 @@ async function handleRegister(e) {
     return;
   }
   
-  console.log('Register attempt:', username);
-  
-  // CEK USERNAME SUDAH TERDAFTAR - CASE INSENSITIVE
   const exists = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
   if (exists) {
     showToast('Username sudah digunakan!', 'error');
@@ -1241,10 +1292,8 @@ async function handleRegister(e) {
     return;
   }
   
-  // Cek apakah ini user pertama (akan menjadi admin)
   const isFirstUser = allUsers.filter(u => u.type === 'user').length === 0;
   
-  // Buat user baru
   const newUser = {
     type: 'user',
     id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
@@ -1259,8 +1308,6 @@ async function handleRegister(e) {
     lastLogin: new Date().toISOString()
   };
   
-  console.log('New user:', newUser);
-  
   allUsers.push(newUser);
   appData.users = allUsers;
   saveData();
@@ -1272,7 +1319,6 @@ async function handleRegister(e) {
     'success'
   );
   
-  // Reset form dan kembali ke halaman login
   document.getElementById('register-form').reset();
   showPage('login-page');
   
@@ -1283,33 +1329,22 @@ async function handleRegister(e) {
 function handleLogout() {
   console.log('Logout user:', currentUser?.username);
   
-  // Hapus session
   clearSession();
-  
-  // Reset current user
   currentUser = null;
   
-  // Stop auto-refresh
   stopHistoryRefresh();
+  stopQuizRefresh();
   
-  // Kembali ke halaman login
   showPage('login-page');
   
-  // Reset form login
   document.getElementById('login-form')?.reset();
-  
-  // Reset form register
   document.getElementById('register-form')?.reset();
   
   showToast('Berhasil logout', 'success');
-  
-  console.log('Logout completed');
 }
 
 function afterLogin() {
   if (!currentUser) return;
-  
-  console.log('After login, user:', currentUser);
   
   if (appSettings?.maintenanceMode && currentUser.role !== 'admin') {
     showPage('maintenance-page');
@@ -1336,6 +1371,18 @@ function afterLogin() {
   showPage('main-app');
   showSection('quiz');
   generateQuiz();
+}
+
+// ==================== DELETE CONFIRMATION FUNCTIONS ====================
+function showDeleteConfirm(message, action) {
+  document.getElementById('delete-confirm-message').textContent = message;
+  pendingDeleteAction = action;
+  document.getElementById('confirm-delete-modal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  document.getElementById('confirm-delete-modal').classList.add('hidden');
+  pendingDeleteAction = null;
 }
 
 // ==================== ADMIN FUNCTIONS ====================
@@ -1367,6 +1414,7 @@ async function updateRewardPoints() {
   showToast('Poin reward berhasil diubah!', 'success');
 }
 
+// ==================== USER MANAGEMENT DENGAN DEVICE ID ====================
 function renderUserList() {
   const container = document.getElementById('user-list');
   if (!container) return;
@@ -1385,7 +1433,11 @@ function renderUserList() {
         <div class="flex items-center justify-between mb-2">
           <div>
             <p class="font-semibold text-gray-800 text-sm">${user.username} ${isAdmin ? '👑' : ''}</p>
-            <p class="text-xs text-gray-500">${user.country || '-'} | Poin: ${user.points || 0}</p>
+            <p class="text-xs text-gray-500">${user.country || '-'}</p>
+            <p class="text-xs font-mono text-purple-600 mt-1">📱 ${user.deviceId || '-'}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-bold text-green-600">${user.points || 0} Poin</p>
           </div>
         </div>
         <div class="flex gap-1.5 mt-2">
@@ -1405,6 +1457,7 @@ function openEditUserModal(userId) {
   
   document.getElementById('edit-user-id').value = userId;
   document.getElementById('edit-user-username').value = user.username;
+  document.getElementById('edit-user-device').value = user.deviceId || '-';
   document.getElementById('edit-user-password').value = '';
   document.getElementById('edit-user-current-points').textContent = user.points || 0;
   document.getElementById('edit-user-new-points').value = user.points || 0;
@@ -1449,22 +1502,24 @@ async function saveEditUser(e) {
 }
 
 async function deleteUser(userId) {
-  if (!confirm('Yakin ingin menghapus user ini?')) return;
-  
-  const userIndex = allUsers.findIndex(u => u.id === userId);
-  if (userIndex >= 0) {
-    const user = allUsers[userIndex];
-    allUsers.splice(userIndex, 1);
-    appData.users = allUsers;
-    saveData();
-    
-    await syncToGoogle('deleteUser', user);
-    
-    showToast('User berhasil dihapus!', 'success');
-    renderUserList();
-  }
+  showDeleteConfirm('Apakah Anda yakin ingin menghapus user ini?', async () => {
+    const userIndex = allUsers.findIndex(u => u.id === userId);
+    if (userIndex >= 0) {
+      const user = allUsers[userIndex];
+      allUsers.splice(userIndex, 1);
+      appData.users = allUsers;
+      saveData();
+      
+      await syncToGoogle('deleteUser', user);
+      
+      showToast('User berhasil dihapus!', 'success');
+      renderUserList();
+      closeDeleteModal();
+    }
+  });
 }
 
+// ==================== EXCHANGE MANAGEMENT DENGAN HAPUS ====================
 function renderAdminExchangeList() {
   const container = document.getElementById('admin-exchange-list');
   if (!container) return;
@@ -1496,6 +1551,7 @@ function renderAdminExchangeList() {
         ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
         <div class="flex gap-1.5 mt-2">
           <button type="button" onclick="openExchangeStatusModal('${ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
+          <button type="button" onclick="deleteExchange('${ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
         </div>
       </div>
     `;
@@ -1530,20 +1586,11 @@ async function saveExchangeStatus(e) {
   const exchange = allExchanges.find(ex => ex.id === exchangeId);
   if (!exchange) return;
   
-  // SIMPAN STATUS LAMA
   const oldStatus = exchange.status;
   
-  // UPDATE STATUS
   exchange.status = status;
   exchange.adminNote = note;
   
-  // Jika status diubah menjadi SUCCESS (TANPA IKLAN)
-  if (status === 'success' && oldStatus !== 'success') {
-    // LANGSUNG PROSES TANPA IKLAN
-    showToast('✅ Penukaran berhasil diproses', 'success');
-  }
-  
-  // Jika ditolak, kembalikan poin
   if (status === 'rejected' && oldStatus !== 'rejected') {
     const user = allUsers.find(u => u.id === userId);
     if (user) {
@@ -1562,7 +1609,6 @@ async function saveExchangeStatus(e) {
     }
   }
   
-  // Update exchange di array
   const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
   allExchanges[exchangeIndex] = exchange;
   
@@ -1578,21 +1624,107 @@ async function saveExchangeStatus(e) {
   renderExchangeHistory();
 }
 
+// ==================== DELETE EXCHANGE FUNCTIONS ====================
+async function deleteExchange(exchangeId) {
+  showDeleteConfirm('Apakah Anda yakin ingin menghapus riwayat penukaran ini?', async () => {
+    const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
+    if (exchangeIndex >= 0) {
+      const exchange = allExchanges[exchangeIndex];
+      
+      // Jika masih pending dan dihapus, kembalikan poin
+      if (exchange.status === 'pending') {
+        const user = allUsers.find(u => u.id === exchange.userId);
+        if (user) {
+          user.points = (user.points || 0) + exchange.amount;
+          
+          const userIndex = allUsers.findIndex(u => u.id === exchange.userId);
+          allUsers[userIndex] = user;
+          
+          if (currentUser && currentUser.id === exchange.userId) {
+            currentUser.points = user.points;
+            updatePointsDisplay();
+          }
+          
+          await syncToGoogle('updateUser', user);
+        }
+      }
+      
+      allExchanges.splice(exchangeIndex, 1);
+      
+      appData.exchanges = allExchanges;
+      appData.users = allUsers;
+      saveData();
+      
+      await syncToGoogle('deleteExchange', exchange);
+      
+      showToast('Riwayat penukaran berhasil dihapus!', 'success');
+      renderAdminExchangeList();
+      renderExchangeHistory();
+      closeDeleteModal();
+    }
+  });
+}
+
+// ==================== CLEAR ALL EXCHANGES ====================
+async function clearAllExchanges() {
+  showDeleteConfirm('Apakah Anda yakin ingin menghapus SEMUA riwayat penukaran? Tindakan ini tidak dapat dibatalkan!', async () => {
+    // Kembalikan poin untuk semua yang masih pending
+    for (const exchange of allExchanges) {
+      if (exchange.status === 'pending') {
+        const user = allUsers.find(u => u.id === exchange.userId);
+        if (user) {
+          user.points = (user.points || 0) + exchange.amount;
+          
+          if (currentUser && currentUser.id === exchange.userId) {
+            currentUser.points = user.points;
+          }
+        }
+      }
+    }
+    
+    // Update users
+    appData.users = allUsers;
+    
+    // Kosongkan exchanges
+    allExchanges = [];
+    appData.exchanges = [];
+    
+    saveData();
+    
+    // Sync ke Google Sheets
+    await syncToGoogle('syncUsers', allUsers);
+    await syncToGoogle('syncExchanges', []);
+    
+    if (currentUser) {
+      updatePointsDisplay();
+    }
+    
+    showToast('Semua riwayat penukaran telah dihapus!', 'success');
+    renderAdminExchangeList();
+    renderExchangeHistory();
+    closeDeleteModal();
+  });
+}
+
+// Setup confirm delete button
+document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+  if (pendingDeleteAction) {
+    pendingDeleteAction();
+  }
+});
+
 // ==================== INITIALIZATION ====================
 function init() {
   console.log('Initializing app...');
   
-  // Load data dari localStorage
   loadData();
   
-  // Cek konfigurasi Google Apps Script
   if (GAS_URL) {
     console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
   } else {
     console.warn('⚠️ Google Apps Script URL belum dikonfigurasi!');
   }
   
-  // Cek Monetag SDK
   if (typeof show_9865183 === 'function') {
     console.log('✅ Monetag SDK siap digunakan');
   } else {
@@ -1601,7 +1733,6 @@ function init() {
   
   document.getElementById('reg-country').value = 'Indonesia';
   
-  // Event listeners
   document.getElementById('login-form').addEventListener('submit', handleLogin);
   document.getElementById('register-form').addEventListener('submit', handleRegister);
   document.getElementById('exchange-form').addEventListener('submit', submitExchange);
@@ -1609,12 +1740,10 @@ function init() {
   document.getElementById('exchange-status-form').addEventListener('submit', saveExchangeStatus);
   document.getElementById('broadcast-form').addEventListener('submit', submitBroadcast);
   
-  // Broadcast message char counter
   document.getElementById('broadcast-message').addEventListener('input', function(e) {
     document.getElementById('char-count').textContent = e.target.value.length + '/100';
   });
   
-  // Check for existing session
   const session = getSession();
   if (session) {
     console.log('Session found:', session);
@@ -1633,7 +1762,6 @@ function init() {
   console.log('Initial users:', allUsers);
 }
 
-// Start the application
 init();
 </script>
 </body>
