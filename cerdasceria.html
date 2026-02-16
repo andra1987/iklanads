@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Monetag SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='9865183' data-sdk='show_9865183'></script>
+  <script src='//libtl.com/sdk.js' data-zone='10547702' data-sdk='show_10547702'></script>
   
   <style>
     /* Global Styles */
@@ -551,7 +551,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5L
 
 // ==================== MONETAG AD CONFIGURATION ====================
 // Memastikan fungsi Monetag tersedia
-const monetagReady = typeof show_9865183 === 'function';
+const monetagReady = typeof show_10547702 === 'function';
 
 // ==================== DATA STORAGE ====================
 const STORAGE_KEY = 'math_quiz_app_data';
@@ -683,7 +683,7 @@ function sleep(ms) {
 async function showMonetagAd() {
   return new Promise((resolve, reject) => {
     // Cek apakah fungsi Monetag tersedia
-    if (typeof show_9865183 !== 'function') {
+    if (typeof show_10547702 !== 'function') {
       console.error('Monetag SDK tidak tersedia');
       reject(new Error('Monetag SDK tidak tersedia'));
       return;
@@ -701,7 +701,7 @@ async function showMonetagAd() {
 
     try {
       // Panggil fungsi Monetag
-      show_9865183().then(() => {
+      show_10547702().then(() => {
         clearTimeout(timeout);
         overlay.classList.add('hidden');
         console.log('Iklan Monetag selesai');
@@ -1496,7 +1496,7 @@ function init() {
   }
   
   // Cek Monetag SDK
-  if (typeof show_9865183 === 'function') {
+  if (typeof show_10547702 === 'function') {
     console.log('✅ Monetag SDK siap digunakan');
   } else {
     console.warn('⚠️ Monetag SDK belum dimuat dengan benar');
