@@ -4,24 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Math Quiz · Reward</title>
-  
-  <!-- Tailwind CSS & Fonts -->
+  <!-- Tailwind + fonts -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Monetag SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='9865183' data-sdk='show_9865183'></script>
-  
   <style>
-    /* Global Styles */
+    /* ===== GLOBAL STYLES ===== */
     * { font-family: 'Poppins', sans-serif; }
     html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
     
-    /* Custom Styles */
+    /* ===== BACKGROUND & SHADOWS ===== */
     .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     .card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     
-    /* Animations */
+    /* ===== ANIMATIONS ===== */
     .toast { animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; }
     @keyframes slideIn { 
       from { transform: translateY(-100px); opacity: 0; } 
@@ -32,7 +27,7 @@
       to { opacity: 0; } 
     }
     
-    /* Button Styles */
+    /* ===== BUTTON STYLES ===== */
     .btn-primary { 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
       transition: all 0.3s; 
@@ -41,19 +36,9 @@
       transform: translateY(-1px); 
       box-shadow: 0 4px 12px rgba(102,126,234,0.3); 
     }
-    .btn-success { 
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
-    }
-    .btn-danger {
-      background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
-      transition: all 0.3s;
-    }
-    .btn-danger:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(245,101,101,0.3);
-    }
+    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
     
-    /* Input Field */
+    /* ===== FORM INPUTS ===== */
     .input-field { 
       transition: all 0.3s; 
       border: 1.5px solid #e2e8f0; 
@@ -61,14 +46,13 @@
     .input-field:focus { 
       border-color: #667eea; 
       box-shadow: 0 0 0 3px rgba(102,126,234,0.1); 
-      outline: none;
     }
     
-    /* Page Navigation */
+    /* ===== PAGE MANAGEMENT ===== */
     .page { display: none !important; }
     .page.active { display: block !important; }
     
-    /* Loading Spinner */
+    /* ===== LOADING SPINNER ===== */
     .loading-spinner { 
       border: 2px solid #f3f3f3; 
       border-top: 2px solid #667eea; 
@@ -82,7 +66,7 @@
       100% { transform: rotate(360deg); } 
     }
     
-    /* Point Animation */
+    /* ===== POINT ANIMATION ===== */
     .point-change { animation: pointPulse 0.5s ease; }
     @keyframes pointPulse { 
       0% { transform: scale(1); } 
@@ -90,7 +74,7 @@
       100% { transform: scale(1); } 
     }
     
-    /* Broadcast Banner */
+    /* ===== BROADCAST BANNER ===== */
     .broadcast-banner { 
       background: linear-gradient(90deg, #ff6b6b 0%, #ff8e72 100%); 
       color: white; 
@@ -113,126 +97,17 @@
     }
     .broadcast-banner.paused .broadcast-text { animation-play-state: paused; }
     
-    /* Layout */
+    /* ===== LAYOUT ===== */
     main { padding-bottom: 80px; }
     #main-app { display: flex; flex-direction: column; height: 100%; }
-    
-    /* Ad Loading Overlay */
-    .ad-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      color: white;
-    }
-    .ad-overlay.hidden {
-      display: none;
-    }
-    .ad-spinner {
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid #667eea;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    
-    /* Quiz Refresh Button */
-    .refresh-btn {
-      transition: transform 0.3s;
-    }
-    .refresh-btn:hover {
-      transform: rotate(180deg);
-    }
-    
-    /* Device ID Badge */
-    .device-badge {
-      font-family: monospace;
-      background: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-    }
-    
-    /* Admin Badge */
-    .admin-badge {
-      background: linear-gradient(135deg, #f6e05e 0%, #d69e2e 100%);
-      color: #744210;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-left: 6px;
-    }
-    
-    /* User Count Badge */
-    .user-count-badge {
-      background: #667eea;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-      padding: 2px 10px;
-      border-radius: 20px;
-      margin-left: 8px;
-    }
-    
-    /* Loading Overlay */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    .loading-overlay.hidden {
-      display: none;
-    }
-    .loading-spinner-large {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
   </style>
 </head>
 <body class="bg-gray-50">
 <div id="app" class="w-full h-full overflow-auto relative">
-  
-  <!-- Global Loading Overlay -->
-  <div id="loading-overlay" class="loading-overlay">
-    <div class="loading-spinner-large"></div>
-    <p class="text-lg font-semibold text-gray-700">Memuat data dari server...</p>
-    <p class="text-sm text-gray-500 mt-2">Mohon tunggu sebentar</p>
-  </div>
-
-  <!-- Ad Loading Overlay -->
-  <div id="ad-overlay" class="ad-overlay hidden">
-    <div class="ad-spinner"></div>
-    <p class="text-lg font-semibold mb-2">Memuat Iklan...</p>
-    <p class="text-sm opacity-75">Tonton iklan untuk mendapatkan reward</p>
-  </div>
-
-  <!-- Toast Notification Container -->
+  <!-- ===== TOAST NOTIFICATION CONTAINER ===== -->
   <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50"></div>
 
-  <!-- ========== LOGIN PAGE ========== -->
+  <!-- ===== LOGIN PAGE ===== -->
   <div id="login-page" class="page active w-full h-full">
     <div class="auth-container flex items-center justify-center min-h-full">
       <div class="w-full max-w-sm px-4">
@@ -263,7 +138,7 @@
     </div>
   </div>
 
-  <!-- ========== REGISTER PAGE ========== -->
+  <!-- ===== REGISTER PAGE ===== -->
   <div id="register-page" class="page w-full h-full">
     <div class="auth-container flex items-center justify-center min-h-full">
       <div class="w-full max-w-sm px-4">
@@ -306,7 +181,7 @@
     </div>
   </div>
 
-  <!-- ========== MAINTENANCE PAGE ========== -->
+  <!-- ===== MAINTENANCE PAGE ===== -->
   <div id="maintenance-page" class="page w-full h-full">
     <div class="auth-container flex items-center justify-center min-h-full">
       <div class="text-center px-4">
@@ -320,9 +195,8 @@
     </div>
   </div>
 
-  <!-- ========== MAIN APPLICATION ========== -->
+  <!-- ===== MAIN APP (setelah login) ===== -->
   <div id="main-app" class="page w-full h-full">
-    
     <!-- Header -->
     <header class="gradient-bg text-white p-3 sticky top-0 z-40">
       <div class="max-w-2xl mx-auto flex items-center justify-between">
@@ -339,11 +213,10 @@
       </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-1 p-3 overflow-auto">
       <div class="max-w-2xl mx-auto">
-        
-        <!-- Broadcast Banner (hidden by default) -->
+        <!-- Broadcast Banner -->
         <div id="broadcast-container" class="hidden">
           <div class="broadcast-banner" onmouseenter="this.classList.add('paused')" onmouseleave="this.classList.remove('paused')">
             <span class="broadcast-text" id="broadcast-text-display">📢 </span>
@@ -354,19 +227,9 @@
         <div id="quiz-section" class="section">
           <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
             <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
-                <!-- Auto-refresh Indicator -->
-                <span id="quiz-refresh-indicator" class="text-xs text-purple-600 opacity-0">🔄 Auto-refresh</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
-                  <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
-                </div>
-                <!-- Manual Refresh Button -->
-                <button type="button" onclick="manualRefreshQuiz()" class="refresh-btn w-8 h-8 bg-gray-100 hover:bg-purple-100 rounded-lg flex items-center justify-center transition" title="Refresh Quiz">
-                  <span class="text-lg">🔄</span>
-                </button>
+              <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
+              <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
+                <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
               </div>
             </div>
             <div id="quiz-container">
@@ -378,7 +241,7 @@
               <div id="claim-reward-container" class="hidden">
                 <button type="button" id="claim-reward-btn" onclick="claimReward()" class="btn-success w-full py-3 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2">
                   <span>🎁</span>
-                  <span>Klaim Reward (Tonton Iklan)</span>
+                  <span>Klaim Reward</span>
                 </button>
               </div>
             </div>
@@ -401,7 +264,7 @@
             <p class="text-xs text-gray-500 text-center">Minimal: 50 Poin = Rp 50</p>
           </div>
           
-          <!-- Exchange Form (hidden by default) -->
+          <!-- Exchange Form -->
           <div id="exchange-form-container" class="bg-white rounded-2xl p-4 card-shadow mb-3 hidden">
             <h3 class="text-base font-bold text-gray-800 mb-3">📝 Form Penukaran</h3>
             <form id="exchange-form" class="space-y-2.5">
@@ -419,7 +282,7 @@
               </div>
               <div class="flex gap-2 pt-2">
                 <button type="button" onclick="hideExchangeForm()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
-                <button type="submit" id="exchange-submit-btn" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">Kirim Permintaan</button>
+                <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">Kirim</button>
               </div>
             </form>
           </div>
@@ -450,7 +313,7 @@
               </div>
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span class="text-gray-600 text-sm">📱 Device ID</span>
-                <span id="profile-device" class="font-semibold text-gray-800 text-xs device-badge">-</span>
+                <span id="profile-device" class="font-semibold text-gray-800 text-xs">-</span>
               </div>
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span class="text-gray-600 text-sm">💰 Total Poin</span>
@@ -463,7 +326,6 @@
         <!-- ===== SETTINGS SECTION (ADMIN ONLY) ===== -->
         <div id="settings-section" class="section hidden">
           <div class="space-y-3">
-            
             <!-- Database Status -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
               <h2 class="text-lg font-bold text-gray-800 mb-3">☁️ Database Status</h2>
@@ -477,25 +339,13 @@
                   <span class="font-semibold text-gray-800 text-sm" id="total-users">0</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-gray-600 text-sm">👑 Admin</span>
-                  <span class="font-semibold text-gray-800 text-sm" id="total-admins">0</span>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span class="text-gray-600 text-sm">⏱️ Status</span>
                   <span class="font-semibold text-gray-800 text-sm" id="db-status">Aktif</span>
                 </div>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-gray-600 text-sm">🔄 Last Sync</span>
-                  <span id="last-sync-time" class="font-semibold text-gray-800 text-sm">-</span>
-                </div>
               </div>
-              <button type="button" onclick="refreshAllData()" class="mt-3 w-full py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 flex items-center justify-center gap-2">
-                <span>🔄</span>
-                <span>Refresh Data dari Server</span>
-              </button>
             </div>
             
-            <!-- Broadcast Message Form -->
+            <!-- Broadcast Message -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
               <h2 class="text-lg font-bold text-gray-800 mb-3">📢 Pesan Broadcast</h2>
               <form id="broadcast-form" class="space-y-2.5">
@@ -536,23 +386,17 @@
               </div>
             </div>
             
-            <!-- User Management (SEMUA AKUN TERDAFTAR) -->
+            <!-- User Management -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-base font-bold text-gray-800">👥 Semua Akun Terdaftar</h3>
-                <span id="user-count-badge" class="user-count-badge">0 Users</span>
-              </div>
+              <h3 class="text-base font-bold text-gray-800 mb-3">👥 Manajemen User</h3>
               <div id="user-list" class="space-y-2">
                 <p class="text-gray-500 text-center py-3 text-xs">Memuat data...</p>
               </div>
             </div>
             
-            <!-- Exchange Requests (Admin View) DENGAN TOMBOL HAPUS -->
+            <!-- Exchange Requests -->
             <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h3 class="text-base font-bold text-gray-800 mb-3 flex items-center justify-between">
-                <span>💳 Riwayat Penukaran</span>
-                <button type="button" onclick="clearAllExchanges()" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus Semua</button>
-              </h3>
+              <h3 class="text-base font-bold text-gray-800 mb-3">💳 Riwayat Penukaran</h3>
               <div id="admin-exchange-list" class="space-y-2">
                 <p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan</p>
               </div>
@@ -585,9 +429,7 @@
     </nav>
   </div>
 
-  <!-- ========== MODALS ========== -->
-  
-  <!-- Edit User Modal -->
+  <!-- ===== EDIT USER MODAL ===== -->
   <div id="edit-user-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
       <h3 class="text-lg font-bold text-gray-800 mb-3">Edit User</h3>
@@ -596,14 +438,6 @@
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
           <input type="text" id="edit-user-username" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Role</label>
-          <input type="text" id="edit-user-role" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Device ID</label>
-          <input type="text" id="edit-user-device" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password Baru</label>
@@ -625,7 +459,7 @@
     </div>
   </div>
 
-  <!-- Exchange Status Modal (Admin) -->
+  <!-- ===== EXCHANGE STATUS MODAL ===== -->
   <div id="exchange-status-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
       <h3 class="text-lg font-bold text-gray-800 mb-3">Ubah Status Penukaran</h3>
@@ -651,300 +485,73 @@
       </form>
     </div>
   </div>
-
-  <!-- Confirm Delete Modal -->
-  <div id="confirm-delete-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
-      <h3 class="text-lg font-bold text-gray-800 mb-3">Konfirmasi Hapus</h3>
-      <p id="delete-confirm-message" class="text-sm text-gray-600 mb-4">Apakah Anda yakin ingin menghapus data ini?</p>
-      <div class="flex gap-2">
-        <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
-        <button type="button" id="confirm-delete-btn" class="flex-1 btn-danger py-2 rounded-lg text-white font-semibold text-xs">Hapus</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-// ==================== GOOGLE APPS SCRIPT CONFIGURATION ====================
-// URL Google Apps Script yang sudah di-deploy
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqdAFW6jru6IUGvcuWZb5Lk9eebAhfg8FoPo60d4H0kkPww3VZEIJ-J2JeLS5Npc_Iww/exec';
+// ==================== DATA STORAGE ====================
+// Menggunakan localStorage untuk persistensi data
+const STORAGE_KEY = 'math_quiz_app_data';
 
-// ==================== MONETAG AD CONFIGURATION ====================
-const monetagReady = typeof show_9865183 === 'function';
-
-// ==================== STATE VARIABLES ====================
-let currentUser = null;
-let allUsers = [];
-let allExchanges = [];
-let allBroadcasts = [];
-let appSettings = {
-  maintenanceMode: false,
-  rewardPoints: 50
+// Inisialisasi data default
+let appData = {
+  users: [],
+  exchanges: [],
+  broadcasts: [],
+  settings: {
+    type: 'settings',
+    maintenanceMode: false,
+    rewardPoints: 50
+  }
 };
 
+// ===== Load data dari localStorage =====
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      appData = JSON.parse(saved);
+      console.log('Data loaded from localStorage:', appData);
+    } else {
+      console.log('No saved data, using defaults');
+    }
+  } catch (e) {
+    console.error('Error loading data:', e);
+  }
+}
+
+// ===== Save data ke localStorage =====
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    console.log('Data saved to localStorage');
+  } catch (e) {
+    console.error('Error saving data:', e);
+  }
+}
+
+// Panggil loadData saat awal
+loadData();
+
+// ==================== STATE ====================
+let currentUser = null;
+let allUsers = appData.users || [];
+let allExchanges = appData.exchanges || [];
+let allBroadcasts = appData.broadcasts || [];
+let appSettings = appData.settings || { type: 'settings', maintenanceMode: false, rewardPoints: 50 };
 let currentQuiz = null;
 let isAnswerCorrect = false;
 let historyRefreshInterval = null;
-let quizRefreshInterval = null;
-let isClaimingReward = false;
-let isLoading = false;
 
-// Untuk delete confirmation
-let pendingDeleteAction = null;
-
-// Generate or retrieve Device ID
+// ===== Generate Device ID =====
 function generateDeviceId() {
-  const stored = sessionStorage.getItem('deviceId');
+  const stored = localStorage.getItem('deviceId');
   if (stored) return stored;
   const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-  sessionStorage.setItem('deviceId', id);
+  localStorage.setItem('deviceId', id);
   return id;
 }
 
 const deviceId = generateDeviceId();
-
-// ==================== LOADING FUNCTIONS ====================
-function showLoading(message = 'Memuat data dari server...') {
-  isLoading = true;
-  const overlay = document.getElementById('loading-overlay');
-  overlay.querySelector('p.text-lg').textContent = message;
-  overlay.classList.remove('hidden');
-}
-
-function hideLoading() {
-  isLoading = false;
-  document.getElementById('loading-overlay').classList.add('hidden');
-}
-
-// ==================== FUNGSI MENGAMBIL DATA DARI SERVER ====================
-async function fetchAllDataFromServer() {
-  try {
-    showLoading('Mengambil data dari server...');
-    
-    // Kirim POST request dengan action getAllData
-    const response = await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'getAllData',
-        timestamp: new Date().toISOString(),
-        deviceId: deviceId
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Gagal terhubung ke server');
-    }
-
-    const result = await response.json();
-    
-    if (result.status === 'success') {
-      // Update data dari server
-      allUsers = result.users || [];
-      allExchanges = result.exchanges || [];
-      allBroadcasts = result.broadcasts || [];
-      appSettings = result.settings || { maintenanceMode: false, rewardPoints: 50 };
-      
-      console.log('✅ Data berhasil diambil dari server:');
-      console.log('- Users:', allUsers.length);
-      console.log('- Exchanges:', allExchanges.length);
-      console.log('- Broadcasts:', allBroadcasts.length);
-      console.log('- Admins:', allUsers.filter(u => u.role === 'admin').length);
-      
-      // Update cache lokal
-      updateLocalCache();
-      
-      hideLoading();
-      return true;
-    } else {
-      throw new Error(result.message || 'Gagal mengambil data');
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    showToast('Gagal mengambil data dari server', 'error');
-    
-    // Fallback ke cache lokal
-    loadDataFromCache();
-    hideLoading();
-    return false;
-  }
-}
-
-// ==================== FUNGSI MENGIRIM DATA KE SERVER ====================
-async function syncToGoogle(action, data) {
-  if (!GAS_URL) {
-    showToast('Konfigurasi server tidak valid!', 'error');
-    return false;
-  }
-
-  try {
-    const showLoad = !['syncUsers', 'syncExchanges', 'syncBroadcasts', 'syncSettings'].includes(action);
-    
-    if (showLoad) {
-      showLoading(`Menyimpan data ke server...`);
-    }
-
-    const payload = {
-      action: action,
-      data: data,
-      timestamp: new Date().toISOString(),
-      deviceId: deviceId
-    };
-
-    const response = await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error('Gagal sync ke server');
-    }
-
-    const result = await response.json();
-    
-    if (result.status === 'success') {
-      console.log(`✅ Sync ${action} berhasil`);
-      
-      // Jika action adalah createUser, updateUser, dll, ambil data terbaru
-      if (['createUser', 'updateUser', 'deleteUser', 'createExchange', 'updateExchange', 'deleteExchange', 'createBroadcast', 'updateSettings'].includes(action)) {
-        await fetchAllDataFromServer();
-      } else {
-        // Update cache lokal
-        updateLocalCache();
-      }
-      
-      if (showLoad) {
-        hideLoading();
-      }
-      
-      return true;
-    } else {
-      throw new Error(result.message || 'Gagal sync ke server');
-    }
-  } catch (error) {
-    console.error('Sync error:', error);
-    if (showLoad) {
-      hideLoading();
-    }
-    showToast('Gagal sync ke server', 'error');
-    return false;
-  }
-}
-
-// ==================== FUNGSI CACHE LOKAL ====================
-function loadDataFromCache() {
-  try {
-    const cached = localStorage.getItem('math_quiz_cache');
-    if (cached) {
-      const data = JSON.parse(cached);
-      allUsers = data.users || [];
-      allExchanges = data.exchanges || [];
-      allBroadcasts = data.broadcasts || [];
-      appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
-      console.log('📦 Data loaded from cache:', allUsers.length, 'users');
-      return true;
-    }
-  } catch (e) {
-    console.error('Error loading cache:', e);
-  }
-  return false;
-}
-
-function updateLocalCache() {
-  const cache = {
-    users: allUsers,
-    exchanges: allExchanges,
-    broadcasts: allBroadcasts,
-    settings: appSettings,
-    lastUpdated: new Date().toISOString()
-  };
-  localStorage.setItem('math_quiz_cache', JSON.stringify(cache));
-}
-
-// ==================== REFRESH DATA ====================
-async function refreshAllData() {
-  await fetchAllDataFromServer();
-  showToast('Data berhasil di-refresh dari server', 'success');
-  updateUI();
-}
-
-// Update UI setelah data berubah
-function updateUI() {
-  if (currentUser) {
-    // Update data user jika perlu
-    const updatedUser = allUsers.find(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-    if (updatedUser) {
-      currentUser = updatedUser;
-      updatePointsDisplay();
-    }
-    displayBroadcast();
-  }
-  
-  if (document.getElementById('settings-section').classList.contains('hidden') === false) {
-    renderUserList();
-    renderAdminExchangeList();
-    updateDatabaseStatus();
-  }
-  
-  if (document.getElementById('history-section').classList.contains('hidden') === false) {
-    renderExchangeHistory();
-  }
-}
-
-// ==================== MONETAG AD FUNCTIONS ====================
-async function showMonetagAd(type = 'reward') {
-  return new Promise((resolve) => {
-    if (typeof show_9865183 !== 'function') {
-      console.error('Monetag SDK tidak tersedia');
-      setTimeout(resolve, 1000);
-      return;
-    }
-
-    const overlay = document.getElementById('ad-overlay');
-    overlay.classList.remove('hidden');
-    
-    const adText = overlay.querySelector('p.text-sm');
-    if (adText) {
-      if (type === 'exchange') {
-        adText.textContent = 'Tonton iklan untuk mengirim permintaan penukaran';
-      } else {
-        adText.textContent = 'Tonton iklan untuk mendapatkan reward';
-      }
-    }
-
-    const timeout = setTimeout(() => {
-      overlay.classList.add('hidden');
-      resolve();
-    }, 5000);
-
-    try {
-      show_9865183().then(() => {
-        clearTimeout(timeout);
-        overlay.classList.add('hidden');
-        console.log('Iklan Monetag selesai');
-        resolve();
-      }).catch((error) => {
-        clearTimeout(timeout);
-        overlay.classList.add('hidden');
-        console.error('Error Monetag:', error);
-        resolve();
-      });
-    } catch (error) {
-      clearTimeout(timeout);
-      overlay.classList.add('hidden');
-      console.error('Error menjalankan Monetag:', error);
-      resolve();
-    }
-  });
-}
 
 // ==================== HELPER FUNCTIONS ====================
 function showToast(message, type = 'info') {
@@ -974,15 +581,10 @@ function showSection(section) {
   });
 
   stopHistoryRefresh();
-  stopQuizRefresh();
   
   if (section === 'history') {
     renderExchangeHistory();
     startHistoryRefresh();
-  } else if (section === 'quiz') {
-    resetQuizState();
-    generateQuiz();
-    startQuizRefresh();
   } else if (section === 'settings') {
     renderUserList();
     renderAdminExchangeList();
@@ -990,36 +592,6 @@ function showSection(section) {
   }
 }
 
-// ==================== QUIZ REFRESH FUNCTIONS ====================
-function stopQuizRefresh() {
-  if (quizRefreshInterval) {
-    clearInterval(quizRefreshInterval);
-    quizRefreshInterval = null;
-  }
-  const indicator = document.getElementById('quiz-refresh-indicator');
-  if (indicator) indicator.classList.add('opacity-0');
-}
-
-function startQuizRefresh() {
-  const indicator = document.getElementById('quiz-refresh-indicator');
-  if (indicator) indicator.classList.remove('opacity-0');
-  
-  if (quizRefreshInterval) clearInterval(quizRefreshInterval);
-  
-  quizRefreshInterval = setInterval(() => {
-    if (document.getElementById('quiz-section').classList.contains('hidden') === false) {
-      console.log('Auto-refresh quiz');
-      generateQuiz();
-    }
-  }, 30000);
-}
-
-function manualRefreshQuiz() {
-  showToast('Mereset quiz...', 'info');
-  generateQuiz();
-}
-
-// ==================== HISTORY REFRESH FUNCTIONS ====================
 function stopHistoryRefresh() {
   if (historyRefreshInterval) {
     clearInterval(historyRefreshInterval);
@@ -1040,13 +612,8 @@ function startHistoryRefresh() {
 }
 
 function updateDatabaseStatus() {
-  const totalUsers = allUsers.length;
-  const totalAdmins = allUsers.filter(u => u.role === 'admin').length;
-  
-  document.getElementById('total-users').textContent = totalUsers;
-  document.getElementById('total-admins').textContent = totalAdmins;
+  document.getElementById('total-users').textContent = allUsers.length;
   document.getElementById('db-status').textContent = 'Aktif';
-  document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString();
 }
 
 // ==================== SESSION MANAGEMENT ====================
@@ -1057,11 +624,11 @@ function saveSession(user) {
     role: user.role,
     loginTime: new Date().toISOString()
   };
-  sessionStorage.setItem('userSession', JSON.stringify(session));
+  localStorage.setItem('userSession', JSON.stringify(session));
 }
 
 function getSession() {
-  const session = sessionStorage.getItem('userSession');
+  const session = localStorage.getItem('userSession');
   if (!session) return null;
   
   try {
@@ -1070,8 +637,9 @@ function getSession() {
     const now = new Date();
     const diffHours = (now - loginTime) / (1000 * 60 * 60);
     
+    // Session berlaku 24 jam
     if (diffHours >= 24) {
-      sessionStorage.removeItem('userSession');
+      localStorage.removeItem('userSession');
       return null;
     }
     return parsed;
@@ -1081,12 +649,13 @@ function getSession() {
 }
 
 function clearSession() {
-  sessionStorage.removeItem('userSession');
+  localStorage.removeItem('userSession');
 }
 
-// ==================== BROADCAST FUNCTIONS ====================
+// ==================== BROADCAST ====================
 function displayBroadcast() {
   const latestBroadcast = allBroadcasts
+    .filter(b => b.type === 'broadcast')
     .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))[0];
   
   if (latestBroadcast) {
@@ -1115,37 +684,27 @@ async function submitBroadcast(e) {
   }
   
   const broadcast = {
-    __backendId: 'BC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+    type: 'broadcast',
+    id: 'BC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
     message: message,
     sentAt: new Date().toISOString(),
     sentBy: currentUser.username
   };
   
   allBroadcasts.push(broadcast);
-  
-  await syncToGoogle('createBroadcast', broadcast);
+  appData.broadcasts = allBroadcasts;
+  saveData();
   
   document.getElementById('broadcast-form').reset();
   document.getElementById('char-count').textContent = '0/100';
   showToast('Pesan broadcast berhasil dikirim!', 'success');
   
+  // Update tampilan broadcast
   displayBroadcast();
 }
 
 // ==================== QUIZ FUNCTIONS ====================
-function resetQuizState() {
-  isAnswerCorrect = false;
-  isClaimingReward = false;
-  document.getElementById('claim-reward-container').classList.add('hidden');
-  
-  const claimBtn = document.getElementById('claim-reward-btn');
-  claimBtn.disabled = false;
-  claimBtn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
-}
-
 function generateQuiz() {
-  resetQuizState();
-  
   const a = Math.floor(Math.random() * 50) + 1;
   const b = Math.floor(Math.random() * 50) + 1;
   const correct = a + b;
@@ -1158,6 +717,7 @@ function generateQuiz() {
     }
   }
   
+  // Shuffle options
   for (let i = options.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [options[i], options[j]] = [options[j], options[i]];
@@ -1178,11 +738,12 @@ function renderQuiz() {
       ${opt}
     </button>
   `).join('');
+  
+  document.getElementById('claim-reward-container').classList.add('hidden');
+  isAnswerCorrect = false;
 }
 
 function checkAnswer(answer) {
-  if (isAnswerCorrect || isClaimingReward) return;
-  
   if (answer === currentQuiz.correct) {
     showToast('🎉 Jawaban Benar!', 'success');
     isAnswerCorrect = true;
@@ -1194,43 +755,36 @@ function checkAnswer(answer) {
 }
 
 async function claimReward() {
-  if (!isAnswerCorrect || !currentUser || isClaimingReward) return;
-  
-  isClaimingReward = true;
+  if (!isAnswerCorrect || !currentUser) return;
   
   const btn = document.getElementById('claim-reward-btn');
   btn.disabled = true;
   btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
   
   try {
-    showToast('Menampilkan iklan...', 'info');
-    await showMonetagAd('reward');
+    // Simulasi iklan
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     const rewardAmount = appSettings?.rewardPoints || 50;
     currentUser.points = (currentUser.points || 0) + rewardAmount;
     
+    // Update user di array
     const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
     if (userIndex >= 0) {
       allUsers[userIndex] = currentUser;
+      appData.users = allUsers;
+      saveData();
     }
     
-    await syncToGoogle('updateUser', currentUser);
-    
-    showToast(`+${rewardAmount} Poin! Terima kasih telah menonton iklan`, 'success');
+    showToast(`+${rewardAmount} Poin!`, 'success');
     updatePointsDisplay();
-    
-    resetQuizState();
     generateQuiz();
-    
-  } catch (error) {
-    console.error('Error dalam proses iklan:', error);
-    showToast('Iklan gagal, coba lagi nanti', 'error');
-    
-    isClaimingReward = false;
-    isAnswerCorrect = true;
-    
+  } catch (e) {
+    console.error('Error claiming reward:', e);
+    showToast('Terjadi kesalahan', 'error');
+  } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
+    btn.innerHTML = '<span>🎁</span><span>Klaim Reward</span>';
   }
 }
 
@@ -1276,49 +830,40 @@ async function submitExchange(e) {
     return;
   }
   
-  const submitBtn = document.getElementById('exchange-submit-btn');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+  // Kurangi poin user
+  currentUser.points = (currentUser.points || 0) - amount;
   
-  try {
-    showToast('Menampilkan iklan...', 'info');
-    await showMonetagAd('exchange');
-    
-    currentUser.points = (currentUser.points || 0) - amount;
-    
-    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-    if (userIndex >= 0) {
-      allUsers[userIndex] = currentUser;
-    }
-    
-    const exchange = {
-      __backendId: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-      username: currentUser.username,
-      amount: amount,
-      danaAccount: danaAccount,
-      danaPhone: danaPhone,
-      status: 'pending',
-      adminNote: '',
-      requestedAt: new Date().toISOString()
-    };
-    
-    allExchanges.push(exchange);
-    
-    await syncToGoogle('createExchange', exchange);
-    await syncToGoogle('updateUser', currentUser);
-    
-    hideExchangeForm();
-    updatePointsDisplay();
-    showToast('✅ Permintaan penukaran berhasil dikirim!', 'success');
-    renderExchangeHistory();
-    
-  } catch (error) {
-    console.error('Error dalam proses penukaran:', error);
-    showToast('Terjadi kesalahan, silakan coba lagi', 'error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = 'Kirim Permintaan';
+  // Update user di array
+  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
+  if (userIndex >= 0) {
+    allUsers[userIndex] = currentUser;
   }
+  
+  // Buat exchange record
+  const exchange = {
+    type: 'exchange',
+    id: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+    userId: currentUser.__backendId || currentUser.id,
+    username: currentUser.username,
+    amount: amount,
+    danaAccount: danaAccount,
+    danaPhone: danaPhone,
+    status: 'pending',
+    adminNote: '',
+    requestedAt: new Date().toISOString()
+  };
+  
+  allExchanges.push(exchange);
+  
+  // Update appData dan simpan
+  appData.users = allUsers;
+  appData.exchanges = allExchanges;
+  saveData();
+  
+  hideExchangeForm();
+  updatePointsDisplay();
+  showToast('Permintaan penukaran berhasil!', 'success');
+  renderExchangeHistory();
 }
 
 function renderExchangeHistory() {
@@ -1330,7 +875,7 @@ function renderExchangeHistory() {
     return;
   }
   
-  const userExchanges = allExchanges.filter(ex => ex.username === currentUser.username);
+  const userExchanges = allExchanges.filter(ex => ex.userId === (currentUser.__backendId || currentUser.id));
   
   if (userExchanges.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>';
@@ -1357,7 +902,7 @@ function renderExchangeHistory() {
   }).join('');
 }
 
-// ==================== AUTHENTICATION FUNCTIONS ====================
+// ==================== AUTH FUNCTIONS ====================
 async function handleLogin(e) {
   e.preventDefault();
   
@@ -1370,11 +915,13 @@ async function handleLogin(e) {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   
-  // Ambil data terbaru dari server
-  await fetchAllDataFromServer();
+  console.log('Login attempt:', username);
+  console.log('All users:', allUsers);
   
+  // Cari user dengan username dan password yang cocok
   const user = allUsers.find(u => 
-    u.username.toLowerCase() === username.toLowerCase() && 
+    u.type === 'user' && 
+    u.username === username && 
     u.password === password
   );
   
@@ -1392,14 +939,18 @@ async function handleLogin(e) {
     return;
   }
   
+  console.log('Login successful:', user);
+  
   user.lastLogin = new Date().toISOString();
   
+  // Update user di array
   const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (user.__backendId || user.id));
   if (userIndex >= 0) {
     allUsers[userIndex] = user;
   }
   
-  await syncToGoogle('updateUser', user);
+  appData.users = allUsers;
+  saveData();
   
   currentUser = user;
   saveSession(user);
@@ -1410,7 +961,6 @@ async function handleLogin(e) {
   afterLogin();
 }
 
-// ========== REGISTER DENGAN CEK ADMIN DARI SERVER ==========
 async function handleRegister(e) {
   e.preventDefault();
   
@@ -1431,12 +981,10 @@ async function handleRegister(e) {
     return;
   }
   
-  // Ambil data terbaru dari server
-  showLoading('Mengecek data dari server...');
-  await fetchAllDataFromServer();
+  console.log('Register attempt:', username);
   
-  // Cek apakah username sudah ada
-  const exists = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+  // Cek apakah username sudah digunakan
+  const exists = allUsers.find(u => u.username === username);
   if (exists) {
     showToast('Username sudah digunakan!', 'error');
     btn.disabled = false;
@@ -1444,22 +992,16 @@ async function handleRegister(e) {
     return;
   }
   
-  // CEK APAKAH SUDAH ADA ADMIN DI DATABASE SERVER
-  const hasAdmin = allUsers.some(u => u.role === 'admin');
+  // Cek apakah ini user pertama (akan menjadi admin)
+  const isFirstUser = allUsers.filter(u => u.type === 'user').length === 0;
   
-  console.log('=== REGISTRATION DEBUG ===');
-  console.log('Data dari server - Total users:', allUsers.length);
-  console.log('Data dari server - Admins:', allUsers.filter(u => u.role === 'admin').map(u => u.username));
-  console.log('Has admin di server:', hasAdmin);
-  
-  // Jika belum ada admin, user ini jadi admin. Selain itu jadi user biasa
-  const role = !hasAdmin ? 'admin' : 'user';
-  
+  // Buat user baru
   const newUser = {
-    __backendId: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    type: 'user',
+    id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     username: username,
     password: password,
-    role: role,
+    role: isFirstUser ? 'admin' : 'user',
     country: country,
     deviceId: deviceId,
     points: 0,
@@ -1468,51 +1010,37 @@ async function handleRegister(e) {
     lastLogin: new Date().toISOString()
   };
   
-  console.log('User baru akan dibuat dengan role:', role);
-  console.log('==========================');
+  console.log('New user:', newUser);
   
   allUsers.push(newUser);
-  
-  // Sync ke Google Sheets
-  await syncToGoogle('createUser', newUser);
+  appData.users = allUsers;
+  saveData();
   
   showToast(
-    role === 'admin' ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 
+    isFirstUser ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 
     'success'
   );
   
+  // Reset form dan kembali ke halaman login
   document.getElementById('register-form').reset();
   showPage('login-page');
   
   btn.disabled = false;
   btnText.textContent = 'Daftar';
-  hideLoading();
 }
 
 function handleLogout() {
-  console.log('Logout user:', currentUser?.username);
-  
   clearSession();
   currentUser = null;
-  
   stopHistoryRefresh();
-  stopQuizRefresh();
-  
-  resetQuizState();
-  
   showPage('login-page');
-  
   document.getElementById('login-form')?.reset();
-  document.getElementById('register-form')?.reset();
-  
-  showToast('Berhasil logout', 'success');
 }
 
 function afterLogin() {
   if (!currentUser) return;
   
   console.log('After login, user:', currentUser);
-  console.log('User role:', currentUser.role);
   
   if (appSettings?.maintenanceMode && currentUser.role !== 'admin') {
     showPage('maintenance-page');
@@ -1521,49 +1049,24 @@ function afterLogin() {
   
   document.getElementById('header-username').textContent = currentUser.username;
   document.getElementById('profile-username').textContent = currentUser.username;
-  
-  const roleSpan = document.getElementById('profile-role');
-  if (currentUser.role === 'admin') {
-    roleSpan.innerHTML = 'Admin <span class="admin-badge">👑</span>';
-    roleSpan.className = 'inline-block mt-1.5 px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium';
-  } else {
-    roleSpan.textContent = 'User';
-    roleSpan.className = 'inline-block mt-1.5 px-2.5 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium';
-  }
-  
+  document.getElementById('profile-role').textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
   document.getElementById('profile-country').textContent = currentUser.country || '-';
   document.getElementById('profile-device').textContent = currentUser.deviceId || deviceId;
   
   updatePointsDisplay();
   displayBroadcast();
   
-  const settingsNavBtn = document.getElementById('settings-nav-btn');
   if (currentUser.role === 'admin') {
-    settingsNavBtn.classList.remove('hidden');
-    console.log('Settings button ditampilkan untuk admin');
-    
+    document.getElementById('settings-nav-btn').classList.remove('hidden');
     document.getElementById('maintenance-toggle').checked = appSettings?.maintenanceMode || false;
     document.getElementById('reward-points-input').value = appSettings?.rewardPoints || 50;
   } else {
-    settingsNavBtn.classList.add('hidden');
-    console.log('Settings button disembunyikan untuk user biasa');
+    document.getElementById('settings-nav-btn').classList.add('hidden');
   }
   
   showPage('main-app');
   showSection('quiz');
   generateQuiz();
-}
-
-// ==================== DELETE CONFIRMATION FUNCTIONS ====================
-function showDeleteConfirm(message, action) {
-  document.getElementById('delete-confirm-message').textContent = message;
-  pendingDeleteAction = action;
-  document.getElementById('confirm-delete-modal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-  document.getElementById('confirm-delete-modal').classList.add('hidden');
-  pendingDeleteAction = null;
 }
 
 // ==================== ADMIN FUNCTIONS ====================
@@ -1573,8 +1076,8 @@ async function toggleMaintenance() {
   const isEnabled = document.getElementById('maintenance-toggle').checked;
   
   appSettings.maintenanceMode = isEnabled;
-  
-  await syncToGoogle('updateSettings', appSettings);
+  appData.settings = appSettings;
+  saveData();
   
   showToast(isEnabled ? 'Mode maintenance aktif' : 'Mode maintenance nonaktif', 'success');
 }
@@ -1585,20 +1088,17 @@ async function updateRewardPoints() {
   const points = parseInt(document.getElementById('reward-points-input').value) || 50;
   
   appSettings.rewardPoints = points;
-  
-  await syncToGoogle('updateSettings', appSettings);
+  appData.settings = appSettings;
+  saveData();
   
   showToast('Poin reward berhasil diubah!', 'success');
 }
 
-// ==================== USER MANAGEMENT ====================
 function renderUserList() {
   const container = document.getElementById('user-list');
   if (!container) return;
   
-  const users = allUsers;
-  
-  document.getElementById('user-count-badge').textContent = `${users.length} Users`;
+  const users = allUsers.filter(u => u.type === 'user');
   
   if (users.length === 0) {
     container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Tidak ada user terdaftar</p>';
@@ -1608,25 +1108,17 @@ function renderUserList() {
   container.innerHTML = users.map(user => {
     const isAdmin = user.role === 'admin';
     return `
-      <div class="p-3 bg-gray-50 rounded-lg border ${isAdmin ? 'border-yellow-300' : 'border-gray-200'}">
+      <div class="p-3 bg-gray-50 rounded-lg">
         <div class="flex items-center justify-between mb-2">
           <div>
-            <div class="flex items-center gap-2">
-              <p class="font-semibold text-gray-800 text-sm">${user.username}</p>
-              ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-            </div>
-            <p class="text-xs text-gray-500">${user.country || '-'}</p>
-            <p class="text-xs font-mono text-purple-600 mt-1">📱 ${user.deviceId || '-'}</p>
-            <p class="text-xs text-gray-400 mt-1">Bergabung: ${new Date(user.createdAt).toLocaleString('id-ID')}</p>
-          </div>
-          <div class="text-right">
-            <p class="text-sm font-bold text-green-600">${user.points || 0} Poin</p>
+            <p class="font-semibold text-gray-800 text-sm">${user.username} ${isAdmin ? '👑' : ''}</p>
+            <p class="text-xs text-gray-500">${user.country || '-'} | Poin: ${user.points || 0}</p>
           </div>
         </div>
         <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openEditUserModal('${user.__backendId || user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit Poin</button>
+          <button type="button" onclick="openEditUserModal('${user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit Poin</button>
           ${!isAdmin ? `
-            <button type="button" onclick="deleteUser('${user.__backendId || user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+            <button type="button" onclick="deleteUser('${user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
           ` : ''}
         </div>
       </div>
@@ -1635,13 +1127,11 @@ function renderUserList() {
 }
 
 function openEditUserModal(userId) {
-  const user = allUsers.find(u => (u.__backendId || u.id) === userId);
+  const user = allUsers.find(u => u.id === userId);
   if (!user) return;
   
   document.getElementById('edit-user-id').value = userId;
   document.getElementById('edit-user-username').value = user.username;
-  document.getElementById('edit-user-role').value = user.role === 'admin' ? 'Admin' : 'User';
-  document.getElementById('edit-user-device').value = user.deviceId || '-';
   document.getElementById('edit-user-password').value = '';
   document.getElementById('edit-user-current-points').textContent = user.points || 0;
   document.getElementById('edit-user-new-points').value = user.points || 0;
@@ -1659,7 +1149,7 @@ async function saveEditUser(e) {
   const newPassword = document.getElementById('edit-user-password').value;
   const newPoints = parseInt(document.getElementById('edit-user-new-points').value) || 0;
   
-  const user = allUsers.find(u => (u.__backendId || u.id) === userId);
+  const user = allUsers.find(u => u.id === userId);
   if (!user) return;
   
   if (newPassword) {
@@ -1668,38 +1158,35 @@ async function saveEditUser(e) {
   
   user.points = newPoints;
   
-  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === userId);
+  // Update di appData
+  const userIndex = allUsers.findIndex(u => u.id === userId);
   allUsers[userIndex] = user;
-  
-  await syncToGoogle('updateUser', user);
+  appData.users = allUsers;
+  saveData();
   
   closeEditUserModal();
   showToast('User berhasil diperbarui!', 'success');
   renderUserList();
   
-  if (currentUser && (currentUser.__backendId || currentUser.id) === userId) {
+  if (currentUser && currentUser.id === userId) {
     currentUser.points = newPoints;
     updatePointsDisplay();
   }
 }
 
 async function deleteUser(userId) {
-  showDeleteConfirm('Apakah Anda yakin ingin menghapus user ini?', async () => {
-    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === userId);
-    if (userIndex >= 0) {
-      const user = allUsers[userIndex];
-      allUsers.splice(userIndex, 1);
-      
-      await syncToGoogle('deleteUser', user);
-      
-      showToast('User berhasil dihapus!', 'success');
-      renderUserList();
-      closeDeleteModal();
-    }
-  });
+  if (!confirm('Yakin ingin menghapus user ini?')) return;
+  
+  const userIndex = allUsers.findIndex(u => u.id === userId);
+  if (userIndex >= 0) {
+    allUsers.splice(userIndex, 1);
+    appData.users = allUsers;
+    saveData();
+    showToast('User berhasil dihapus!', 'success');
+    renderUserList();
+  }
 }
 
-// ==================== EXCHANGE MANAGEMENT ====================
 function renderAdminExchangeList() {
   const container = document.getElementById('admin-exchange-list');
   if (!container) return;
@@ -1730,8 +1217,7 @@ function renderAdminExchangeList() {
         <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
         ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
         <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openExchangeStatusModal('${ex.__backendId || ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
-          <button type="button" onclick="deleteExchange('${ex.__backendId || ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+          <button type="button" onclick="openExchangeStatusModal('${ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
         </div>
       </div>
     `;
@@ -1739,11 +1225,11 @@ function renderAdminExchangeList() {
 }
 
 function openExchangeStatusModal(exchangeId) {
-  const exchange = allExchanges.find(ex => (ex.__backendId || ex.id) === exchangeId);
+  const exchange = allExchanges.find(ex => ex.id === exchangeId);
   if (!exchange) return;
   
   document.getElementById('exchange-status-id').value = exchangeId;
-  document.getElementById('exchange-status-user-id').value = exchange.username;
+  document.getElementById('exchange-status-user-id').value = exchange.userId;
   document.getElementById('exchange-status-amount').value = exchange.amount;
   document.getElementById('exchange-status-select').value = exchange.status === 'success' ? 'success' : exchange.status === 'rejected' ? 'rejected' : 'success';
   document.getElementById('exchange-status-note').value = exchange.adminNote || '';
@@ -1758,41 +1244,41 @@ async function saveExchangeStatus(e) {
   e.preventDefault();
   
   const exchangeId = document.getElementById('exchange-status-id').value;
-  const username = document.getElementById('exchange-status-user-id').value;
+  const userId = document.getElementById('exchange-status-user-id').value;
   const amount = parseInt(document.getElementById('exchange-status-amount').value);
   const status = document.getElementById('exchange-status-select').value;
   const note = document.getElementById('exchange-status-note').value;
   
-  const exchange = allExchanges.find(ex => (ex.__backendId || ex.id) === exchangeId);
+  const exchange = allExchanges.find(ex => ex.id === exchangeId);
   if (!exchange) return;
   
-  const oldStatus = exchange.status;
+  // Jika ditolak, kembalikan poin ke user
+  if (status === 'rejected' && exchange.status !== 'rejected') {
+    const user = allUsers.find(u => u.id === userId);
+    if (user) {
+      user.points = (user.points || 0) + amount;
+      
+      // Update user di array
+      const userIndex = allUsers.findIndex(u => u.id === userId);
+      allUsers[userIndex] = user;
+      
+      if (currentUser && currentUser.id === userId) {
+        currentUser.points = user.points;
+        updatePointsDisplay();
+      }
+    }
+  }
   
   exchange.status = status;
   exchange.adminNote = note;
   
-  if (status === 'rejected' && oldStatus !== 'rejected') {
-    const user = allUsers.find(u => u.username === username);
-    if (user) {
-      user.points = (user.points || 0) + amount;
-      
-      const userIndex = allUsers.findIndex(u => u.username === username);
-      allUsers[userIndex] = user;
-      
-      if (currentUser && currentUser.username === username) {
-        currentUser.points = user.points;
-        updatePointsDisplay();
-      }
-      
-      await syncToGoogle('updateUser', user);
-      showToast(`Poin ${amount} dikembalikan ke user`, 'info');
-    }
-  }
-  
-  const exchangeIndex = allExchanges.findIndex(ex => (ex.__backendId || ex.id) === exchangeId);
+  // Update exchange di array
+  const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
   allExchanges[exchangeIndex] = exchange;
   
-  await syncToGoogle('updateExchange', exchange);
+  appData.users = allUsers;
+  appData.exchanges = allExchanges;
+  saveData();
   
   closeExchangeStatusModal();
   showToast(`Status penukaran diubah menjadi ${status === 'success' ? 'Berhasil' : 'Ditolak'}`, 'success');
@@ -1800,100 +1286,14 @@ async function saveExchangeStatus(e) {
   renderExchangeHistory();
 }
 
-// ==================== DELETE EXCHANGE FUNCTIONS ====================
-async function deleteExchange(exchangeId) {
-  showDeleteConfirm('Apakah Anda yakin ingin menghapus riwayat penukaran ini?', async () => {
-    const exchangeIndex = allExchanges.findIndex(ex => (ex.__backendId || ex.id) === exchangeId);
-    if (exchangeIndex >= 0) {
-      const exchange = allExchanges[exchangeIndex];
-      
-      if (exchange.status === 'pending') {
-        const user = allUsers.find(u => u.username === exchange.username);
-        if (user) {
-          user.points = (user.points || 0) + exchange.amount;
-          
-          const userIndex = allUsers.findIndex(u => u.username === exchange.username);
-          allUsers[userIndex] = user;
-          
-          if (currentUser && currentUser.username === exchange.username) {
-            currentUser.points = user.points;
-            updatePointsDisplay();
-          }
-          
-          await syncToGoogle('updateUser', user);
-        }
-      }
-      
-      allExchanges.splice(exchangeIndex, 1);
-      
-      await syncToGoogle('deleteExchange', exchange);
-      
-      showToast('Riwayat penukaran berhasil dihapus!', 'success');
-      renderAdminExchangeList();
-      renderExchangeHistory();
-      closeDeleteModal();
-    }
-  });
-}
-
-// ==================== CLEAR ALL EXCHANGES ====================
-async function clearAllExchanges() {
-  showDeleteConfirm('Apakah Anda yakin ingin menghapus SEMUA riwayat penukaran? Tindakan ini tidak dapat dibatalkan!', async () => {
-    for (const exchange of allExchanges) {
-      if (exchange.status === 'pending') {
-        const user = allUsers.find(u => u.username === exchange.username);
-        if (user) {
-          user.points = (user.points || 0) + exchange.amount;
-        }
-      }
-    }
-    
-    allExchanges = [];
-    
-    await syncToGoogle('syncExchanges', []);
-    await syncToGoogle('syncUsers', allUsers);
-    
-    if (currentUser) {
-      updatePointsDisplay();
-    }
-    
-    showToast('Semua riwayat penukaran telah dihapus!', 'success');
-    renderAdminExchangeList();
-    renderExchangeHistory();
-    closeDeleteModal();
-  });
-}
-
-// Setup confirm delete button
-document.getElementById('confirm-delete-btn').addEventListener('click', function() {
-  if (pendingDeleteAction) {
-    pendingDeleteAction();
-  }
-});
-
 // ==================== INITIALIZATION ====================
-async function init() {
+function init() {
   console.log('Initializing app...');
   
-  showLoading('Memuat data dari server...');
-  
-  // Ambil data dari server
-  await fetchAllDataFromServer();
-  
-  if (GAS_URL) {
-    console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
-  } else {
-    console.warn('⚠️ Google Apps Script URL belum dikonfigurasi!');
-  }
-  
-  if (typeof show_9865183 === 'function') {
-    console.log('✅ Monetag SDK siap digunakan');
-  } else {
-    console.warn('⚠️ Monetag SDK tidak tersedia - menggunakan simulasi');
-  }
-  
+  // Set default country
   document.getElementById('reg-country').value = 'Indonesia';
   
+  // Event listeners
   document.getElementById('login-form').addEventListener('submit', handleLogin);
   document.getElementById('register-form').addEventListener('submit', handleRegister);
   document.getElementById('exchange-form').addEventListener('submit', submitExchange);
@@ -1901,37 +1301,31 @@ async function init() {
   document.getElementById('exchange-status-form').addEventListener('submit', saveExchangeStatus);
   document.getElementById('broadcast-form').addEventListener('submit', submitBroadcast);
   
+  // Broadcast message char counter
   document.getElementById('broadcast-message').addEventListener('input', function(e) {
     document.getElementById('char-count').textContent = e.target.value.length + '/100';
   });
   
+  // Check for existing session
   const session = getSession();
   if (session) {
     console.log('Session found:', session);
     const user = allUsers.find(u => (u.__backendId || u.id) === session.userId);
     if (user && !user.blocked) {
       console.log('Auto-login user:', user);
-      console.log('User role:', user.role);
       currentUser = user;
-      setTimeout(() => {
-        hideLoading();
-        afterLogin();
-      }, 500);
+      setTimeout(afterLogin, 500);
     } else {
       clearSession();
-      hideLoading();
     }
   } else {
     console.log('No valid session');
-    hideLoading();
   }
   
-  const adminCount = allUsers.filter(u => u.role === 'admin').length;
-  console.log('Total users dari server:', allUsers.length);
-  console.log('Total admins dari server:', adminCount);
+  console.log('Initial users:', allUsers);
 }
 
-// Start the application
+// Start the app
 init();
 </script>
 </body>
