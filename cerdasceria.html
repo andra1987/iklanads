@@ -633,6 +633,7 @@ let currentQuiz = null;
 let isAnswerCorrect = false;
 let historyRefreshInterval = null;
 let quizRefreshInterval = null;
+let isClaimingReward = false; // Tambahan flag untuk mencegah double claim
 
 // Untuk delete confirmation
 let pendingDeleteAction = null;
@@ -842,6 +843,9 @@ function showSection(section) {
     renderExchangeHistory();
     startHistoryRefresh();
   } else if (section === 'quiz') {
+    // Reset state quiz saat masuk ke section quiz
+    resetQuizState();
+    generateQuiz();
     startQuizRefresh();
   } else if (section === 'settings') {
     renderUserList();
@@ -997,7 +1001,22 @@ async function submitBroadcast(e) {
 }
 
 // ==================== QUIZ FUNCTIONS ====================
+// Fungsi untuk mereset state quiz
+function resetQuizState() {
+  isAnswerCorrect = false;
+  isClaimingReward = false;
+  document.getElementById('claim-reward-container').classList.add('hidden');
+  
+  // Reset tombol claim ke状态 normal
+  const claimBtn = document.getElementById('claim-reward-btn');
+  claimBtn.disabled = false;
+  claimBtn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
+}
+
 function generateQuiz() {
+  // Reset state sebelum generate quiz baru
+  resetQuizState();
+  
   const a = Math.floor(Math.random() * 50) + 1;
   const b = Math.floor(Math.random() * 50) + 1;
   const correct = a + b;
@@ -1030,12 +1049,12 @@ function renderQuiz() {
       ${opt}
     </button>
   `).join('');
-  
-  document.getElementById('claim-reward-container').classList.add('hidden');
-  isAnswerCorrect = false;
 }
 
 function checkAnswer(answer) {
+  // Cegah multiple answer
+  if (isAnswerCorrect || isClaimingReward) return;
+  
   if (answer === currentQuiz.correct) {
     showToast('🎉 Jawaban Benar!', 'success');
     isAnswerCorrect = true;
@@ -1047,7 +1066,10 @@ function checkAnswer(answer) {
 }
 
 async function claimReward() {
-  if (!isAnswerCorrect || !currentUser) return;
+  // Cegah multiple claim
+  if (!isAnswerCorrect || !currentUser || isClaimingReward) return;
+  
+  isClaimingReward = true;
   
   const btn = document.getElementById('claim-reward-btn');
   btn.disabled = true;
@@ -1071,11 +1093,19 @@ async function claimReward() {
     
     showToast(`+${rewardAmount} Poin! Terima kasih telah menonton iklan`, 'success');
     updatePointsDisplay();
+    
+    // Reset state dan generate quiz baru
+    resetQuizState();
     generateQuiz();
     
   } catch (error) {
     console.error('Error dalam proses iklan:', error);
     showToast('Iklan gagal, coba lagi nanti', 'error');
+    
+    // Reset state
+    isClaimingReward = false;
+    isAnswerCorrect = true; // Tetap benar agar bisa coba lagi
+    
     btn.disabled = false;
     btn.innerHTML = '<span>🎁</span><span>Klaim Reward (Tonton Iklan)</span>';
   }
@@ -1334,6 +1364,9 @@ function handleLogout() {
   
   stopHistoryRefresh();
   stopQuizRefresh();
+  
+  // Reset state quiz
+  resetQuizState();
   
   showPage('login-page');
   
