@@ -717,17 +717,53 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.add('hidden');
 }
 
-// ==================== GOOGLE APPS SCRIPT SYNC FUNCTIONS ====================
-
-// Fungsi untuk mengambil semua data dari server
-async function fetchAllData() {
-  showLoading('Mengambil data dari server...');
-  
+// ==================== FUNGSI BARU: MENGAMBIL DATA DARI SERVER ====================
+async function fetchDataFromServer() {
   try {
-    // Simulasi - dalam praktiknya, Anda perlu implementasi doGet
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Karena Google Apps Script hanya mendukung POST, kita perlu membuat permintaan POST
+    // dengan action khusus untuk mengambil data
+    const payload = {
+      action: 'getAllData',  // Action khusus untuk mengambil semua data
+      timestamp: new Date().toISOString(),
+      deviceId: deviceId
+    };
+
+    const response = await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'cors',  // Ganti ke cors agar bisa membaca response
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error('Gagal mengambil data dari server');
+    }
+
+    const result = await response.json();
     
-    // Gunakan cache sebagai fallback
+    if (result.status === 'success') {
+      // Update data dari server
+      allUsers = result.users || [];
+      allExchanges = result.exchanges || [];
+      allBroadcasts = result.broadcasts || [];
+      appSettings = result.settings || { maintenanceMode: false, rewardPoints: 50 };
+      
+      console.log('Data berhasil diambil dari server:');
+      console.log('- Users:', allUsers.length);
+      console.log('- Exchanges:', allExchanges.length);
+      console.log('- Broadcasts:', allBroadcasts.length);
+      console.log('- Admins:', allUsers.filter(u => u.role === 'admin').length);
+      
+      return true;
+    } else {
+      throw new Error(result.message || 'Gagal mengambil data');
+    }
+  } catch (error) {
+    console.error('Error fetching data from server:', error);
+    
+    // Fallback ke cache lokal
     const cached = localStorage.getItem('math_quiz_cache');
     if (cached) {
       const data = JSON.parse(cached);
@@ -735,15 +771,9 @@ async function fetchAllData() {
       allExchanges = data.exchanges || [];
       allBroadcasts = data.broadcasts || [];
       appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
-      console.log('Data loaded from cache:', allUsers.length, 'users');
+      console.log('Menggunakan data dari cache (fallback)');
     }
     
-    hideLoading();
-    return true;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    hideLoading();
-    showToast('Gagal mengambil data dari server', 'error');
     return false;
   }
 }
@@ -756,21 +786,18 @@ async function syncToGoogle(action, data) {
   }
 
   try {
-    // Untuk operasi yang memerlukan loading
     const showLoad = !['syncUsers', 'syncExchanges', 'syncBroadcasts', 'syncSettings'].includes(action);
     
     if (showLoad) {
       showLoading(`Menyimpan data ke server...`);
     }
 
-    // Siapkan payload sesuai format Apps Script
     const payload = {
       action: action,
       data: data,
       timestamp: new Date().toISOString()
     };
 
-    // Kirim ke server dengan mode no-cors
     await fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -814,13 +841,16 @@ function updateLocalCache() {
 
 // Refresh semua data dari server
 async function refreshAllData() {
-  await fetchAllData();
+  showLoading('Mengambil data terbaru dari server...');
+  await fetchDataFromServer();
+  hideLoading();
+  
   showToast('Data berhasil di-refresh dari server', 'success');
   
   // Update UI
   if (currentUser) {
     // Cek apakah user masih ada di database
-    const userExists = allUsers.some(u => u.id === currentUser.id || u.__backendId === currentUser.__backendId);
+    const userExists = allUsers.some(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
     if (!userExists) {
       showToast('Sesi Anda telah berakhir, silakan login ulang', 'error');
       handleLogout();
@@ -828,7 +858,7 @@ async function refreshAllData() {
     }
     
     // Update data user
-    const updatedUser = allUsers.find(u => u.id === currentUser.id || u.__backendId === currentUser.__backendId);
+    const updatedUser = allUsers.find(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
     if (updatedUser) {
       currentUser = updatedUser;
       updatePointsDisplay();
@@ -1327,8 +1357,10 @@ async function handleLogin(e) {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   
-  // Refresh data dari server sebelum login
-  await refreshAllData();
+  // Ambil data terbaru dari server sebelum login
+  showLoading('Mengambil data dari server...');
+  await fetchDataFromServer();
+  hideLoading();
   
   const user = allUsers.find(u => 
     u.username.toLowerCase() === username.toLowerCase() && 
@@ -1388,9 +1420,17 @@ async function handleRegister(e) {
     return;
   }
   
-  // Refresh data dari server untuk mendapatkan data terbaru
+  // ===== PENTING: AMBIL DATA TERBARU DARI SERVER =====
   showLoading('Mengecek data dari server...');
-  await fetchAllData();
+  const success = await fetchDataFromServer();
+  hideLoading();
+  
+  if (!success) {
+    showToast('Gagal terhubung ke server, coba lagi', 'error');
+    btn.disabled = false;
+    btnText.textContent = 'Daftar';
+    return;
+  }
   
   // Cek apakah username sudah ada di database server
   const exists = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
@@ -1398,17 +1438,17 @@ async function handleRegister(e) {
     showToast('Username sudah digunakan!', 'error');
     btn.disabled = false;
     btnText.textContent = 'Daftar';
-    hideLoading();
     return;
   }
   
-  // ===== PERBAIKAN: CEK APAKAH SUDAH ADA ADMIN DI DATABASE SERVER =====
-  // allUsers sudah berisi data terbaru dari server setelah fetchAllData()
+  // ===== CEK APAKAH SUDAH ADA ADMIN DI DATABASE SERVER =====
+  // Data allUsers sudah berisi data terbaru dari server
   const hasAdmin = allUsers.some(u => u.role === 'admin');
   
-  console.log('Cek admin exists di server:', hasAdmin);
-  console.log('Total users di server:', allUsers.length);
-  console.log('Data users dari server:', allUsers);
+  console.log('=== REGISTRATION DEBUG ===');
+  console.log('Data dari server - Total users:', allUsers.length);
+  console.log('Data dari server - Admins:', allUsers.filter(u => u.role === 'admin').map(u => u.username));
+  console.log('Has admin di server:', hasAdmin);
   
   // Jika belum ada admin di server, user ini jadi admin. Selain itu jadi user biasa
   const role = !hasAdmin ? 'admin' : 'user';
@@ -1417,7 +1457,7 @@ async function handleRegister(e) {
     __backendId: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     username: username,
     password: password,
-    role: role, // HANYA user pertama yang jadi admin
+    role: role,
     country: country,
     deviceId: deviceId,
     points: 0,
@@ -1426,9 +1466,8 @@ async function handleRegister(e) {
     lastLogin: new Date().toISOString()
   };
   
-  console.log('New user created:', newUser);
-  console.log('Role assigned:', role);
-  console.log('Has admin after this registration:', allUsers.some(u => u.role === 'admin') || role === 'admin');
+  console.log('User baru akan dibuat dengan role:', role);
+  console.log('==========================');
   
   allUsers.push(newUser);
   
@@ -1445,7 +1484,6 @@ async function handleRegister(e) {
   
   btn.disabled = false;
   btnText.textContent = 'Daftar';
-  hideLoading();
 }
 
 function handleLogout() {
@@ -1837,7 +1875,7 @@ async function init() {
   showLoading('Memuat data dari server...');
   
   // Ambil data dari server
-  await fetchAllData();
+  await fetchDataFromServer();
   
   if (GAS_URL) {
     console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
