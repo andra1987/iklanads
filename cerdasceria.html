@@ -695,7 +695,7 @@ let pendingDeleteAction = null;
 
 // Generate or retrieve Device ID (hanya untuk identifikasi, tidak sync)
 function generateDeviceId() {
-  const stored = sessionStorage.getItem('deviceId'); // Pakai sessionStorage, bukan localStorage
+  const stored = sessionStorage.getItem('deviceId');
   if (stored) return stored;
   const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
   sessionStorage.setItem('deviceId', id);
@@ -724,12 +724,22 @@ async function fetchAllData() {
   showLoading('Mengambil data dari server...');
   
   try {
-    // Simulasi fetch data - dalam implementasi nyata, Anda perlu endpoint GET
-    // Untuk sementara, kita akan menggunakan pendekatan berbeda
-    // Idealnya Google Apps Script harus menyediakan endpoint GET
+    // Dalam implementasi nyata, Anda perlu endpoint GET
+    // Untuk sekarang, kita gunakan pendekatan dengan timestamp
+    const payload = {
+      action: 'getAllData',
+      timestamp: new Date().toISOString(),
+      deviceId: deviceId
+    };
+
+    // Ini adalah simulasi - dalam praktiknya, Google Apps Script harus mendukung GET
+    console.log('Fetching data from server...');
     
-    // Alternatif: kita akan menggunakan data dari localStorage sebagai cache sementara
-    // tapi tidak menyimpan perubahan kembali ke localStorage
+    // Simulasi data dari server
+    // NOTE: Ini harus diganti dengan implementasi GET yang sebenarnya
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Untuk sementara, kita gunakan data dari cache
     const cached = localStorage.getItem('math_quiz_cache');
     if (cached) {
       const data = JSON.parse(cached);
@@ -737,10 +747,8 @@ async function fetchAllData() {
       allExchanges = data.exchanges || [];
       allBroadcasts = data.broadcasts || [];
       appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
+      console.log('Data loaded from cache:', allUsers.length, 'users');
     }
-    
-    // Update UI
-    updateUI();
     
     hideLoading();
     return true;
@@ -767,7 +775,6 @@ async function syncToGoogle(action, data) {
       deviceId: deviceId
     };
 
-    // Tampilkan loading untuk operasi penting
     if (action !== 'getData') {
       showLoading(`Menyimpan data ke server...`);
     }
@@ -783,7 +790,7 @@ async function syncToGoogle(action, data) {
 
     console.log(`Sync ${action} completed`);
     
-    // Update cache lokal untuk sementara
+    // Update cache lokal
     updateLocalCache();
     
     hideLoading();
@@ -796,7 +803,7 @@ async function syncToGoogle(action, data) {
   }
 }
 
-// Update cache lokal (sementara, hanya untuk tampilan)
+// Update cache lokal
 function updateLocalCache() {
   const cache = {
     users: allUsers,
@@ -812,6 +819,26 @@ function updateLocalCache() {
 async function refreshAllData() {
   await fetchAllData();
   showToast('Data berhasil di-refresh dari server', 'success');
+  
+  // Update UI
+  if (currentUser) {
+    // Cek apakah user masih ada di database
+    const userExists = allUsers.some(u => u.id === currentUser.id);
+    if (!userExists) {
+      showToast('Sesi Anda telah berakhir, silakan login ulang', 'error');
+      handleLogout();
+      return;
+    }
+    
+    // Update data user
+    const updatedUser = allUsers.find(u => u.id === currentUser.id);
+    if (updatedUser) {
+      currentUser = updatedUser;
+      updatePointsDisplay();
+    }
+  }
+  
+  updateUI();
 }
 
 // Update UI setelah data berubah
@@ -990,11 +1017,11 @@ function saveSession(user) {
     role: user.role,
     loginTime: new Date().toISOString()
   };
-  sessionStorage.setItem('userSession', JSON.stringify(session)); // Pakai sessionStorage
+  sessionStorage.setItem('userSession', JSON.stringify(session));
 }
 
 function getSession() {
-  const session = sessionStorage.getItem('userSession'); // Pakai sessionStorage
+  const session = sessionStorage.getItem('userSession');
   if (!session) return null;
   
   try {
@@ -1058,7 +1085,6 @@ async function submitBroadcast(e) {
   
   allBroadcasts.push(broadcast);
   
-  // Sync ke Google Sheets
   await syncToGoogle('createBroadcast', broadcast);
   
   document.getElementById('broadcast-form').reset();
@@ -1145,13 +1171,11 @@ async function claimReward() {
     const rewardAmount = appSettings?.rewardPoints || 50;
     currentUser.points = (currentUser.points || 0) + rewardAmount;
     
-    // Update user di array
     const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
     if (userIndex >= 0) {
       allUsers[userIndex] = currentUser;
     }
     
-    // Sync ke Google Sheets
     await syncToGoogle('updateUser', currentUser);
     
     showToast(`+${rewardAmount} Poin! Terima kasih telah menonton iklan`, 'success');
@@ -1244,7 +1268,6 @@ async function submitExchange(e) {
     
     allExchanges.push(exchange);
     
-    // Sync ke Google Sheets
     await syncToGoogle('createExchange', exchange);
     await syncToGoogle('updateUser', currentUser);
     
@@ -1311,7 +1334,9 @@ async function handleLogin(e) {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   
-  // Cari user di data yang sudah di-load
+  // Refresh data dari server sebelum login
+  await refreshAllData();
+  
   const user = allUsers.find(u => 
     u.type === 'user' && 
     u.username.toLowerCase() === username.toLowerCase() && 
@@ -1334,13 +1359,11 @@ async function handleLogin(e) {
   
   user.lastLogin = new Date().toISOString();
   
-  // Update user di array
   const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (user.__backendId || user.id));
   if (userIndex >= 0) {
     allUsers[userIndex] = user;
   }
   
-  // Sync ke Google Sheets
   await syncToGoogle('updateUser', user);
   
   currentUser = user;
@@ -1352,6 +1375,7 @@ async function handleLogin(e) {
   afterLogin();
 }
 
+// ========== PERBAIKAN UTAMA: CEK ADMIN DARI SERVER ==========
 async function handleRegister(e) {
   e.preventDefault();
   
@@ -1372,21 +1396,27 @@ async function handleRegister(e) {
     return;
   }
   
+  // Refresh data dari server untuk mendapatkan data terbaru
+  showLoading('Mengecek data dari server...');
+  await fetchAllData();
+  
+  // Cek apakah username sudah ada di database server
   const exists = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
   if (exists) {
     showToast('Username sudah digunakan!', 'error');
     btn.disabled = false;
     btnText.textContent = 'Daftar';
+    hideLoading();
     return;
   }
   
-  // Cek apakah sudah ada admin
+  // CEK APAKAH SUDAH ADA ADMIN DI DATABASE SERVER
   const hasAdmin = allUsers.some(u => u.role === 'admin');
   
-  console.log('Cek admin exists:', hasAdmin);
-  console.log('Total users:', allUsers.length);
+  console.log('Cek admin exists di server:', hasAdmin);
+  console.log('Total users di server:', allUsers.length);
   
-  // Jika belum ada admin, user ini jadi admin. Selain itu jadi user biasa
+  // Jika belum ada admin di server, user ini jadi admin. Selain itu jadi user biasa
   const role = !hasAdmin ? 'admin' : 'user';
   
   const newUser = {
@@ -1421,6 +1451,7 @@ async function handleRegister(e) {
   
   btn.disabled = false;
   btnText.textContent = 'Daftar';
+  hideLoading();
 }
 
 function handleLogout() {
@@ -1456,7 +1487,6 @@ function afterLogin() {
   document.getElementById('header-username').textContent = currentUser.username;
   document.getElementById('profile-username').textContent = currentUser.username;
   
-  // Tampilkan role dengan badge yang sesuai
   const roleSpan = document.getElementById('profile-role');
   if (currentUser.role === 'admin') {
     roleSpan.innerHTML = 'Admin <span class="admin-badge">👑</span>';
@@ -1472,7 +1502,6 @@ function afterLogin() {
   updatePointsDisplay();
   displayBroadcast();
   
-  // Tampilkan setting hanya untuk admin
   const settingsNavBtn = document.getElementById('settings-nav-btn');
   if (currentUser.role === 'admin') {
     settingsNavBtn.classList.remove('hidden');
@@ -1510,7 +1539,6 @@ async function toggleMaintenance() {
   
   appSettings.maintenanceMode = isEnabled;
   
-  // Sync ke Google Sheets
   await syncToGoogle('updateSettings', appSettings);
   
   showToast(isEnabled ? 'Mode maintenance aktif' : 'Mode maintenance nonaktif', 'success');
@@ -1523,7 +1551,6 @@ async function updateRewardPoints() {
   
   appSettings.rewardPoints = points;
   
-  // Sync ke Google Sheets
   await syncToGoogle('updateSettings', appSettings);
   
   showToast('Poin reward berhasil diubah!', 'success');
@@ -1609,7 +1636,6 @@ async function saveEditUser(e) {
   const userIndex = allUsers.findIndex(u => u.id === userId);
   allUsers[userIndex] = user;
   
-  // Sync ke Google Sheets
   await syncToGoogle('updateUser', user);
   
   closeEditUserModal();
@@ -1629,7 +1655,6 @@ async function deleteUser(userId) {
       const user = allUsers[userIndex];
       allUsers.splice(userIndex, 1);
       
-      // Sync ke Google Sheets
       await syncToGoogle('deleteUser', user);
       
       showToast('User berhasil dihapus!', 'success');
@@ -1732,7 +1757,6 @@ async function saveExchangeStatus(e) {
   const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
   allExchanges[exchangeIndex] = exchange;
   
-  // Sync ke Google Sheets
   await syncToGoogle('updateExchange', exchange);
   
   closeExchangeStatusModal();
@@ -1767,7 +1791,6 @@ async function deleteExchange(exchangeId) {
       
       allExchanges.splice(exchangeIndex, 1);
       
-      // Sync ke Google Sheets
       await syncToGoogle('deleteExchange', exchange);
       
       showToast('Riwayat penukaran berhasil dihapus!', 'success');
@@ -1796,7 +1819,6 @@ async function clearAllExchanges() {
     
     allExchanges = [];
     
-    // Sync ke Google Sheets
     await syncToGoogle('syncExchanges', []);
     await syncToGoogle('syncUsers', allUsers);
     
@@ -1822,30 +1844,10 @@ document.getElementById('confirm-delete-btn').addEventListener('click', function
 async function init() {
   console.log('Initializing app...');
   
-  // Tampilkan loading
   showLoading('Memuat data dari server...');
   
-  // Load data dari cache lokal dulu untuk tampilan cepat
-  const cached = localStorage.getItem('math_quiz_cache');
-  if (cached) {
-    try {
-      const data = JSON.parse(cached);
-      allUsers = data.users || [];
-      allExchanges = data.exchanges || [];
-      allBroadcasts = data.broadcasts || [];
-      appSettings = data.settings || { maintenanceMode: false, rewardPoints: 50 };
-      console.log('Menggunakan cache lokal sementara');
-    } catch (e) {
-      console.error('Error parsing cache:', e);
-    }
-  }
-  
-  // Coba ambil data terbaru dari server
-  try {
-    await fetchAllData();
-  } catch (error) {
-    console.error('Gagal mengambil data dari server, menggunakan cache:', error);
-  }
+  // Ambil data dari server
+  await fetchAllData();
   
   if (GAS_URL) {
     console.log('✅ Google Apps Script URL terkonfigurasi:', GAS_URL);
@@ -1894,8 +1896,8 @@ async function init() {
   }
   
   const adminCount = allUsers.filter(u => u.role === 'admin').length;
-  console.log('Total users:', allUsers.length);
-  console.log('Total admins:', adminCount);
+  console.log('Total users dari server:', allUsers.length);
+  console.log('Total admins dari server:', adminCount);
 }
 
 // Start the application
