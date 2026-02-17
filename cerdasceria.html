@@ -1,1332 +1,1670 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math Quiz · Reward</title>
-  <!-- Tailwind + fonts -->
+  <title>Math Quiz - Kuis Matematika Berhadiah</title>
+  
+  <!-- CSS Libraries -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- SDKs -->
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="//libtl.com/sdk.js" data-zone="10547702" data-sdk="show_10547702"></script>
+  
   <style>
-    /* ===== GLOBAL STYLES ===== */
-    * { font-family: 'Poppins', sans-serif; }
-    html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
-    
-    /* ===== BACKGROUND & SHADOWS ===== */
-    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    
-    /* ===== ANIMATIONS ===== */
-    .toast { animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; }
-    @keyframes slideIn { 
-      from { transform: translateY(-100px); opacity: 0; } 
-      to { transform: translateY(0); opacity: 1; } 
-    }
-    @keyframes fadeOut { 
-      from { opacity: 1; } 
-      to { opacity: 0; } 
+    /* Global Styles */
+    * {
+      font-family: 'Poppins', sans-serif;
     }
     
-    /* ===== BUTTON STYLES ===== */
-    .btn-primary { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      transition: all 0.3s; 
-    }
-    .btn-primary:hover { 
-      transform: translateY(-1px); 
-      box-shadow: 0 4px 12px rgba(102,126,234,0.3); 
-    }
-    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-    
-    /* ===== FORM INPUTS ===== */
-    .input-field { 
-      transition: all 0.3s; 
-      border: 1.5px solid #e2e8f0; 
-    }
-    .input-field:focus { 
-      border-color: #667eea; 
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.1); 
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
     
-    /* ===== PAGE MANAGEMENT ===== */
-    .page { display: none !important; }
-    .page.active { display: block !important; }
-    
-    /* ===== LOADING SPINNER ===== */
-    .loading-spinner { 
-      border: 2px solid #f3f3f3; 
-      border-top: 2px solid #667eea; 
-      border-radius: 50%; 
-      width: 20px; 
-      height: 20px; 
-      animation: spin 1s linear infinite; 
-    }
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
+    /* Gradients */
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
-    /* ===== POINT ANIMATION ===== */
-    .point-change { animation: pointPulse 0.5s ease; }
-    @keyframes pointPulse { 
-      0% { transform: scale(1); } 
-      50% { transform: scale(1.15); } 
-      100% { transform: scale(1); } 
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s;
     }
     
-    /* ===== BROADCAST BANNER ===== */
-    .broadcast-banner { 
-      background: linear-gradient(90deg, #ff6b6b 0%, #ff8e72 100%); 
-      color: white; 
-      padding: 12px; 
-      border-radius: 12px; 
-      overflow: hidden; 
-      margin-bottom: 16px; 
-      position: relative; 
-    }
-    .broadcast-text { 
-      animation: scrollText 15s linear infinite; 
-      white-space: nowrap; 
-      font-weight: 600; 
-      font-size: 14px; 
-      display: inline-block; 
-    }
-    @keyframes scrollText { 
-      0% { transform: translateX(100%); } 
-      100% { transform: translateX(-100%); } 
-    }
-    .broadcast-banner.paused .broadcast-text { animation-play-state: paused; }
-    
-    /* ===== LAYOUT ===== */
-    main { padding-bottom: 80px; }
-    #main-app { display: flex; flex-direction: column; height: 100%; }
-  </style>
-</head>
-<body class="bg-gray-50">
-<div id="app" class="w-full h-full overflow-auto relative">
-  <!-- ===== TOAST NOTIFICATION CONTAINER ===== -->
-  <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50"></div>
-
-  <!-- ===== LOGIN PAGE ===== -->
-  <div id="login-page" class="page active w-full h-full">
-    <div class="auth-container flex items-center justify-center min-h-full">
-      <div class="w-full max-w-sm px-4">
-        <div class="text-center mb-6">
-          <h1 id="app-title" class="text-3xl font-bold text-gray-800">Math Quiz</h1>
-          <p class="text-sm text-gray-500 mt-1">Jawab quiz & dapatkan reward!</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 card-shadow">
-          <form id="login-form" class="space-y-3">
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-2">Username</label>
-              <input type="text" id="login-username" class="input-field w-full px-3 py-2.5 rounded-lg outline-none text-sm" placeholder="Masukkan username" required>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-2">Password</label>
-              <input type="password" id="login-password" class="input-field w-full px-3 py-2.5 rounded-lg outline-none text-sm" placeholder="Masukkan password" required>
-            </div>
-            <button type="submit" id="login-btn" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mt-4">
-              <span id="login-btn-text">Masuk</span>
-            </button>
-          </form>
-          <p class="text-center mt-4 text-gray-500 text-xs">
-            Belum punya akun? 
-            <button type="button" onclick="showPage('register-page')" class="text-purple-600 font-semibold hover:underline">Daftar</button>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== REGISTER PAGE ===== -->
-  <div id="register-page" class="page w-full h-full">
-    <div class="auth-container flex items-center justify-center min-h-full">
-      <div class="w-full max-w-sm px-4">
-        <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-gray-800">Daftar Akun</h1>
-          <p class="text-sm text-gray-500 mt-1">Buat akun baru untuk mulai bermain</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 card-shadow">
-          <form id="register-form" class="space-y-3">
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-2">Username</label>
-              <input type="text" id="reg-username" class="input-field w-full px-3 py-2.5 rounded-lg outline-none text-sm" placeholder="Pilih username" required>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-2">Password</label>
-              <input type="password" id="reg-password" class="input-field w-full px-3 py-2.5 rounded-lg outline-none text-sm" placeholder="Buat password" required>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-2">Negara</label>
-              <select id="reg-country" class="input-field w-full px-3 py-2.5 rounded-lg outline-none bg-white text-sm" required>
-                <option value="">Pilih negara...</option>
-                <option value="Indonesia" selected>🇮🇩 Indonesia</option>
-                <option value="Malaysia">🇲🇾 Malaysia</option>
-                <option value="Singapore">🇸🇬 Singapore</option>
-                <option value="Thailand">🇹🇭 Thailand</option>
-                <option value="Vietnam">🇻🇳 Vietnam</option>
-                <option value="Philippines">🇵🇭 Philippines</option>
-              </select>
-            </div>
-            <button type="submit" id="register-btn" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mt-4">
-              <span id="register-btn-text">Daftar</span>
-            </button>
-          </form>
-          <p class="text-center mt-4 text-gray-500 text-xs">
-            Sudah punya akun? 
-            <button type="button" onclick="showPage('login-page')" class="text-purple-600 font-semibold hover:underline">Masuk</button>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MAINTENANCE PAGE ===== -->
-  <div id="maintenance-page" class="page w-full h-full">
-    <div class="auth-container flex items-center justify-center min-h-full">
-      <div class="text-center px-4">
-        <div class="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <span class="text-3xl">🔧</span>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Maintenance</h1>
-        <p class="text-gray-500 max-w-xs text-sm">Aplikasi sedang dalam perbaikan. Silakan kembali beberapa saat lagi.</p>
-        <button type="button" onclick="handleLogout()" class="mt-6 px-4 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold hover:bg-gray-300 transition text-sm">Logout</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MAIN APP (setelah login) ===== -->
-  <div id="main-app" class="page w-full h-full">
-    <!-- Header -->
-    <header class="gradient-bg text-white p-3 sticky top-0 z-40">
-      <div class="max-w-2xl mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-            <span class="text-sm">👤</span>
-          </div>
-          <div>
-            <p id="header-username" class="font-semibold text-sm">Username</p>
-            <p id="header-points" class="text-xs opacity-80">0 Poin</p>
-          </div>
-        </div>
-        <button type="button" onclick="handleLogout()" class="px-3 py-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition text-xs font-medium">Logout</button>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-3 overflow-auto">
-      <div class="max-w-2xl mx-auto">
-        <!-- Broadcast Banner -->
-        <div id="broadcast-container" class="hidden">
-          <div class="broadcast-banner" onmouseenter="this.classList.add('paused')" onmouseleave="this.classList.remove('paused')">
-            <span class="broadcast-text" id="broadcast-text-display">📢 </span>
-          </div>
-        </div>
-
-        <!-- ===== QUIZ SECTION ===== -->
-        <div id="quiz-section" class="section">
-          <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
-              <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
-                <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
-              </div>
-            </div>
-            <div id="quiz-container">
-              <div class="text-center py-6 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl mb-4">
-                <p class="text-gray-500 mb-1 text-xs">Berapa hasil dari:</p>
-                <p id="quiz-question" class="text-3xl font-bold text-gray-800">0 + 0 = ?</p>
-              </div>
-              <div id="quiz-options" class="grid grid-cols-2 gap-2 mb-4"></div>
-              <div id="claim-reward-container" class="hidden">
-                <button type="button" id="claim-reward-btn" onclick="claimReward()" class="btn-success w-full py-3 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2">
-                  <span>🎁</span>
-                  <span>Klaim Reward</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== HISTORY SECTION ===== -->
-        <div id="history-section" class="section hidden">
-          <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <h2 class="text-lg font-bold text-gray-800">💰 Poin Saya</h2>
-                <span id="refresh-indicator" class="text-xs text-green-600 opacity-0">🔄 Auto-refresh</span>
-              </div>
-              <div class="px-3 py-1.5 bg-green-100 rounded-lg">
-                <span id="history-points" class="font-bold text-green-600 text-sm">0 Poin</span>
-              </div>
-            </div>
-            <button type="button" onclick="showExchangeForm()" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mb-3">Tukar Poin</button>
-            <p class="text-xs text-gray-500 text-center">Minimal: 50 Poin = Rp 50</p>
-          </div>
-          
-          <!-- Exchange Form -->
-          <div id="exchange-form-container" class="bg-white rounded-2xl p-4 card-shadow mb-3 hidden">
-            <h3 class="text-base font-bold text-gray-800 mb-3">📝 Form Penukaran</h3>
-            <form id="exchange-form" class="space-y-2.5">
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Jumlah Poin</label>
-                <input type="number" id="exchange-amount" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" placeholder="Min. 50 poin" min="50" required>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Akun DANA</label>
-                <input type="text" id="dana-account" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" placeholder="Nama lengkap" required>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nomor HP DANA</label>
-                <input type="tel" id="dana-phone" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" placeholder="08xxxxxxxxxx" required>
-              </div>
-              <div class="flex gap-2 pt-2">
-                <button type="button" onclick="hideExchangeForm()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
-                <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">Kirim</button>
-              </div>
-            </form>
-          </div>
-          
-          <!-- Exchange History -->
-          <div class="bg-white rounded-2xl p-4 card-shadow">
-            <h3 class="text-base font-bold text-gray-800 mb-3">📋 Riwayat Penukaran</h3>
-            <div id="exchange-history" class="space-y-2">
-              <p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== PROFILE SECTION ===== -->
-        <div id="profile-section" class="section hidden">
-          <div class="bg-white rounded-2xl p-4 card-shadow">
-            <div class="text-center mb-4">
-              <div class="w-16 h-16 gradient-bg rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span class="text-2xl">👤</span>
-              </div>
-              <h2 id="profile-username" class="text-xl font-bold text-gray-800">Username</h2>
-              <span id="profile-role" class="inline-block mt-1.5 px-2.5 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">User</span>
-            </div>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span class="text-gray-600 text-sm">🌍 Negara</span>
-                <span id="profile-country" class="font-semibold text-gray-800 text-sm">-</span>
-              </div>
-              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span class="text-gray-600 text-sm">📱 Device ID</span>
-                <span id="profile-device" class="font-semibold text-gray-800 text-xs">-</span>
-              </div>
-              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span class="text-gray-600 text-sm">💰 Total Poin</span>
-                <span id="profile-points" class="font-semibold text-green-600">0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== SETTINGS SECTION (ADMIN ONLY) ===== -->
-        <div id="settings-section" class="section hidden">
-          <div class="space-y-3">
-            <!-- Database Status -->
-            <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h2 class="text-lg font-bold text-gray-800 mb-3">☁️ Database Status</h2>
-              <div class="space-y-2">
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-gray-600 text-sm">🔗 Koneksi</span>
-                  <span id="connection-status" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">✓ Connected</span>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-gray-600 text-sm">📊 Total Users</span>
-                  <span class="font-semibold text-gray-800 text-sm" id="total-users">0</span>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span class="text-gray-600 text-sm">⏱️ Status</span>
-                  <span class="font-semibold text-gray-800 text-sm" id="db-status">Aktif</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Broadcast Message -->
-            <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h2 class="text-lg font-bold text-gray-800 mb-3">📢 Pesan Broadcast</h2>
-              <form id="broadcast-form" class="space-y-2.5">
-                <div>
-                  <textarea id="broadcast-message" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" rows="3" placeholder="Ketik pesan untuk semua user..." required maxlength="100"></textarea>
-                  <p id="char-count" class="text-xs text-gray-500 mt-1">0/100</p>
-                </div>
-                <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm flex items-center justify-center gap-2">
-                  <span>📤</span>
-                  <span>Kirim Broadcast</span>
-                </button>
-              </form>
-            </div>
-            
-            <!-- Admin Settings -->
-            <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h2 class="text-lg font-bold text-gray-800 mb-3">⚙️ Pengaturan Admin</h2>
-              
-              <!-- Maintenance Toggle -->
-              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
-                <div>
-                  <p class="font-semibold text-gray-800 text-sm">Mode Maintenance</p>
-                  <p class="text-xs text-gray-500">Nonaktifkan akses user</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="maintenance-toggle" class="sr-only peer" onchange="toggleMaintenance()">
-                  <div class="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                </label>
-              </div>
-              
-              <!-- Reward Points Setting -->
-              <div class="p-3 bg-gray-50 rounded-lg">
-                <p class="font-semibold text-gray-800 text-sm mb-2">Poin Reward per Klaim</p>
-                <div class="flex gap-2">
-                  <input type="number" id="reward-points-input" class="input-field flex-1 px-3 py-2 rounded-lg outline-none text-sm" value="50" min="1">
-                  <button type="button" onclick="updateRewardPoints()" class="px-3 py-2 btn-primary rounded-lg text-white font-semibold text-xs">Simpan</button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- User Management -->
-            <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h3 class="text-base font-bold text-gray-800 mb-3">👥 Manajemen User</h3>
-              <div id="user-list" class="space-y-2">
-                <p class="text-gray-500 text-center py-3 text-xs">Memuat data...</p>
-              </div>
-            </div>
-            
-            <!-- Exchange Requests -->
-            <div class="bg-white rounded-2xl p-4 card-shadow">
-              <h3 class="text-base font-bold text-gray-800 mb-3">💳 Riwayat Penukaran</h3>
-              <div id="admin-exchange-list" class="space-y-2">
-                <p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="bg-white border-t border-gray-200 px-4 py-2 mt-auto">
-      <div class="flex justify-around max-w-2xl mx-auto">
-        <button type="button" onclick="showSection('quiz')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition" data-section="quiz">
-          <span class="text-xl">🎯</span>
-          <span class="text-xs font-medium text-gray-600">Quiz</span>
-        </button>
-        <button type="button" onclick="showSection('history')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition" data-section="history">
-          <span class="text-xl">📋</span>
-          <span class="text-xs font-medium text-gray-600">Riwayat</span>
-        </button>
-        <button type="button" onclick="showSection('profile')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition" data-section="profile">
-          <span class="text-xl">👤</span>
-          <span class="text-xs font-medium text-gray-600">Profil</span>
-        </button>
-        <button id="settings-nav-btn" type="button" onclick="showSection('settings')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg hidden transition" data-section="settings">
-          <span class="text-xl">⚙️</span>
-          <span class="text-xs font-medium text-gray-600">Setting</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <!-- ===== EDIT USER MODAL ===== -->
-  <div id="edit-user-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
-      <h3 class="text-lg font-bold text-gray-800 mb-3">Edit User</h3>
-      <form id="edit-user-form" class="space-y-2.5">
-        <input type="hidden" id="edit-user-id">
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
-          <input type="text" id="edit-user-username" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" readonly>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password Baru</label>
-          <input type="password" id="edit-user-password" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" placeholder="Kosongkan jika tidak diubah">
-        </div>
-        <div class="p-3 bg-blue-50 rounded-lg">
-          <p class="text-xs font-semibold text-gray-700 mb-1.5">Poin Saat Ini</p>
-          <p id="edit-user-current-points" class="text-xl font-bold text-blue-600">0</p>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Total Poin Baru</label>
-          <input type="number" id="edit-user-new-points" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" placeholder="0" min="0">
-        </div>
-        <div class="flex gap-2 pt-2">
-          <button type="button" onclick="closeEditUserModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
-          <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== EXCHANGE STATUS MODAL ===== -->
-  <div id="exchange-status-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
-      <h3 class="text-lg font-bold text-gray-800 mb-3">Ubah Status Penukaran</h3>
-      <form id="exchange-status-form" class="space-y-2.5">
-        <input type="hidden" id="exchange-status-id">
-        <input type="hidden" id="exchange-status-user-id">
-        <input type="hidden" id="exchange-status-amount">
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Status</label>
-          <select id="exchange-status-select" class="input-field w-full px-3 py-2 rounded-lg outline-none bg-white text-sm" required>
-            <option value="success">Berhasil</option>
-            <option value="rejected">Tolak</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Catatan Admin</label>
-          <textarea id="exchange-status-note" class="input-field w-full px-3 py-2 rounded-lg outline-none text-sm" rows="2" placeholder="Tambahkan catatan..."></textarea>
-        </div>
-        <div class="flex gap-2 pt-2">
-          <button type="button" onclick="closeExchangeStatusModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">Batal</button>
-          <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<script>
-// ==================== DATA STORAGE ====================
-// Menggunakan localStorage untuk persistensi data
-const STORAGE_KEY = 'math_quiz_app_data';
-
-// Inisialisasi data default
-let appData = {
-  users: [],
-  exchanges: [],
-  broadcasts: [],
-  settings: {
-    type: 'settings',
-    maintenanceMode: false,
-    rewardPoints: 50
-  }
-};
-
-// ===== Load data dari localStorage =====
-function loadData() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      appData = JSON.parse(saved);
-      console.log('Data loaded from localStorage:', appData);
-    } else {
-      console.log('No saved data, using defaults');
-    }
-  } catch (e) {
-    console.error('Error loading data:', e);
-  }
-}
-
-// ===== Save data ke localStorage =====
-function saveData() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    console.log('Data saved to localStorage');
-  } catch (e) {
-    console.error('Error saving data:', e);
-  }
-}
-
-// Panggil loadData saat awal
-loadData();
-
-// ==================== STATE ====================
-let currentUser = null;
-let allUsers = appData.users || [];
-let allExchanges = appData.exchanges || [];
-let allBroadcasts = appData.broadcasts || [];
-let appSettings = appData.settings || { type: 'settings', maintenanceMode: false, rewardPoints: 50 };
-let currentQuiz = null;
-let isAnswerCorrect = false;
-let historyRefreshInterval = null;
-
-// ===== Generate Device ID =====
-function generateDeviceId() {
-  const stored = localStorage.getItem('deviceId');
-  if (stored) return stored;
-  const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-  localStorage.setItem('deviceId', id);
-  return id;
-}
-
-const deviceId = generateDeviceId();
-
-// ==================== HELPER FUNCTIONS ====================
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
-  toast.className = `toast ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg font-medium text-sm`;
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-}
-
-function showSection(section) {
-  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-  document.getElementById(`${section}-section`).classList.remove('hidden');
-  
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.remove('menu-active');
-    if (btn.dataset.section === section) {
-      btn.classList.add('menu-active');
-    }
-  });
-
-  stopHistoryRefresh();
-  
-  if (section === 'history') {
-    renderExchangeHistory();
-    startHistoryRefresh();
-  } else if (section === 'settings') {
-    renderUserList();
-    renderAdminExchangeList();
-    updateDatabaseStatus();
-  }
-}
-
-function stopHistoryRefresh() {
-  if (historyRefreshInterval) {
-    clearInterval(historyRefreshInterval);
-    historyRefreshInterval = null;
-  }
-  const indicator = document.getElementById('refresh-indicator');
-  if (indicator) indicator.classList.add('opacity-0');
-}
-
-function startHistoryRefresh() {
-  const indicator = document.getElementById('refresh-indicator');
-  if (indicator) indicator.classList.remove('opacity-0');
-  
-  if (historyRefreshInterval) clearInterval(historyRefreshInterval);
-  historyRefreshInterval = setInterval(() => {
-    renderExchangeHistory();
-  }, 5000);
-}
-
-function updateDatabaseStatus() {
-  document.getElementById('total-users').textContent = allUsers.length;
-  document.getElementById('db-status').textContent = 'Aktif';
-}
-
-// ==================== SESSION MANAGEMENT ====================
-function saveSession(user) {
-  const session = {
-    userId: user.__backendId || user.id,
-    username: user.username,
-    role: user.role,
-    loginTime: new Date().toISOString()
-  };
-  localStorage.setItem('userSession', JSON.stringify(session));
-}
-
-function getSession() {
-  const session = localStorage.getItem('userSession');
-  if (!session) return null;
-  
-  try {
-    const parsed = JSON.parse(session);
-    const loginTime = new Date(parsed.loginTime);
-    const now = new Date();
-    const diffHours = (now - loginTime) / (1000 * 60 * 60);
-    
-    // Session berlaku 24 jam
-    if (diffHours >= 24) {
-      localStorage.removeItem('userSession');
-      return null;
-    }
-    return parsed;
-  } catch (e) {
-    return null;
-  }
-}
-
-function clearSession() {
-  localStorage.removeItem('userSession');
-}
-
-// ==================== BROADCAST ====================
-function displayBroadcast() {
-  const latestBroadcast = allBroadcasts
-    .filter(b => b.type === 'broadcast')
-    .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))[0];
-  
-  if (latestBroadcast) {
-    const container = document.getElementById('broadcast-container');
-    const textDisplay = document.getElementById('broadcast-text-display');
-    if (container && textDisplay) {
-      textDisplay.textContent = '📢 ' + latestBroadcast.message;
-      container.classList.remove('hidden');
-    }
-  }
-}
-
-async function submitBroadcast(e) {
-  e.preventDefault();
-  
-  if (!currentUser || currentUser.role !== 'admin') {
-    showToast('Hanya admin yang bisa broadcast', 'error');
-    return;
-  }
-  
-  const message = document.getElementById('broadcast-message').value.trim();
-  
-  if (!message) {
-    showToast('Pesan tidak boleh kosong!', 'error');
-    return;
-  }
-  
-  const broadcast = {
-    type: 'broadcast',
-    id: 'BC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-    message: message,
-    sentAt: new Date().toISOString(),
-    sentBy: currentUser.username
-  };
-  
-  allBroadcasts.push(broadcast);
-  appData.broadcasts = allBroadcasts;
-  saveData();
-  
-  document.getElementById('broadcast-form').reset();
-  document.getElementById('char-count').textContent = '0/100';
-  showToast('Pesan broadcast berhasil dikirim!', 'success');
-  
-  // Update tampilan broadcast
-  displayBroadcast();
-}
-
-// ==================== QUIZ FUNCTIONS ====================
-function generateQuiz() {
-  const a = Math.floor(Math.random() * 50) + 1;
-  const b = Math.floor(Math.random() * 50) + 1;
-  const correct = a + b;
-  
-  const options = [correct];
-  while (options.length < 4) {
-    const wrong = correct + Math.floor(Math.random() * 21) - 10;
-    if (wrong !== correct && wrong > 0 && !options.includes(wrong)) {
-      options.push(wrong);
-    }
-  }
-  
-  // Shuffle options
-  for (let i = options.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [options[i], options[j]] = [options[j], options[i]];
-  }
-  
-  currentQuiz = { a, b, correct, options };
-  renderQuiz();
-}
-
-function renderQuiz() {
-  if (!currentQuiz) return;
-  
-  document.getElementById('quiz-question').textContent = `${currentQuiz.a} + ${currentQuiz.b} = ?`;
-  
-  const optionsContainer = document.getElementById('quiz-options');
-  optionsContainer.innerHTML = currentQuiz.options.map(opt => `
-    <button type="button" onclick="checkAnswer(${opt})" class="p-3 bg-gray-100 hover:bg-purple-100 rounded-lg text-lg font-bold text-gray-800 transition">
-      ${opt}
-    </button>
-  `).join('');
-  
-  document.getElementById('claim-reward-container').classList.add('hidden');
-  isAnswerCorrect = false;
-}
-
-function checkAnswer(answer) {
-  if (answer === currentQuiz.correct) {
-    showToast('🎉 Jawaban Benar!', 'success');
-    isAnswerCorrect = true;
-    document.getElementById('claim-reward-container').classList.remove('hidden');
-  } else {
-    showToast('❌ Jawaban Salah!', 'error');
-    setTimeout(generateQuiz, 1000);
-  }
-}
-
-async function claimReward() {
-  if (!isAnswerCorrect || !currentUser) return;
-  
-  const btn = document.getElementById('claim-reward-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
-  
-  try {
-    // Simulasi iklan
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const rewardAmount = appSettings?.rewardPoints || 50;
-    currentUser.points = (currentUser.points || 0) + rewardAmount;
-    
-    // Update user di array
-    const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-    if (userIndex >= 0) {
-      allUsers[userIndex] = currentUser;
-      appData.users = allUsers;
-      saveData();
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
-    showToast(`+${rewardAmount} Poin!`, 'success');
-    updatePointsDisplay();
-    generateQuiz();
-  } catch (e) {
-    console.error('Error claiming reward:', e);
-    showToast('Terjadi kesalahan', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>🎁</span><span>Klaim Reward</span>';
-  }
-}
-
-function updatePointsDisplay() {
-  if (!currentUser) return;
-  const points = currentUser.points || 0;
-  
-  document.getElementById('header-points').textContent = `${points} Poin`;
-  document.getElementById('quiz-points').textContent = `${points} Poin`;
-  document.getElementById('history-points').textContent = `${points} Poin`;
-  document.getElementById('profile-points').textContent = points;
-}
-
-// ==================== EXCHANGE FUNCTIONS ====================
-function showExchangeForm() {
-  document.getElementById('exchange-form-container').classList.remove('hidden');
-}
-
-function hideExchangeForm() {
-  document.getElementById('exchange-form-container').classList.add('hidden');
-  document.getElementById('exchange-form').reset();
-}
-
-async function submitExchange(e) {
-  e.preventDefault();
-  
-  if (!currentUser) {
-    showToast('Silakan login terlebih dahulu', 'error');
-    return;
-  }
-  
-  const amount = parseInt(document.getElementById('exchange-amount').value);
-  const danaAccount = document.getElementById('dana-account').value;
-  const danaPhone = document.getElementById('dana-phone').value;
-  
-  if (amount < 50) {
-    showToast('Minimal penukaran 50 poin!', 'error');
-    return;
-  }
-  
-  if ((currentUser.points || 0) < amount) {
-    showToast('Poin tidak mencukupi!', 'error');
-    return;
-  }
-  
-  // Kurangi poin user
-  currentUser.points = (currentUser.points || 0) - amount;
-  
-  // Update user di array
-  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (currentUser.__backendId || currentUser.id));
-  if (userIndex >= 0) {
-    allUsers[userIndex] = currentUser;
-  }
-  
-  // Buat exchange record
-  const exchange = {
-    type: 'exchange',
-    id: 'EX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-    userId: currentUser.__backendId || currentUser.id,
-    username: currentUser.username,
-    amount: amount,
-    danaAccount: danaAccount,
-    danaPhone: danaPhone,
-    status: 'pending',
-    adminNote: '',
-    requestedAt: new Date().toISOString()
-  };
-  
-  allExchanges.push(exchange);
-  
-  // Update appData dan simpan
-  appData.users = allUsers;
-  appData.exchanges = allExchanges;
-  saveData();
-  
-  hideExchangeForm();
-  updatePointsDisplay();
-  showToast('Permintaan penukaran berhasil!', 'success');
-  renderExchangeHistory();
-}
-
-function renderExchangeHistory() {
-  const container = document.getElementById('exchange-history');
-  if (!container) return;
-  
-  if (!currentUser) {
-    container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Silakan login terlebih dahulu</p>';
-    return;
-  }
-  
-  const userExchanges = allExchanges.filter(ex => ex.userId === (currentUser.__backendId || currentUser.id));
-  
-  if (userExchanges.length === 0) {
-    container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>';
-    return;
-  }
-  
-  container.innerHTML = userExchanges.map(ex => {
-    const statusClass = ex.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                       ex.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-    const statusText = ex.status === 'pending' ? 'Pending' : 
-                      ex.status === 'success' ? 'Berhasil' : 'Ditolak';
+    .btn-danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
     
-    return `
-      <div class="p-3 bg-gray-50 rounded-lg">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="font-semibold text-gray-800 text-sm">${ex.amount} Poin = Rp ${ex.amount}</span>
-          <span class="px-2 py-0.5 ${statusClass} rounded-lg text-xs font-medium">${statusText}</span>
-        </div>
-        <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
-        <p class="text-xs text-gray-400 mt-1">${new Date(ex.requestedAt).toLocaleString('id-ID')}</p>
-        ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
-      </div>
-    `;
-  }).join('');
-}
-
-// ==================== AUTH FUNCTIONS ====================
-async function handleLogin(e) {
-  e.preventDefault();
-  
-  const btn = document.getElementById('login-btn');
-  const btnText = document.getElementById('login-btn-text');
-  
-  btn.disabled = true;
-  btnText.textContent = 'Memproses...';
-  
-  const username = document.getElementById('login-username').value.trim();
-  const password = document.getElementById('login-password').value;
-  
-  console.log('Login attempt:', username);
-  console.log('All users:', allUsers);
-  
-  // Cari user dengan username dan password yang cocok
-  const user = allUsers.find(u => 
-    u.type === 'user' && 
-    u.username === username && 
-    u.password === password
-  );
-  
-  if (!user) {
-    showToast('Username atau password salah!', 'error');
-    btn.disabled = false;
-    btnText.textContent = 'Masuk';
-    return;
-  }
-  
-  if (user.blocked) {
-    showToast('Akun Anda diblokir!', 'error');
-    btn.disabled = false;
-    btnText.textContent = 'Masuk';
-    return;
-  }
-  
-  console.log('Login successful:', user);
-  
-  user.lastLogin = new Date().toISOString();
-  
-  // Update user di array
-  const userIndex = allUsers.findIndex(u => (u.__backendId || u.id) === (user.__backendId || user.id));
-  if (userIndex >= 0) {
-    allUsers[userIndex] = user;
-  }
-  
-  appData.users = allUsers;
-  saveData();
-  
-  currentUser = user;
-  saveSession(user);
-  
-  btn.disabled = false;
-  btnText.textContent = 'Masuk';
-  
-  afterLogin();
-}
-
-async function handleRegister(e) {
-  e.preventDefault();
-  
-  const btn = document.getElementById('register-btn');
-  const btnText = document.getElementById('register-btn-text');
-  
-  btn.disabled = true;
-  btnText.textContent = 'Memproses...';
-  
-  const username = document.getElementById('reg-username').value.trim();
-  const password = document.getElementById('reg-password').value;
-  const country = document.getElementById('reg-country').value;
-  
-  if (!username || !password || !country) {
-    showToast('Semua field harus diisi!', 'error');
-    btn.disabled = false;
-    btnText.textContent = 'Daftar';
-    return;
-  }
-  
-  console.log('Register attempt:', username);
-  
-  // Cek apakah username sudah digunakan
-  const exists = allUsers.find(u => u.username === username);
-  if (exists) {
-    showToast('Username sudah digunakan!', 'error');
-    btn.disabled = false;
-    btnText.textContent = 'Daftar';
-    return;
-  }
-  
-  // Cek apakah ini user pertama (akan menjadi admin)
-  const isFirstUser = allUsers.filter(u => u.type === 'user').length === 0;
-  
-  // Buat user baru
-  const newUser = {
-    type: 'user',
-    id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-    username: username,
-    password: password,
-    role: isFirstUser ? 'admin' : 'user',
-    country: country,
-    deviceId: deviceId,
-    points: 0,
-    blocked: false,
-    createdAt: new Date().toISOString(),
-    lastLogin: new Date().toISOString()
-  };
-  
-  console.log('New user:', newUser);
-  
-  allUsers.push(newUser);
-  appData.users = allUsers;
-  saveData();
-  
-  showToast(
-    isFirstUser ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 
-    'success'
-  );
-  
-  // Reset form dan kembali ke halaman login
-  document.getElementById('register-form').reset();
-  showPage('login-page');
-  
-  btn.disabled = false;
-  btnText.textContent = 'Daftar';
-}
-
-function handleLogout() {
-  clearSession();
-  currentUser = null;
-  stopHistoryRefresh();
-  showPage('login-page');
-  document.getElementById('login-form')?.reset();
-}
-
-function afterLogin() {
-  if (!currentUser) return;
-  
-  console.log('After login, user:', currentUser);
-  
-  if (appSettings?.maintenanceMode && currentUser.role !== 'admin') {
-    showPage('maintenance-page');
-    return;
-  }
-  
-  document.getElementById('header-username').textContent = currentUser.username;
-  document.getElementById('profile-username').textContent = currentUser.username;
-  document.getElementById('profile-role').textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
-  document.getElementById('profile-country').textContent = currentUser.country || '-';
-  document.getElementById('profile-device').textContent = currentUser.deviceId || deviceId;
-  
-  updatePointsDisplay();
-  displayBroadcast();
-  
-  if (currentUser.role === 'admin') {
-    document.getElementById('settings-nav-btn').classList.remove('hidden');
-    document.getElementById('maintenance-toggle').checked = appSettings?.maintenanceMode || false;
-    document.getElementById('reward-points-input').value = appSettings?.rewardPoints || 50;
-  } else {
-    document.getElementById('settings-nav-btn').classList.add('hidden');
-  }
-  
-  showPage('main-app');
-  showSection('quiz');
-  generateQuiz();
-}
-
-// ==================== ADMIN FUNCTIONS ====================
-async function toggleMaintenance() {
-  if (!currentUser || currentUser.role !== 'admin') return;
-  
-  const isEnabled = document.getElementById('maintenance-toggle').checked;
-  
-  appSettings.maintenanceMode = isEnabled;
-  appData.settings = appSettings;
-  saveData();
-  
-  showToast(isEnabled ? 'Mode maintenance aktif' : 'Mode maintenance nonaktif', 'success');
-}
-
-async function updateRewardPoints() {
-  if (!currentUser || currentUser.role !== 'admin') return;
-  
-  const points = parseInt(document.getElementById('reward-points-input').value) || 50;
-  
-  appSettings.rewardPoints = points;
-  appData.settings = appSettings;
-  saveData();
-  
-  showToast('Poin reward berhasil diubah!', 'success');
-}
-
-function renderUserList() {
-  const container = document.getElementById('user-list');
-  if (!container) return;
-  
-  const users = allUsers.filter(u => u.type === 'user');
-  
-  if (users.length === 0) {
-    container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Tidak ada user terdaftar</p>';
-    return;
-  }
-  
-  container.innerHTML = users.map(user => {
-    const isAdmin = user.role === 'admin';
-    return `
-      <div class="p-3 bg-gray-50 rounded-lg">
-        <div class="flex items-center justify-between mb-2">
-          <div>
-            <p class="font-semibold text-gray-800 text-sm">${user.username} ${isAdmin ? '👑' : ''}</p>
-            <p class="text-xs text-gray-500">${user.country || '-'} | Poin: ${user.points || 0}</p>
-          </div>
-        </div>
-        <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openEditUserModal('${user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit Poin</button>
-          ${!isAdmin ? `
-            <button type="button" onclick="deleteUser('${user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function openEditUserModal(userId) {
-  const user = allUsers.find(u => u.id === userId);
-  if (!user) return;
-  
-  document.getElementById('edit-user-id').value = userId;
-  document.getElementById('edit-user-username').value = user.username;
-  document.getElementById('edit-user-password').value = '';
-  document.getElementById('edit-user-current-points').textContent = user.points || 0;
-  document.getElementById('edit-user-new-points').value = user.points || 0;
-  document.getElementById('edit-user-modal').classList.remove('hidden');
-}
-
-function closeEditUserModal() {
-  document.getElementById('edit-user-modal').classList.add('hidden');
-}
-
-async function saveEditUser(e) {
-  e.preventDefault();
-  
-  const userId = document.getElementById('edit-user-id').value;
-  const newPassword = document.getElementById('edit-user-password').value;
-  const newPoints = parseInt(document.getElementById('edit-user-new-points').value) || 0;
-  
-  const user = allUsers.find(u => u.id === userId);
-  if (!user) return;
-  
-  if (newPassword) {
-    user.password = newPassword;
-  }
-  
-  user.points = newPoints;
-  
-  // Update di appData
-  const userIndex = allUsers.findIndex(u => u.id === userId);
-  allUsers[userIndex] = user;
-  appData.users = allUsers;
-  saveData();
-  
-  closeEditUserModal();
-  showToast('User berhasil diperbarui!', 'success');
-  renderUserList();
-  
-  if (currentUser && currentUser.id === userId) {
-    currentUser.points = newPoints;
-    updatePointsDisplay();
-  }
-}
-
-async function deleteUser(userId) {
-  if (!confirm('Yakin ingin menghapus user ini?')) return;
-  
-  const userIndex = allUsers.findIndex(u => u.id === userId);
-  if (userIndex >= 0) {
-    allUsers.splice(userIndex, 1);
-    appData.users = allUsers;
-    saveData();
-    showToast('User berhasil dihapus!', 'success');
-    renderUserList();
-  }
-}
-
-function renderAdminExchangeList() {
-  const container = document.getElementById('admin-exchange-list');
-  if (!container) return;
-  
-  const exchanges = [...allExchanges].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
-  
-  if (exchanges.length === 0) {
-    container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan penukaran</p>';
-    return;
-  }
-  
-  container.innerHTML = exchanges.map(ex => {
-    const statusClass = ex.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                       ex.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-    const statusText = ex.status === 'pending' ? 'Pending' : 
-                      ex.status === 'success' ? 'Berhasil' : 'Ditolak';
+    .btn-success {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
     
-    return `
-      <div class="p-3 bg-gray-50 rounded-lg">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="font-semibold text-gray-800 text-sm">${ex.username}</span>
-          <span class="px-2 py-0.5 ${statusClass} rounded text-xs font-medium">${statusText}</span>
-        </div>
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-green-600 font-bold text-sm">${ex.amount} Poin</span>
-          <span class="text-xs text-gray-400">${new Date(ex.requestedAt).toLocaleString('id-ID')}</span>
-        </div>
-        <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
-        ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
-        <div class="flex gap-1.5 mt-2">
-          <button type="button" onclick="openExchangeStatusModal('${ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah Status</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function openExchangeStatusModal(exchangeId) {
-  const exchange = allExchanges.find(ex => ex.id === exchangeId);
-  if (!exchange) return;
-  
-  document.getElementById('exchange-status-id').value = exchangeId;
-  document.getElementById('exchange-status-user-id').value = exchange.userId;
-  document.getElementById('exchange-status-amount').value = exchange.amount;
-  document.getElementById('exchange-status-select').value = exchange.status === 'success' ? 'success' : exchange.status === 'rejected' ? 'rejected' : 'success';
-  document.getElementById('exchange-status-note').value = exchange.adminNote || '';
-  document.getElementById('exchange-status-modal').classList.remove('hidden');
-}
-
-function closeExchangeStatusModal() {
-  document.getElementById('exchange-status-modal').classList.add('hidden');
-}
-
-async function saveExchangeStatus(e) {
-  e.preventDefault();
-  
-  const exchangeId = document.getElementById('exchange-status-id').value;
-  const userId = document.getElementById('exchange-status-user-id').value;
-  const amount = parseInt(document.getElementById('exchange-status-amount').value);
-  const status = document.getElementById('exchange-status-select').value;
-  const note = document.getElementById('exchange-status-note').value;
-  
-  const exchange = allExchanges.find(ex => ex.id === exchangeId);
-  if (!exchange) return;
-  
-  // Jika ditolak, kembalikan poin ke user
-  if (status === 'rejected' && exchange.status !== 'rejected') {
-    const user = allUsers.find(u => u.id === userId);
-    if (user) {
-      user.points = (user.points || 0) + amount;
-      
-      // Update user di array
-      const userIndex = allUsers.findIndex(u => u.id === userId);
-      allUsers[userIndex] = user;
-      
-      if (currentUser && currentUser.id === userId) {
-        currentUser.points = user.points;
-        updatePointsDisplay();
+    /* Cards & Shadows */
+    .card-shadow {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Input Fields */
+    .input-field {
+      transition: all 0.3s;
+      border: 1.5px solid #e2e8f0;
+    }
+    
+    .input-field:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      outline: none;
+    }
+    
+    /* Navigation */
+    .menu-active {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+    
+    /* Toast Notifications */
+    .toast {
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
-  }
-  
-  exchange.status = status;
-  exchange.adminNote = note;
-  
-  // Update exchange di array
-  const exchangeIndex = allExchanges.findIndex(ex => ex.id === exchangeId);
-  allExchanges[exchangeIndex] = exchange;
-  
-  appData.users = allUsers;
-  appData.exchanges = allExchanges;
-  saveData();
-  
-  closeExchangeStatusModal();
-  showToast(`Status penukaran diubah menjadi ${status === 'success' ? 'Berhasil' : 'Ditolak'}`, 'success');
-  renderAdminExchangeList();
-  renderExchangeHistory();
-}
-
-// ==================== INITIALIZATION ====================
-function init() {
-  console.log('Initializing app...');
-  
-  // Set default country
-  document.getElementById('reg-country').value = 'Indonesia';
-  
-  // Event listeners
-  document.getElementById('login-form').addEventListener('submit', handleLogin);
-  document.getElementById('register-form').addEventListener('submit', handleRegister);
-  document.getElementById('exchange-form').addEventListener('submit', submitExchange);
-  document.getElementById('edit-user-form').addEventListener('submit', saveEditUser);
-  document.getElementById('exchange-status-form').addEventListener('submit', saveExchangeStatus);
-  document.getElementById('broadcast-form').addEventListener('submit', submitBroadcast);
-  
-  // Broadcast message char counter
-  document.getElementById('broadcast-message').addEventListener('input', function(e) {
-    document.getElementById('char-count').textContent = e.target.value.length + '/100';
-  });
-  
-  // Check for existing session
-  const session = getSession();
-  if (session) {
-    console.log('Session found:', session);
-    const user = allUsers.find(u => (u.__backendId || u.id) === session.userId);
-    if (user && !user.blocked) {
-      console.log('Auto-login user:', user);
-      currentUser = user;
-      setTimeout(afterLogin, 500);
-    } else {
-      clearSession();
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
-  } else {
-    console.log('No valid session');
-  }
-  
-  console.log('Initial users:', allUsers);
-}
+    
+    /* Loading Spinner */
+    .loading-spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Point Animation */
+    .point-change {
+      animation: pointPulse 0.5s ease;
+    }
+    
+    @keyframes pointPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Broadcast Banner */
+    .broadcast-banner {
+      background: linear-gradient(90deg, #ff6b6b 0%, #ff8e72 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .broadcast-text {
+      animation: scrollText 15s linear infinite;
+      white-space: nowrap;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-block;
+    }
+    
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .broadcast-banner.paused .broadcast-text {
+      animation-play-state: paused;
+    }
+    
+    /* Page Management */
+    .page {
+      display: none !important;
+    }
+    
+    .page.active {
+      display: block !important;
+    }
+    
+    /* Layout */
+    #main-app {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    main {
+      padding-bottom: 100px;
+    }
+    
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+    }
+  </style>
+</head>
 
-// Start the app
-init();
-</script>
+<body class="bg-gray-50">
+  <div id="app" class="w-full h-full overflow-auto">
+    
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"></div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="page active w-full h-full">
+      <div class="auth-container">
+        <div class="w-full max-w-sm px-4">
+          <div class="text-center mb-6">
+            <h1 id="app-title" class="text-3xl font-bold text-gray-800">Math Quiz</h1>
+            <p class="text-sm text-gray-500 mt-1">Jawab quiz & dapatkan reward!</p>
+          </div>
+          
+          <div class="bg-white rounded-2xl p-6 card-shadow">
+            <form id="login-form" class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-2">Username</label>
+                <input type="text" id="login-username" class="input-field w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Masukkan username" required>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-2">Password</label>
+                <input type="password" id="login-password" class="input-field w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Masukkan password" required>
+              </div>
+              
+              <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mt-4">
+                <span id="login-btn-text">Masuk</span>
+              </button>
+            </form>
+            
+            <p class="text-center mt-4 text-gray-500 text-xs">
+              Belum punya akun? 
+              <button type="button" onclick="showPage('register-page')" class="text-purple-600 font-semibold hover:underline">
+                Daftar
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" class="page w-full h-full">
+      <div class="auth-container">
+        <div class="w-full max-w-sm px-4">
+          <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Daftar Akun</h1>
+            <p class="text-sm text-gray-500 mt-1">Buat akun baru untuk mulai bermain</p>
+          </div>
+          
+          <div class="bg-white rounded-2xl p-6 card-shadow">
+            <form id="register-form" class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-2">Username</label>
+                <input type="text" id="reg-username" class="input-field w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Pilih username" required>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-2">Password</label>
+                <input type="password" id="reg-password" class="input-field w-full px-3 py-2.5 rounded-lg text-sm" placeholder="Buat password" required>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-2">Negara</label>
+                <select id="reg-country" class="input-field w-full px-3 py-2.5 rounded-lg bg-white text-sm" required>
+                  <option value="">🔍 Mendeteksi lokasi...</option>
+                  <option value="Indonesia">🇮🇩 Indonesia</option>
+                  <option value="Malaysia">🇲🇾 Malaysia</option>
+                  <option value="Singapore">🇸🇬 Singapore</option>
+                  <option value="Thailand">🇹🇭 Thailand</option>
+                  <option value="Vietnam">🇻🇳 Vietnam</option>
+                  <option value="Philippines">🇵🇭 Philippines</option>
+                </select>
+              </div>
+              
+              <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mt-4">
+                <span id="reg-btn-text">Daftar</span>
+              </button>
+            </form>
+            
+            <p class="text-center mt-4 text-gray-500 text-xs">
+              Sudah punya akun? 
+              <button type="button" onclick="showPage('login-page')" class="text-purple-600 font-semibold hover:underline">
+                Masuk
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAINTENANCE PAGE -->
+    <div id="maintenance-page" class="page w-full h-full">
+      <div class="auth-container">
+        <div class="text-center px-4">
+          <div class="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <span class="text-3xl">🔧</span>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">Maintenance</h1>
+          <p class="text-gray-500 max-w-xs text-sm">Aplikasi sedang dalam perbaikan. Silakan kembali beberapa saat lagi.</p>
+          <button type="button" onclick="handleLogout()" class="mt-6 px-4 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold hover:bg-gray-300 transition text-sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="main-app" class="page w-full h-full">
+      
+      <!-- Header -->
+      <header class="gradient-bg text-white p-3 sticky top-0 z-40">
+        <div class="max-w-2xl mx-auto flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+              <span class="text-sm">👤</span>
+            </div>
+            <div>
+              <p id="header-username" class="font-semibold text-sm">Username</p>
+              <p id="header-points" class="text-xs opacity-80">0 Poin</p>
+            </div>
+          </div>
+          <button type="button" onclick="handleLogout()" class="px-3 py-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition text-xs font-medium">
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-3 overflow-auto">
+        <div class="max-w-2xl mx-auto">
+          
+          <!-- Broadcast Banner -->
+          <div id="broadcast-container" class="hidden">
+            <div class="broadcast-banner" onmouseenter="this.classList.add('paused')" onmouseleave="this.classList.remove('paused')">
+              <span class="broadcast-text" id="broadcast-text-display">📢 </span>
+            </div>
+          </div>
+
+          <!-- QUIZ SECTION -->
+          <div id="quiz-section" class="section">
+            <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">🎯 Quiz Matematika</h2>
+                <div class="px-3 py-1.5 bg-purple-100 rounded-lg">
+                  <span id="quiz-points" class="font-bold text-purple-600 text-sm">0 Poin</span>
+                </div>
+              </div>
+              
+              <div id="quiz-container">
+                <div class="text-center py-6 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl mb-4">
+                  <p class="text-gray-500 mb-1 text-xs">Berapa hasil dari:</p>
+                  <p id="quiz-question" class="text-3xl font-bold text-gray-800">0 + 0 = ?</p>
+                </div>
+                
+                <div id="quiz-options" class="grid grid-cols-2 gap-2 mb-4"></div>
+                
+                <div id="claim-reward-container" class="hidden">
+                  <button type="button" id="claim-reward-btn" onclick="claimReward()" class="btn-success w-full py-3 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2">
+                    <span>🎁</span>
+                    <span>Klaim Reward</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HISTORY SECTION -->
+          <div id="history-section" class="section hidden">
+            <!-- Points Card -->
+            <div class="bg-white rounded-2xl p-4 card-shadow mb-3">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <h2 class="text-lg font-bold text-gray-800">💰 Poin Saya</h2>
+                  <span id="refresh-indicator" class="text-xs text-green-600 opacity-0">🔄 Auto-refresh</span>
+                </div>
+                <div class="px-3 py-1.5 bg-green-100 rounded-lg">
+                  <span id="history-points" class="font-bold text-green-600 text-sm">0 Poin</span>
+                </div>
+              </div>
+              
+              <button type="button" onclick="showExchangeForm()" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm mb-3">
+                Tukar Poin
+              </button>
+              
+              <p class="text-xs text-gray-500 text-center">Minimal: 50 Poin = Rp 50</p>
+            </div>
+
+            <!-- Exchange Form -->
+            <div id="exchange-form-container" class="bg-white rounded-2xl p-4 card-shadow mb-3 hidden">
+              <h3 class="text-base font-bold text-gray-800 mb-3">📝 Form Penukaran</h3>
+              
+              <form id="exchange-form" class="space-y-2.5">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-1.5">Jumlah Poin</label>
+                  <input type="number" id="exchange-amount" class="input-field w-full px-3 py-2 rounded-lg text-sm" placeholder="Min. 50 poin" min="50" required>
+                </div>
+                
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Akun DANA</label>
+                  <input type="text" id="dana-account" class="input-field w-full px-3 py-2 rounded-lg text-sm" placeholder="Nama lengkap" required>
+                </div>
+                
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nomor HP DANA</label>
+                  <input type="tel" id="dana-phone" class="input-field w-full px-3 py-2 rounded-lg text-sm" placeholder="08xxxxxxxxxx" required>
+                </div>
+                
+                <div class="flex gap-2 pt-2">
+                  <button type="button" onclick="hideExchangeForm()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">
+                    Batal
+                  </button>
+                  <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">
+                    Kirim
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Exchange History -->
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+              <h3 class="text-base font-bold text-gray-800 mb-3">📋 Riwayat Penukaran</h3>
+              <div id="exchange-history" class="space-y-2">
+                <p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROFILE SECTION -->
+          <div id="profile-section" class="section hidden">
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+              <div class="text-center mb-4">
+                <div class="w-16 h-16 gradient-bg rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <span class="text-2xl">👤</span>
+                </div>
+                <h2 id="profile-username" class="text-xl font-bold text-gray-800">Username</h2>
+                <span id="profile-role" class="inline-block mt-1.5 px-2.5 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">
+                  User
+                </span>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span class="text-gray-600 text-sm">🌍 Negara</span>
+                  <span id="profile-country" class="font-semibold text-gray-800 text-sm">-</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span class="text-gray-600 text-sm">📱 Device ID</span>
+                  <span id="profile-device" class="font-semibold text-gray-800 text-xs">-</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span class="text-gray-600 text-sm">💰 Total Poin</span>
+                  <span id="profile-points" class="font-semibold text-green-600">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SETTINGS SECTION (Admin Only) -->
+          <div id="settings-section" class="section hidden">
+            <div class="space-y-3">
+              
+              <!-- Database Status -->
+              <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">☁️ Google Sheets Database</h2>
+                
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600 text-sm">🔗 Status Koneksi</span>
+                    <span id="connection-status" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">✓ Connected</span>
+                  </div>
+                  
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600 text-sm">👥 Total Users</span>
+                    <span class="font-semibold text-gray-800 text-sm" id="total-users">0</span>
+                  </div>
+                  
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600 text-sm">💱 Total Exchanges</span>
+                    <span class="font-semibold text-gray-800 text-sm" id="total-exchanges">0</span>
+                  </div>
+                  
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600 text-sm">📢 Total Broadcasts</span>
+                    <span class="font-semibold text-gray-800 text-sm" id="total-broadcasts">0</span>
+                  </div>
+                  
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600 text-sm">⏱️ Last Sync</span>
+                    <span class="font-semibold text-gray-800 text-sm" id="last-sync">Baru saja</span>
+                  </div>
+                </div>
+                
+                <button type="button" onclick="refreshFromSheet()" class="btn-success w-full py-2.5 rounded-lg text-white font-semibold text-sm mt-3">
+                  🔄 Refresh Data dari Google Sheets
+                </button>
+              </div>
+
+              <!-- Broadcast Message -->
+              <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">📢 Pesan Broadcast</h2>
+                
+                <form id="broadcast-form" class="space-y-2.5">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5">Pesan</label>
+                    <textarea id="broadcast-message" class="input-field w-full px-3 py-2 rounded-lg text-sm" rows="3" placeholder="Ketik pesan untuk semua user..." required maxlength="100"></textarea>
+                    <p id="char-count" class="text-xs text-gray-500 mt-1">0/100</p>
+                  </div>
+                  
+                  <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-white font-semibold text-sm flex items-center justify-center gap-2">
+                    <span>📤</span>
+                    <span>Kirim Broadcast</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Admin Settings -->
+              <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">⚙️ Pengaturan Admin</h2>
+                
+                <!-- Maintenance Toggle -->
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
+                  <div>
+                    <p class="font-semibold text-gray-800 text-sm">Mode Maintenance</p>
+                    <p class="text-xs text-gray-500">Nonaktifkan akses user</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="maintenance-toggle" class="sr-only peer" onchange="toggleMaintenance()">
+                    <div class="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  </label>
+                </div>
+                
+                <!-- Reward Points Setting -->
+                <div class="p-3 bg-gray-50 rounded-lg">
+                  <p class="font-semibold text-gray-800 text-sm mb-2">Poin Reward per Klaim</p>
+                  <div class="flex gap-2">
+                    <input type="number" id="reward-points-input" class="input-field flex-1 px-3 py-2 rounded-lg text-sm" value="50" min="1">
+                    <button type="button" onclick="updateRewardPoints()" class="px-3 py-2 btn-primary rounded-lg text-white font-semibold text-xs">
+                      Simpan
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Management -->
+              <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="text-base font-bold text-gray-800 mb-3">👥 Manajemen User</h3>
+                <div id="user-list" class="space-y-2">
+                  <p class="text-gray-500 text-center py-3 text-xs">Memuat data...</p>
+                </div>
+              </div>
+
+              <!-- Exchange Requests -->
+              <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="text-base font-bold text-gray-800 mb-3">💳 Riwayat Penukaran</h3>
+                <div id="admin-exchange-list" class="space-y-2">
+                  <p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bg-white border-t border-gray-200 px-4 py-2 mt-auto">
+        <div class="flex justify-around max-w-2xl mx-auto">
+          <button type="button" onclick="showSection('quiz')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition text-center" data-section="quiz">
+            <span class="text-xl">🎯</span>
+            <span class="text-xs font-medium text-gray-600">Quiz</span>
+          </button>
+          
+          <button type="button" onclick="showSection('history')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition text-center" data-section="history">
+            <span class="text-xl">📋</span>
+            <span class="text-xs font-medium text-gray-600">Riwayat</span>
+          </button>
+          
+          <button type="button" onclick="showSection('profile')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition text-center" data-section="profile">
+            <span class="text-xl">👤</span>
+            <span class="text-xs font-medium text-gray-600">Profil</span>
+          </button>
+          
+          <button id="settings-nav-btn" type="button" onclick="showSection('settings')" class="nav-btn flex flex-col items-center p-1.5 rounded-lg transition hidden text-center" data-section="settings">
+            <span class="text-xl">⚙️</span>
+            <span class="text-xs font-medium text-gray-600">Setting</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- EDIT USER MODAL -->
+    <div id="edit-user-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-4 w-full max-w-sm max-h-[90%] overflow-auto">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">Edit User</h3>
+        
+        <form id="edit-user-form" class="space-y-2.5">
+          <input type="hidden" id="edit-user-id">
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
+            <input type="text" id="edit-user-username" class="input-field w-full px-3 py-2 rounded-lg text-sm" readonly>
+          </div>
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password Baru</label>
+            <input type="password" id="edit-user-password" class="input-field w-full px-3 py-2 rounded-lg text-sm" placeholder="Kosongkan jika tidak diubah">
+          </div>
+          
+          <div class="p-3 bg-blue-50 rounded-lg">
+            <p class="text-xs font-semibold text-gray-700 mb-1.5">Poin Saat Ini</p>
+            <p id="edit-user-current-points" class="text-xl font-bold text-blue-600">0</p>
+          </div>
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Total Poin Baru</label>
+            <input type="number" id="edit-user-new-points" class="input-field w-full px-3 py-2 rounded-lg text-sm" placeholder="0" min="0">
+          </div>
+          
+          <div class="flex gap-2 pt-2">
+            <button type="button" onclick="closeEditUserModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">
+              Batal
+            </button>
+            <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- EXCHANGE STATUS MODAL -->
+    <div id="exchange-status-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-4 w-full max-w-sm">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">Ubah Status Penukaran</h3>
+        
+        <form id="exchange-status-form" class="space-y-2.5">
+          <input type="hidden" id="exchange-status-id">
+          <input type="hidden" id="exchange-status-user-id">
+          <input type="hidden" id="exchange-status-amount">
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Status</label>
+            <select id="exchange-status-select" class="input-field w-full px-3 py-2 rounded-lg bg-white text-sm" required>
+              <option value="success">Berhasil</option>
+              <option value="rejected">Tolak</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Catatan Admin</label>
+            <textarea id="exchange-status-note" class="input-field w-full px-3 py-2 rounded-lg text-sm" rows="2" placeholder="Tambahkan catatan..."></textarea>
+          </div>
+          
+          <div class="flex gap-2 pt-2">
+            <button type="button" onclick="closeExchangeStatusModal()" class="flex-1 py-2 bg-gray-200 rounded-lg text-gray-700 font-semibold text-xs">
+              Batal
+            </button>
+            <button type="submit" class="flex-1 btn-primary py-2 rounded-lg text-white font-semibold text-xs">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== GOOGLE SHEETS CONFIGURATION ====================
+    // GAS Web App URL - Sudah diisi dengan URL yang diberikan
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx57njR21kfW1TRrP6uzPkgYvXDW-Rz7bVOxuf7AHjQ8iEybe5NrpdyeGWgQ2VdsqIqZQ/exec';
+    
+    // Spreadsheet ID - Sudah diisi dengan ID yang diberikan
+    const SPREADSHEET_ID = '1ZUThpZM2NfpJLOSbr9AdL8huDfMv4_ZRyfrjwh1Mh-I';
+
+    // ==================== APP STATE ====================
+    let currentUser = null;
+    let allUsers = [];
+    let allExchanges = [];
+    let allBroadcasts = [];
+    let appSettings = null;
+    let currentQuiz = null;
+    let isAnswerCorrect = false;
+    let historyRefreshInterval = null;
+    let detectedCountry = null;
+    let currentBroadcast = null;
+    let lastSyncTime = new Date();
+
+    // Default Configuration
+    const defaultConfig = {
+      app_title: 'Math Quiz'
+    };
+
+    // ==================== UTILITY FUNCTIONS ====================
+    
+    // Generate Device ID
+    function generateDeviceId() {
+      const stored = localStorage.getItem('deviceId');
+      if (stored) return stored;
+      const id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      localStorage.setItem('deviceId', id);
+      return id;
+    }
+
+    const deviceId = generateDeviceId();
+
+    // Detect Country by IP
+    async function detectCountry() {
+      try {
+        const countryMap = {
+          'ID': 'Indonesia', 'MY': 'Malaysia', 'SG': 'Singapore',
+          'TH': 'Thailand', 'VN': 'Vietnam', 'PH': 'Philippines'
+        };
+
+        try {
+          const response = await fetch('https://ipapi.co/json/', { 
+            signal: AbortSignal.timeout(3000)
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.country_code && countryMap[data.country_code]) {
+              const country = countryMap[data.country_code];
+              detectedCountry = country;
+              document.getElementById('reg-country').value = country;
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Country detection fallback...');
+        }
+      } catch (e) {
+        console.error('Country detection error:', e);
+      }
+    }
+
+    // ==================== SESSION MANAGEMENT ====================
+    
+    function saveSession(user) {
+      const session = {
+        userId: user.id || user.__backendId,
+        username: user.username,
+        role: user.role,
+        loginTime: new Date().toISOString()
+      };
+      localStorage.setItem('userSession', JSON.stringify(session));
+    }
+
+    function getSession() {
+      const session = localStorage.getItem('userSession');
+      if (!session) return null;
+      
+      const parsed = JSON.parse(session);
+      const loginTime = new Date(parsed.loginTime);
+      const now = new Date();
+      const diffDays = (now - loginTime) / (1000 * 60 * 60 * 24);
+      
+      if (diffDays >= 2) {
+        localStorage.removeItem('userSession');
+        return null;
+      }
+      return parsed;
+    }
+
+    function clearSession() {
+      localStorage.removeItem('userSession');
+    }
+
+    // ==================== UI FUNCTIONS ====================
+    
+    // Toast Notification
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+      toast.className = `toast ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg font-medium text-sm`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Page Navigation
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    // Section Navigation
+    function showSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`${section}-section`).classList.remove('hidden');
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('menu-active');
+        if (btn.dataset.section === section) {
+          btn.classList.add('menu-active');
+        }
+      });
+
+      stopHistoryRefresh();
+      
+      if (section === 'history') {
+        renderExchangeHistory();
+        startHistoryRefresh();
+      } else if (section === 'settings') {
+        renderUserList();
+        renderAdminExchangeList();
+        updateDatabaseStatus();
+      }
+    }
+
+    // History Auto-Refresh
+    function startHistoryRefresh() {
+      const indicator = document.getElementById('refresh-indicator');
+      indicator.classList.remove('opacity-0');
+      
+      if (historyRefreshInterval) clearInterval(historyRefreshInterval);
+      historyRefreshInterval = setInterval(() => {
+        renderExchangeHistory();
+      }, 5000);
+    }
+
+    function stopHistoryRefresh() {
+      if (historyRefreshInterval) {
+        clearInterval(historyRefreshInterval);
+        historyRefreshInterval = null;
+      }
+      const indicator = document.getElementById('refresh-indicator');
+      indicator.classList.add('opacity-0');
+    }
+
+    // ==================== GOOGLE SHEETS DATABASE ====================
+    
+    /**
+     * Mengambil semua data dari Google Sheets
+     */
+    async function fetchAllFromSheet() {
+      try {
+        showToast('Mengambil data dari Google Sheets...', 'info');
+        
+        const url = `${GAS_WEB_APP_URL}?action=getAll&spreadsheetId=${SPREADSHEET_ID}&t=${Date.now()}`;
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          // Map data dari Sheets ke struktur aplikasi
+          allUsers = (result.data.users || []).map(u => ({
+            ...u,
+            type: 'user',
+            points: parseInt(u.points) || 0
+          }));
+          
+          allExchanges = (result.data.exchanges || []).map(e => ({
+            ...e,
+            type: 'exchange',
+            amount: parseInt(e.amount) || 0
+          }));
+          
+          allBroadcasts = (result.data.broadcasts || []).map(b => ({
+            ...b,
+            type: 'broadcast'
+          }));
+          
+          // Settings (ambil yang pertama atau buat default)
+          if (result.data.settings && result.data.settings.length > 0) {
+            appSettings = result.data.settings[0];
+          } else {
+            appSettings = {
+              type: 'settings',
+              maintenanceMode: false,
+              rewardPoints: 50
+            };
+          }
+          
+          lastSyncTime = new Date();
+          updateDatabaseStatus();
+          
+          showToast('Data berhasil dimuat dari Google Sheets!', 'success');
+          
+          // Update current user jika sedang login
+          if (currentUser) {
+            const updatedUser = allUsers.find(u => (u.id === currentUser.id || u.__backendId === currentUser.__backendId));
+            if (updatedUser) {
+              currentUser = updatedUser;
+              updatePointsDisplay();
+            }
+          }
+          
+          // Update broadcast
+          displayBroadcast();
+          
+          return true;
+        } else {
+          throw new Error(result.message || 'Gagal mengambil data');
+        }
+      } catch (error) {
+        console.error('Error fetching from sheet:', error);
+        showToast('Gagal mengambil data: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    /**
+     * Menyimpan data ke Google Sheets
+     */
+    async function saveToSheet(action, data) {
+      try {
+        const payload = {
+          action: action,
+          spreadsheetId: SPREADSHEET_ID,
+          data: data,
+          timestamp: new Date().toISOString()
+        };
+        
+        const response = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          // Refresh data setelah menyimpan
+          await fetchAllFromSheet();
+          return true;
+        } else {
+          throw new Error(result.message || 'Gagal menyimpan data');
+        }
+      } catch (error) {
+        console.error('Error saving to sheet:', error);
+        showToast('Gagal menyimpan: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    /**
+     * Refresh data dari Google Sheets
+     */
+    async function refreshFromSheet() {
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      
+      await fetchAllFromSheet();
+      
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+
+    /**
+     * Update tampilan status database
+     */
+    function updateDatabaseStatus() {
+      document.getElementById('total-users').textContent = allUsers.length;
+      document.getElementById('total-exchanges').textContent = allExchanges.length;
+      document.getElementById('total-broadcasts').textContent = allBroadcasts.length;
+      
+      const syncTime = lastSyncTime.toLocaleTimeString('id-ID');
+      document.getElementById('last-sync').textContent = syncTime;
+    }
+
+    // ==================== BROADCAST ====================
+    
+    function displayBroadcast() {
+      const latestBroadcast = allBroadcasts
+        .filter(b => b.type === 'broadcast')
+        .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))[0];
+      
+      if (latestBroadcast) {
+        currentBroadcast = latestBroadcast;
+        const container = document.getElementById('broadcast-container');
+        const textDisplay = document.getElementById('broadcast-text-display');
+        textDisplay.textContent = '📢 ' + latestBroadcast.message;
+        container.classList.remove('hidden');
+      }
+    }
+
+    // ==================== QUIZ LOGIC ====================
+    
+    function generateQuiz() {
+      const a = Math.floor(Math.random() * 100) + 1;
+      const b = Math.floor(Math.random() * 100) + 1;
+      const correct = a + b;
+      
+      const options = [correct];
+      while (options.length < 4) {
+        const wrong = correct + Math.floor(Math.random() * 21) - 10;
+        if (wrong !== correct && wrong > 0 && !options.includes(wrong)) {
+          options.push(wrong);
+        }
+      }
+      
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      
+      currentQuiz = { a, b, correct, options };
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      if (!currentQuiz) return;
+      
+      document.getElementById('quiz-question').textContent = `${currentQuiz.a} + ${currentQuiz.b} = ?`;
+      
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = currentQuiz.options.map(opt => `
+        <button type="button" onclick="checkAnswer(${opt})" class="p-3 bg-gray-100 hover:bg-purple-100 rounded-lg text-lg font-bold text-gray-800 transition">
+          ${opt}
+        </button>
+      `).join('');
+      
+      document.getElementById('claim-reward-container').classList.add('hidden');
+      isAnswerCorrect = false;
+    }
+
+    function checkAnswer(answer) {
+      if (answer === currentQuiz.correct) {
+        showToast('🎉 Jawaban Benar!', 'success');
+        isAnswerCorrect = true;
+        document.getElementById('claim-reward-container').classList.remove('hidden');
+      } else {
+        showToast('❌ Jawaban Salah!', 'error');
+        setTimeout(generateQuiz, 1000);
+      }
+    }
+
+    async function claimReward() {
+      if (!isAnswerCorrect || !currentUser) return;
+      
+      const btn = document.getElementById('claim-reward-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+      
+      try {
+        if (typeof show_10547702 === 'function') {
+          await show_10547702();
+        }
+        
+        const rewardAmount = appSettings?.rewardPoints || 50;
+        currentUser.points = (currentUser.points || 0) + rewardAmount;
+        
+        // Simpan ke Google Sheets
+        const success = await saveToSheet('updateUser', currentUser);
+        
+        if (success) {
+          showToast(`+${rewardAmount} Poin!`, 'success');
+          updatePointsDisplay();
+        }
+        
+        generateQuiz();
+      } catch (e) {
+        console.error('Claim reward error:', e);
+        showToast('Terjadi kesalahan, coba lagi', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🎁</span><span>Klaim Reward</span>';
+      }
+    }
+
+    function updatePointsDisplay() {
+      if (!currentUser) return;
+      const points = currentUser.points || 0;
+      
+      const pointsElements = [
+        document.getElementById('header-points'),
+        document.getElementById('quiz-points'),
+        document.getElementById('history-points'),
+        document.getElementById('profile-points')
+      ];
+      
+      pointsElements.forEach(el => {
+        if (el) {
+          el.classList.remove('point-change');
+          void el.offsetWidth;
+          el.classList.add('point-change');
+        }
+      });
+      
+      document.getElementById('header-points').textContent = `${points} Poin`;
+      document.getElementById('quiz-points').textContent = `${points} Poin`;
+      document.getElementById('history-points').textContent = `${points} Poin`;
+      document.getElementById('profile-points').textContent = points;
+    }
+
+    // ==================== EXCHANGE FUNCTIONS ====================
+    
+    function showExchangeForm() {
+      document.getElementById('exchange-form-container').classList.remove('hidden');
+    }
+
+    function hideExchangeForm() {
+      document.getElementById('exchange-form-container').classList.add('hidden');
+      document.getElementById('exchange-form').reset();
+    }
+
+    async function submitExchange(e) {
+      e.preventDefault();
+      
+      const amount = parseInt(document.getElementById('exchange-amount').value);
+      const danaAccount = document.getElementById('dana-account').value;
+      const danaPhone = document.getElementById('dana-phone').value;
+      
+      if (amount < 50) {
+        showToast('Minimal penukaran 50 poin!', 'error');
+        return;
+      }
+      
+      if ((currentUser.points || 0) < amount) {
+        showToast('Poin tidak mencukupi!', 'error');
+        return;
+      }
+      
+      currentUser.points = (currentUser.points || 0) - amount;
+      
+      // Update user points
+      await saveToSheet('updateUser', currentUser);
+      
+      const exchange = {
+        id: 'EX-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        type: 'exchange',
+        userId: currentUser.id || currentUser.__backendId,
+        username: currentUser.username,
+        amount: amount,
+        danaAccount: danaAccount,
+        danaPhone: danaPhone,
+        status: 'pending',
+        adminNote: '',
+        requestedAt: new Date().toISOString()
+      };
+      
+      // Create exchange record
+      await saveToSheet('createExchange', exchange);
+      
+      hideExchangeForm();
+      updatePointsDisplay();
+      showToast('Permintaan penukaran berhasil!', 'success');
+      
+      try {
+        if (typeof show_10547702 === 'function') {
+          await show_10547702();
+        }
+      } catch (e) {}
+      
+      renderExchangeHistory();
+    }
+
+    function renderExchangeHistory() {
+      const container = document.getElementById('exchange-history');
+      const userId = currentUser?.id || currentUser?.__backendId;
+      const userExchanges = allExchanges.filter(ex => ex.userId === userId);
+      
+      if (userExchanges.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada riwayat</p>';
+        return;
+      }
+      
+      container.innerHTML = userExchanges.map(ex => {
+        const statusClass = ex.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                           ex.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+        const statusText = ex.status === 'pending' ? 'Pending' : 
+                          ex.status === 'success' ? 'Berhasil' : 'Ditolak';
+        
+        return `
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-semibold text-gray-800 text-sm">${ex.amount} Poin = Rp ${ex.amount}</span>
+              <span class="px-2 py-0.5 ${statusClass} rounded-lg text-xs font-medium">${statusText}</span>
+            </div>
+            <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
+            <p class="text-xs text-gray-400 mt-1">${new Date(ex.requestedAt).toLocaleString('id-ID')}</p>
+            ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
+            ${ex.status === 'pending' ? `
+              <button type="button" onclick="deleteUserExchange('${ex.id}')" class="mt-1.5 text-xs text-red-500 hover:underline">Hapus</button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function deleteUserExchange(exchangeId) {
+      const exchange = allExchanges.find(ex => ex.id === exchangeId);
+      if (!exchange || exchange.status !== 'pending') return;
+      
+      currentUser.points = (currentUser.points || 0) + exchange.amount;
+      
+      // Update user points
+      await saveToSheet('updateUser', currentUser);
+      
+      // Delete exchange
+      await saveToSheet('deleteExchange', exchange);
+      
+      showToast('Permintaan dibatalkan, poin dikembalikan', 'success');
+      updatePointsDisplay();
+    }
+
+    // ==================== BROADCAST FUNCTIONS ====================
+    
+    async function submitBroadcast(e) {
+      e.preventDefault();
+      
+      const message = document.getElementById('broadcast-message').value.trim();
+      
+      if (!message) {
+        showToast('Pesan tidak boleh kosong!', 'error');
+        return;
+      }
+      
+      const broadcast = {
+        id: 'BC-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        type: 'broadcast',
+        message: message,
+        sentAt: new Date().toISOString()
+      };
+      
+      await saveToSheet('createBroadcast', broadcast);
+      
+      document.getElementById('broadcast-form').reset();
+      document.getElementById('char-count').textContent = '0/100';
+      showToast('Pesan broadcast berhasil dikirim!', 'success');
+    }
+
+    // ==================== ADMIN FUNCTIONS ====================
+    
+    async function toggleMaintenance() {
+      const isEnabled = document.getElementById('maintenance-toggle').checked;
+      
+      if (!appSettings) {
+        appSettings = {
+          id: 'SETTINGS-' + Date.now(),
+          type: 'settings',
+          maintenanceMode: isEnabled,
+          rewardPoints: 50
+        };
+        await saveToSheet('createSettings', appSettings);
+      } else {
+        appSettings.maintenanceMode = isEnabled;
+        await saveToSheet('updateSettings', appSettings);
+      }
+      
+      if (isEnabled) {
+        const session = getSession();
+        if (session && session.role !== 'admin') {
+          clearSession();
+          showToast('Aplikasi sedang maintenance', 'info');
+          setTimeout(() => handleLogout(), 500);
+          return;
+        }
+        showToast('Mode maintenance aktif - semua user di-logout', 'success');
+      } else {
+        showToast('Mode maintenance nonaktif', 'success');
+      }
+    }
+
+    async function updateRewardPoints() {
+      const points = parseInt(document.getElementById('reward-points-input').value) || 50;
+      
+      if (!appSettings) {
+        appSettings = {
+          id: 'SETTINGS-' + Date.now(),
+          type: 'settings',
+          maintenanceMode: false,
+          rewardPoints: points
+        };
+        await saveToSheet('createSettings', appSettings);
+      } else {
+        appSettings.rewardPoints = points;
+        await saveToSheet('updateSettings', appSettings);
+      }
+      
+      showToast('Poin reward berhasil diubah!', 'success');
+    }
+
+    function renderUserList() {
+      const container = document.getElementById('user-list');
+      const users = allUsers.filter(u => u.type === 'user');
+      
+      if (users.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Tidak ada user terdaftar</p>';
+        return;
+      }
+      
+      container.innerHTML = users.map(user => {
+        const isBlocked = user.blocked;
+        return `
+          <div class="p-3 bg-gray-50 rounded-lg ${isBlocked ? 'opacity-50' : ''}">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="font-semibold text-gray-800 text-sm">${user.username}</p>
+                <p class="text-xs text-gray-500">${user.country || '-'} | <span class="text-green-600 font-medium">${user.points || 0} Poin</span></p>
+              </div>
+              ${isBlocked ? '<span class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs">Blocked</span>' : ''}
+            </div>
+            <div class="flex gap-1.5 mt-2">
+              <button type="button" onclick="openEditUserModal('${user.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Edit</button>
+              <button type="button" onclick="toggleBlockUser('${user.id}')" class="flex-1 py-1.5 ${isBlocked ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'} rounded text-xs font-medium hover:opacity-80">
+                ${isBlocked ? 'Unblock' : 'Block'}
+              </button>
+              <button type="button" onclick="deleteUser('${user.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openEditUserModal(userId) {
+      const user = allUsers.find(u => u.id === userId);
+      if (!user) return;
+      
+      document.getElementById('edit-user-id').value = userId;
+      document.getElementById('edit-user-username').value = user.username;
+      document.getElementById('edit-user-password').value = '';
+      document.getElementById('edit-user-current-points').textContent = user.points || 0;
+      document.getElementById('edit-user-new-points').value = user.points || 0;
+      document.getElementById('edit-user-modal').classList.remove('hidden');
+    }
+
+    function closeEditUserModal() {
+      document.getElementById('edit-user-modal').classList.add('hidden');
+    }
+
+    async function saveEditUser(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('edit-user-id').value;
+      const newPassword = document.getElementById('edit-user-password').value;
+      const newPoints = parseInt(document.getElementById('edit-user-new-points').value) || 0;
+      
+      const user = allUsers.find(u => u.id === userId);
+      if (!user) return;
+      
+      const oldPoints = user.points || 0;
+      
+      if (newPassword) {
+        user.password = newPassword;
+      }
+      
+      user.points = newPoints;
+      
+      await saveToSheet('updateUser', user);
+      
+      closeEditUserModal();
+      showToast('User berhasil diperbarui!', 'success');
+      renderUserList();
+      
+      const currentUserId = currentUser?.id || currentUser?.__backendId;
+      if (currentUser && currentUserId === userId) {
+        currentUser.points = newPoints;
+        updatePointsDisplay();
+        
+        const pointDiff = newPoints - oldPoints;
+        if (pointDiff !== 0) {
+          const message = pointDiff > 0 ? 
+            `✨ Poin Anda ditambah ${pointDiff}! Total: ${newPoints}` : 
+            `⚠️ Poin Anda dikurangi ${Math.abs(pointDiff)}. Total: ${newPoints}`;
+          showToast(message, 'success');
+        }
+      }
+    }
+
+    async function toggleBlockUser(userId) {
+      const user = allUsers.find(u => u.id === userId);
+      if (!user) return;
+      
+      user.blocked = !user.blocked;
+      await saveToSheet('updateUser', user);
+      
+      showToast(user.blocked ? 'User diblokir' : 'User di-unblock', 'success');
+      renderUserList();
+    }
+
+    async function deleteUser(userId) {
+      const user = allUsers.find(u => u.id === userId);
+      if (!user) return;
+      
+      await saveToSheet('deleteUser', user);
+      
+      showToast('User berhasil dihapus!', 'success');
+    }
+
+    function renderAdminExchangeList() {
+      const container = document.getElementById('admin-exchange-list');
+      const allExchangesData = [...allExchanges].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
+      
+      if (allExchangesData.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan penukaran</p>';
+        return;
+      }
+      
+      container.innerHTML = allExchangesData.map(ex => {
+        const statusClass = ex.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                           ex.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+        const statusText = ex.status === 'pending' ? 'Pending' : 
+                          ex.status === 'success' ? 'Berhasil' : 'Ditolak';
+        const canEdit = ex.status === 'pending';
+        
+        return `
+          <div class="p-3 bg-gray-50 rounded-lg ${!canEdit ? 'opacity-70' : ''}">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-semibold text-gray-800 text-sm">${ex.username}</span>
+              <span class="px-2 py-0.5 ${statusClass} rounded text-xs font-medium">${statusText}</span>
+            </div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-green-600 font-bold text-sm">${ex.amount} Poin</span>
+              <span class="text-xs text-gray-400">${new Date(ex.requestedAt).toLocaleString('id-ID')}</span>
+            </div>
+            <p class="text-xs text-gray-500">${ex.danaAccount}</p>
+            <p class="text-xs text-gray-500">${ex.danaPhone}</p>
+            ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
+            <div class="flex gap-1.5 mt-2">
+              ${canEdit ? `
+                <button type="button" onclick="openExchangeStatusModal('${ex.id}')" class="flex-1 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200">Ubah</button>
+                <button type="button" onclick="deleteExchangeAdmin('${ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+              ` : `
+                <button type="button" onclick="deleteExchangeAdmin('${ex.id}')" class="flex-1 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200">Hapus</button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openExchangeStatusModal(exchangeId) {
+      const exchange = allExchanges.find(ex => ex.id === exchangeId);
+      if (!exchange) return;
+      
+      document.getElementById('exchange-status-id').value = exchangeId;
+      document.getElementById('exchange-status-user-id').value = exchange.userId;
+      document.getElementById('exchange-status-amount').value = exchange.amount;
+      document.getElementById('exchange-status-select').value = 'success';
+      document.getElementById('exchange-status-note').value = '';
+      document.getElementById('exchange-status-modal').classList.remove('hidden');
+    }
+
+    function closeExchangeStatusModal() {
+      document.getElementById('exchange-status-modal').classList.add('hidden');
+    }
+
+    async function saveExchangeStatus(e) {
+      e.preventDefault();
+      
+      const exchangeId = document.getElementById('exchange-status-id').value;
+      const userId = document.getElementById('exchange-status-user-id').value;
+      const amount = parseInt(document.getElementById('exchange-status-amount').value);
+      const status = document.getElementById('exchange-status-select').value;
+      const note = document.getElementById('exchange-status-note').value;
+      
+      const exchange = allExchanges.find(ex => ex.id === exchangeId);
+      if (!exchange) return;
+      
+      if (status === 'rejected') {
+        const user = allUsers.find(u => u.id === userId);
+        if (user) {
+          user.points = (user.points || 0) + amount;
+          await saveToSheet('updateUser', user);
+          
+          const currentUserId = currentUser?.id || currentUser?.__backendId;
+          if (currentUser && currentUserId === userId) {
+            currentUser.points = user.points;
+            updatePointsDisplay();
+            showToast(`✅ Poin ${amount} dikembalikan! Total: ${user.points}`, 'success');
+          } else {
+            showToast(`✅ Poin ${amount} dikembalikan ke ${user.username}`, 'success');
+          }
+        }
+      }
+      
+      exchange.status = status;
+      exchange.adminNote = note;
+      await saveToSheet('updateExchange', exchange);
+      
+      closeExchangeStatusModal();
+      if (status !== 'rejected') {
+        showToast(`Status diubah ke Berhasil ✅`, 'success');
+      }
+      renderAdminExchangeList();
+    }
+
+    async function deleteExchangeAdmin(exchangeId) {
+      const exchange = allExchanges.find(ex => ex.id === exchangeId);
+      if (!exchange) return;
+      
+      await saveToSheet('deleteExchange', exchange);
+      
+      showToast('Riwayat penukaran dihapus!', 'success');
+    }
+
+    // ==================== AUTH FUNCTIONS ====================
+    
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      // Refresh data dulu
+      await fetchAllFromSheet();
+      
+      const user = allUsers.find(u => u.type === 'user' && u.username === username && u.password === password);
+      
+      if (!user) {
+        showToast('Username atau password salah!', 'error');
+        return;
+      }
+      
+      if (user.blocked) {
+        showToast('Akun Anda diblokir!', 'error');
+        return;
+      }
+      
+      user.lastLogin = new Date().toISOString();
+      await saveToSheet('updateUser', user);
+      
+      currentUser = user;
+      saveSession(user);
+      
+      afterLogin();
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const country = document.getElementById('reg-country').value;
+      
+      // Refresh data dulu
+      await fetchAllFromSheet();
+      
+      const exists = allUsers.find(u => u.username === username);
+      if (exists) {
+        showToast('Username sudah digunakan!', 'error');
+        return;
+      }
+      
+      if (allUsers.filter(u => u.type === 'user').length >= 900) {
+        showToast('Pendaftaran ditutup sementara', 'error');
+        return;
+      }
+      
+      const isFirstUser = allUsers.filter(u => u.type === 'user').length === 0;
+      
+      const newUser = {
+        id: 'USER-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        type: 'user',
+        username: username,
+        password: password,
+        role: isFirstUser ? 'admin' : 'user',
+        country: country,
+        deviceId: deviceId,
+        points: 0,
+        blocked: false,
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+      
+      await saveToSheet('createUser', newUser);
+      
+      showToast(isFirstUser ? 'Selamat! Anda terdaftar sebagai Admin' : 'Pendaftaran berhasil! Silakan login', 'success');
+      showPage('login-page');
+    }
+
+    function handleLogout() {
+      clearSession();
+      currentUser = null;
+      stopHistoryRefresh();
+      showPage('login-page');
+      document.getElementById('login-form').reset();
+    }
+
+    function afterLogin() {
+      if (!currentUser) return;
+      
+      if (appSettings?.maintenanceMode && currentUser.role !== 'admin') {
+        showPage('maintenance-page');
+        return;
+      }
+      
+      document.getElementById('header-username').textContent = currentUser.username;
+      document.getElementById('profile-username').textContent = currentUser.username;
+      document.getElementById('profile-role').textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
+      document.getElementById('profile-country').textContent = currentUser.country || '-';
+      document.getElementById('profile-device').textContent = currentUser.deviceId || deviceId;
+      
+      updatePointsDisplay();
+      displayBroadcast();
+      
+      if (currentUser.role === 'admin') {
+        document.getElementById('settings-nav-btn').classList.remove('hidden');
+        if (appSettings) {
+          document.getElementById('maintenance-toggle').checked = appSettings.maintenanceMode || false;
+          document.getElementById('reward-points-input').value = appSettings.rewardPoints || 50;
+        }
+      } else {
+        document.getElementById('settings-nav-btn').classList.add('hidden');
+      }
+      
+      showPage('main-app');
+      showSection('quiz');
+      generateQuiz();
+    }
+
+    // ==================== INITIALIZATION ====================
+    
+    async function init() {
+      // Initialize SDKs
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: (config) => {
+            document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+          },
+          mapToCapabilities: () => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['app_title', config.app_title || defaultConfig.app_title]
+          ])
+        });
+      }
+      
+      if (window.dataSdk) {
+        // We'll still initialize dataSdk but won't rely on it as primary storage
+        await window.dataSdk.init({
+          onDataChanged: () => {}
+        });
+      }
+      
+      // Detect country on page load
+      detectCountry();
+      
+      // Event Listeners
+      document.getElementById('login-form').addEventListener('submit', handleLogin);
+      document.getElementById('register-form').addEventListener('submit', handleRegister);
+      document.getElementById('exchange-form').addEventListener('submit', submitExchange);
+      document.getElementById('edit-user-form').addEventListener('submit', saveEditUser);
+      document.getElementById('exchange-status-form').addEventListener('submit', saveExchangeStatus);
+      document.getElementById('broadcast-form').addEventListener('submit', submitBroadcast);
+      
+      // Load data from Google Sheets
+      await fetchAllFromSheet();
+      
+      // Check existing session
+      const session = getSession();
+      if (session) {
+        const user = allUsers.find(u => u.id === session.userId);
+        if (user && !user.blocked) {
+          currentUser = user;
+          afterLogin();
+        } else {
+          clearSession();
+        }
+      }
+    }
+
+    // Character counter for broadcast
+    document.addEventListener('input', function(e) {
+      if (e.target.id === 'broadcast-message') {
+        const count = e.target.value.length;
+        document.getElementById('char-count').textContent = `${count}/100`;
+      }
+    });
+
+    // Start the app
+    init();
+  </script>
 </body>
 </html>
