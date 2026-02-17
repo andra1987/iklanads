@@ -609,24 +609,28 @@
       document.getElementById('refresh-indicator').classList.add('opacity-0');
     }
 
-    // ==================== GOOGLE SHEETS API ====================
-    
+    // ==================== GOOGLE SHEETS API - VERSI DIPERBAIKI ====================
+
     async function callGasApi(action, data = null) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         
-        const formData = new URLSearchParams();
+        // Buat FormData
+        const formData = new FormData();
         formData.append('action', action);
         formData.append('spreadsheetId', SPREADSHEET_ID);
+        
         if (data) {
+          // Pastikan data di-stringify dengan benar
           formData.append('data', JSON.stringify(data));
         }
+        
+        console.log('Sending request:', { action, data });
         
         const response = await fetch(GAS_WEB_APP_URL, {
           method: 'POST',
           mode: 'cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: formData,
           signal: controller.signal
         }).finally(() => clearTimeout(timeoutId));
@@ -636,13 +640,23 @@
         }
         
         const text = await response.text();
+        console.log('Raw response:', text.substring(0, 200));
+        
+        // Coba parse JSON
         let result;
         try {
           result = JSON.parse(text);
         } catch (e) {
           console.error('JSON parse error:', e);
-          console.log('Raw response:', text);
-          throw new Error('Invalid JSON response');
+          console.log('Full response:', text);
+          
+          // Coba bersihkan response jika ada karakter aneh
+          const cleaned = text.replace(/[^\x20-\x7E]/g, '');
+          try {
+            result = JSON.parse(cleaned);
+          } catch (e2) {
+            throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+          }
         }
         
         return result;
@@ -653,92 +667,127 @@
       }
     }
 
-    async function fetchAllFromSheet() {
-      try {
-        showToast('Mengambil data dari Google Sheets...', 'info');
-        
-        const result = await callGasApi('getAll');
-        
-        if (result.status === 'success') {
-          allUsers = (result.data.users || []).map(u => ({
-            ...u,
-            type: 'user',
-            points: parseInt(u.points) || 0,
-            blocked: u.blocked === 'TRUE' || u.blocked === true
-          }));
-          
-          allExchanges = (result.data.exchanges || []).map(e => ({
-            ...e,
-            type: 'exchange',
-            amount: parseInt(e.amount) || 0
-          }));
-          
-          allBroadcasts = (result.data.broadcasts || []).map(b => ({
-            ...b,
-            type: 'broadcast'
-          }));
-          
-          if (result.data.settings && result.data.settings.length > 0) {
-            appSettings = result.data.settings[0];
-            appSettings.maintenanceMode = appSettings.maintenanceMode === 'TRUE' || appSettings.maintenanceMode === true;
-            appSettings.rewardPoints = parseInt(appSettings.rewardPoints) || 50;
-          } else {
-            appSettings = { type: 'settings', maintenanceMode: false, rewardPoints: 50 };
-          }
-          
-          lastSyncTime = new Date();
-          updateDatabaseStatus();
-          document.getElementById('connection-status').textContent = '✓ Connected';
-          document.getElementById('connection-status').className = 'px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium';
-          
-          if (currentUser) {
-            const updatedUser = allUsers.find(u => u.id === currentUser.id);
-            if (updatedUser) {
-              currentUser = updatedUser;
-              updatePointsDisplay();
-            }
-          }
-          
-          displayBroadcast();
-          return true;
-        } else {
-          throw new Error(result.message || 'Gagal mengambil data');
-        }
-      } catch (error) {
-        console.error('Error fetching from sheet:', error);
-        document.getElementById('connection-status').textContent = '✗ Disconnected';
-        document.getElementById('connection-status').className = 'px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium';
-        showToast('Gagal mengambil data: ' + error.message, 'error');
-        return false;
-      }
-    }
-
     async function saveToSheet(action, data) {
       try {
+        // Validasi data sebelum dikirim
+        if (!data) {
+          throw new Error('Data tidak boleh kosong');
+        }
+        
+        // Pastikan data adalah object
+        if (typeof data !== 'object') {
+          throw new Error('Data harus berupa object');
+        }
+        
+        // Hapus field undefined
+        Object.keys(data).forEach(key => {
+          if (data[key] === undefined) {
+            delete data[key];
+          }
+        });
+        
+        console.log(`Menyimpan ke sheet: ${action}`, data);
+        
         const result = await callGasApi(action, data);
         
-        if (result.status === 'success') {
+        if (result && result.status === 'success') {
           showToast('Data berhasil disimpan!', 'success');
-          await fetchAllFromSheet();
+          
+          // Refresh data
+          setTimeout(() => fetchAllFromSheet(), 500);
           return true;
         } else {
-          throw new Error(result.message || 'Gagal menyimpan');
+          throw new Error(result?.message || 'Gagal menyimpan');
         }
+        
       } catch (error) {
         console.error('Error saving to sheet:', error);
         
-        // Save to pending
+        // Simpan ke pending
         const pendingItem = {
           id: 'PENDING-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
           action: action,
           data: data,
           timestamp: Date.now()
         };
+        
         pendingSyncData.push(pendingItem);
         localStorage.setItem('pendingSync', JSON.stringify(pendingSyncData));
         updatePendingSyncIndicator();
         
-        showToast('Gagal menyimpan, data disimpan lokal', 'warning');
+        showToast('Gagal menyimpan: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    async function fetchAllFromSheet() {
+      try {
+        showToast('Mengambil data...', 'info');
+        
+        const result = await callGasApi('getAll');
+        
+        if (result && result.status === 'success' && result.data) {
+          // Users
+          allUsers = (result.data.users || []).map(u => ({
+            ...u,
+            points: parseInt(u.points) || 0,
+            blocked: u.blocked === true || u.blocked === 'TRUE'
+          }));
+          
+          // Exchanges
+          allExchanges = (result.data.exchanges || []).map(e => ({
+            ...e,
+            amount: parseInt(e.amount) || 0
+          }));
+          
+          // Broadcasts
+          allBroadcasts = result.data.broadcasts || [];
+          
+          // Settings
+          if (result.data.settings && result.data.settings.length > 0) {
+            appSettings = result.data.settings[0];
+            appSettings.maintenanceMode = appSettings.maintenanceMode === true || appSettings.maintenanceMode === 'TRUE';
+            appSettings.rewardPoints = parseInt(appSettings.rewardPoints) || 50;
+          } else {
+            appSettings = { maintenanceMode: false, rewardPoints: 50 };
+          }
+          
+          lastSyncTime = new Date();
+          updateDatabaseStatus();
+          
+          // Update connection status
+          document.getElementById('connection-status').textContent = '✓ Connected';
+          document.getElementById('connection-status').className = 'px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium';
+          
+          console.log('Data loaded:', {
+            users: allUsers.length,
+            exchanges: allExchanges.length,
+            broadcasts: allBroadcasts.length
+          });
+          
+          // Update current user if logged in
+          if (currentUser) {
+            const updated = allUsers.find(u => u.id === currentUser.id);
+            if (updated) {
+              currentUser = updated;
+              updatePointsDisplay();
+            }
+          }
+          
+          displayBroadcast();
+          return true;
+          
+        } else {
+          throw new Error(result?.message || 'Gagal mengambil data');
+        }
+        
+      } catch (error) {
+        console.error('Error fetching from sheet:', error);
+        
+        document.getElementById('connection-status').textContent = '✗ Disconnected';
+        document.getElementById('connection-status').className = 'px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium';
+        
+        showToast('Gagal mengambil data: ' + error.message, 'error');
         return false;
       }
     }
@@ -772,7 +821,7 @@
       for (const item of pendingSyncData) {
         try {
           const result = await callGasApi(item.action, item.data);
-          if (result.status === 'success') {
+          if (result && result.status === 'success') {
             successItems.push(item);
           } else {
             failedItems.push(item);
@@ -812,8 +861,7 @@
         .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))[0];
       
       if (latestBroadcast) {
-        currentBroadcast = latestBroadcast;
-        document.getElementById('broadcast-text-display').textContent = '📢 ' + latestBroadcast.message;
+        document.getElementById('broadcast-text-display').textContent = '📢 ' + (latestBroadcast.message || '');
         document.getElementById('broadcast-container').classList.remove('hidden');
       }
     }
@@ -988,11 +1036,11 @@
         return `
           <div class="p-3 bg-gray-50 rounded-lg">
             <div class="flex items-center justify-between mb-1.5">
-              <span class="font-semibold text-gray-800 text-sm">${ex.amount} Poin = Rp ${ex.amount}</span>
+              <span class="font-semibold text-gray-800 text-sm">${ex.amount} Poin</span>
               <span class="px-2 py-0.5 ${statusClass} rounded-lg text-xs font-medium">${statusText}</span>
             </div>
-            <p class="text-xs text-gray-500">${ex.danaAccount} - ${ex.danaPhone}</p>
-            <p class="text-xs text-gray-400 mt-1">${new Date(ex.requestedAt).toLocaleString('id-ID')}</p>
+            <p class="text-xs text-gray-500">${ex.danaAccount || ''} - ${ex.danaPhone || ''}</p>
+            <p class="text-xs text-gray-400 mt-1">${ex.requestedAt ? new Date(ex.requestedAt).toLocaleString('id-ID') : ''}</p>
             ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
             ${ex.status === 'pending' ? `
               <button type="button" onclick="deleteUserExchange('${ex.id}')" class="mt-1.5 text-xs text-red-500 hover:underline">Hapus</button>
@@ -1102,7 +1150,7 @@
         <div class="p-3 bg-gray-50 rounded-lg ${user.blocked ? 'opacity-50' : ''}">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <p class="font-semibold text-gray-800 text-sm">${user.username}</p>
+              <p class="font-semibold text-gray-800 text-sm">${user.username || ''}</p>
               <p class="text-xs text-gray-500">${user.country || '-'} | <span class="text-green-600 font-medium">${user.points || 0} Poin</span></p>
             </div>
             ${user.blocked ? '<span class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs">Blocked</span>' : ''}
@@ -1123,7 +1171,7 @@
       if (!user) return;
       
       document.getElementById('edit-user-id').value = userId;
-      document.getElementById('edit-user-username').value = user.username;
+      document.getElementById('edit-user-username').value = user.username || '';
       document.getElementById('edit-user-password').value = '';
       document.getElementById('edit-user-current-points').textContent = user.points || 0;
       document.getElementById('edit-user-new-points').value = user.points || 0;
@@ -1160,7 +1208,7 @@
         updatePointsDisplay();
         const pointDiff = newPoints - oldPoints;
         if (pointDiff !== 0) {
-          showToast(pointDiff > 0 ? `✨ Poin ditambah ${pointDiff}! Total: ${newPoints}` : `⚠️ Poin dikurangi ${Math.abs(pointDiff)}. Total: ${newPoints}`, 'success');
+          showToast(pointDiff > 0 ? `✨ Poin ditambah ${pointDiff}!` : `⚠️ Poin dikurangi ${Math.abs(pointDiff)}`, 'success');
         }
       }
     }
@@ -1176,16 +1224,19 @@
     }
 
     async function deleteUser(userId) {
+      if (!confirm('Yakin ingin menghapus user ini?')) return;
+      
       const user = allUsers.find(u => u.id === userId);
       if (!user) return;
       
       await saveToSheet('deleteUser', user);
       showToast('User berhasil dihapus!', 'success');
+      renderUserList();
     }
 
     function renderAdminExchangeList() {
       const container = document.getElementById('admin-exchange-list');
-      const allExchangesData = [...allExchanges].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
+      const allExchangesData = [...allExchanges].sort((a, b) => new Date(b.requestedAt || 0) - new Date(a.requestedAt || 0));
       
       if (allExchangesData.length === 0) {
         container.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Belum ada permintaan penukaran</p>';
@@ -1202,15 +1253,15 @@
         return `
           <div class="p-3 bg-gray-50 rounded-lg ${!canEdit ? 'opacity-70' : ''}">
             <div class="flex items-center justify-between mb-1.5">
-              <span class="font-semibold text-gray-800 text-sm">${ex.username}</span>
+              <span class="font-semibold text-gray-800 text-sm">${ex.username || ''}</span>
               <span class="px-2 py-0.5 ${statusClass} rounded text-xs font-medium">${statusText}</span>
             </div>
             <div class="flex items-center justify-between mb-1">
-              <span class="text-green-600 font-bold text-sm">${ex.amount} Poin</span>
-              <span class="text-xs text-gray-400">${new Date(ex.requestedAt).toLocaleString('id-ID')}</span>
+              <span class="text-green-600 font-bold text-sm">${ex.amount || 0} Poin</span>
+              <span class="text-xs text-gray-400">${ex.requestedAt ? new Date(ex.requestedAt).toLocaleString('id-ID') : ''}</span>
             </div>
-            <p class="text-xs text-gray-500">${ex.danaAccount}</p>
-            <p class="text-xs text-gray-500">${ex.danaPhone}</p>
+            <p class="text-xs text-gray-500">${ex.danaAccount || ''}</p>
+            <p class="text-xs text-gray-500">${ex.danaPhone || ''}</p>
             ${ex.adminNote ? `<p class="text-xs text-blue-600 mt-1.5 p-1.5 bg-blue-50 rounded">📝 ${ex.adminNote}</p>` : ''}
             <div class="flex gap-1.5 mt-2">
               ${canEdit ? `
@@ -1230,8 +1281,8 @@
       if (!exchange) return;
       
       document.getElementById('exchange-status-id').value = exchangeId;
-      document.getElementById('exchange-status-user-id').value = exchange.userId;
-      document.getElementById('exchange-status-amount').value = exchange.amount;
+      document.getElementById('exchange-status-user-id').value = exchange.userId || '';
+      document.getElementById('exchange-status-amount').value = exchange.amount || 0;
       document.getElementById('exchange-status-select').value = 'success';
       document.getElementById('exchange-status-note').value = '';
       document.getElementById('exchange-status-modal').classList.remove('hidden');
@@ -1246,7 +1297,7 @@
       
       const exchangeId = document.getElementById('exchange-status-id').value;
       const userId = document.getElementById('exchange-status-user-id').value;
-      const amount = parseInt(document.getElementById('exchange-status-amount').value);
+      const amount = parseInt(document.getElementById('exchange-status-amount').value) || 0;
       const status = document.getElementById('exchange-status-select').value;
       const note = document.getElementById('exchange-status-note').value;
       
@@ -1275,10 +1326,14 @@
     }
 
     async function deleteExchangeAdmin(exchangeId) {
+      if (!confirm('Yakin ingin menghapus riwayat ini?')) return;
+      
       const exchange = allExchanges.find(ex => ex.id === exchangeId);
       if (!exchange) return;
+      
       await saveToSheet('deleteExchange', exchange);
       showToast('Riwayat penukaran dihapus!', 'success');
+      renderAdminExchangeList();
     }
 
     // ==================== AUTH FUNCTIONS ====================
@@ -1369,8 +1424,8 @@
         return;
       }
       
-      document.getElementById('header-username').textContent = currentUser.username;
-      document.getElementById('profile-username').textContent = currentUser.username;
+      document.getElementById('header-username').textContent = currentUser.username || '';
+      document.getElementById('profile-username').textContent = currentUser.username || '';
       document.getElementById('profile-role').textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
       document.getElementById('profile-country').textContent = currentUser.country || '-';
       document.getElementById('profile-device').textContent = currentUser.deviceId || deviceId;
